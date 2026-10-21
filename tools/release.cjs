@@ -153,7 +153,9 @@ try {
 // 4) npm
 if (dry) console.log('[dry] npm publish --registry=https://registry.npmjs.org/')
 else {
-  execFileSync('npm', ['publish', '--registry=https://registry.npmjs.org/'], { stdio: 'inherit' })
+  // Windows 上 npm 是 npm.cmd，execFile 直接 spawn 会 ENOENT
+  const npmBin = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  execFileSync(npmBin, ['publish', '--registry=https://registry.npmjs.org/'], { stdio: 'inherit' })
   console.log('published to npm')
 }
 console.log('done.')
