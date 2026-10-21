@@ -160,6 +160,7 @@
         runtime.neuralOk === false
           ? h('div', { className: 'dsh-pet-hint' }, t('hint.neuralOff'))
           : null,
+        s.neuralVoice ? h('div', { className: 'dsh-pet-hint' }, t('hint.privacy')) : null,
         h(Slider, { label: t('panel.volume'), min: 0, max: 1, step: 0.1, value: s.volume, onChange: (v) => update({ volume: v }) }),
         h(Slider, { label: t('panel.pitch'), min: 0.6, max: 2, step: 0.02, value: pitch.toFixed(2), onChange: (v) => update({ voicePitch: v }) }),
         h(Slider, { label: t('panel.rate'), min: 0.6, max: 1.5, step: 0.02, value: rate.toFixed(2), onChange: (v) => update({ voiceRate: v }) }),

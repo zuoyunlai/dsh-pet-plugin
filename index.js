@@ -9,7 +9,7 @@
  * 闲聊写进主上下文，那是我们明确不想要的。
  */
 import Schema from '@deepseek-ai/schemastery'
-import { readFile, mkdir, stat, readdir, unlink } from 'node:fs/promises'
+import { readFile, mkdir, stat, readdir, unlink, rename } from 'node:fs/promises'
 import { existsSync, readdirSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -30,7 +30,7 @@ const TTS_CACHE_MAX = 60 * 1024 * 1024 // 60MB 上限，超了按最旧删
 const TTS_VOICES = {
   xiaoxiao: 'zh-CN-XiaoxiaoNeural',
   xiaoyi: 'zh-CN-XiaoyiNeural',
-  xiaomo: 'zh-CN-XiaoxiaoNeural',
+  xiaomo: 'zh-CN-XiaomoNeural',
   ava: 'en-US-AvaNeural',
   emma: 'en-US-EmmaNeural',
   elvira: 'es-ES-ElviraNeural',
@@ -148,6 +148,7 @@ function probeNeural() {
 // —— 常驻 worker：一个 python 进程串行处理所有合成请求 ——
 let worker = null
 let workerBuf = ''
+let workerStderr = '' // 只留最近一段 stderr，排障用，不回给 HTTP 调用方
 let workerSeq = 0
 let workerQueue = Promise.resolve()
 const workerWaiters = new Map()
@@ -160,6 +161,7 @@ function killWorker() {
   }
   worker = null
   workerBuf = ''
+  workerStderr = ''
   for (const [, w] of workerWaiters) w.reject(new Error('worker gone'))
   workerWaiters.clear()
 }
@@ -170,7 +172,7 @@ function ensureWorker() {
   const pyDir = resolvePyDir()
   const env = { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' }
   if (pyDir) env.DSH_PET_PY_DIR = pyDir
-  const child = spawn(py, [TTS_WORKER], { stdio: ['pipe', 'pipe', 'ignore'], windowsHide: true, env })
+  const child = spawn(py, [TTS_WORKER], { stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, env })
   worker = child
   child.stdout.setEncoding('utf8')
   child.stdout.on('data', (chunk) => {
@@ -192,6 +194,12 @@ function ensureWorker() {
       if (msg.ok) waiter.resolve()
       else waiter.reject(new Error(msg.err || 'tts failed'))
     }
+  })
+  // stderr 只留最近 20 行给 /tts/status 排查用，不回给 HTTP 调用方
+  child.stderr.setEncoding('utf8')
+  child.stderr.on('data', (chunk) => {
+    workerStderr += chunk
+    if (workerStderr.length > 4000) workerStderr = workerStderr.slice(-4000)
   })
   child.on('exit', () => {
     if (worker === child) killWorker()
@@ -249,9 +257,34 @@ function synthQueued(text, voice, outFile, pitchHz, ratePct) {
   return p
 }
 
+/**
+ * 把合成结果写到随机临时文件再 rename 到最终名：
+ * - 不会跟随缓存目录里预先放好的符号链接（rename 替换的是链接本身）
+ * - 半成品也不会被别的请求当成缓存命中
+ */
+async function synthAtomic(text, voice, file, pitch, rate) {
+  const tmp = file + '.' + Math.random().toString(36).slice(2, 10) + '.tmp'
+  try {
+    await synthOnce(text, voice, tmp, pitch, rate)
+    await rename(tmp, file)
+  } catch (e) {
+    await unlink(tmp).catch(() => {})
+    throw e
+  }
+}
+
+let lastTrimAt = 0
+
 /** 合成一句：走常驻 worker（起不来就抛错，由调用方兜底成系统语音）。 */
-function synthOnce(text, voice, outFile, pitchHz, ratePct) {
-  return synthQueued(text, voice, outFile, pitchHz, ratePct)
+async function synthOnce(text, voice, outFile, pitchHz, ratePct) {
+  await synthQueued(text, voice, outFile, pitchHz, ratePct)
+  // 缓存上限必须真的生效：原来只在 apply() 里 trim 一次，之后无限增长。
+  // 每 60 秒最多扫一次目录，别把合成路径拖慢。
+  const now = Date.now()
+  if (now - lastTrimAt > 60000) {
+    lastTrimAt = now
+    trimCache().catch(() => {})
+  }
 }
 
 /** 缓存超过上限就按最旧的删。 */
@@ -285,6 +318,10 @@ export const Config = Schema.object({
   model: Schema.string().default('deepseek-flash').description('模型名'),
   maxTokens: Schema.number().default(800).description('单次回复上限（越大越啰嗦）'),
   temperature: Schema.number().default(1).description('0-2，越高越活蹦乱跳'),
+  allowedHosts: Schema.array(Schema.string()).default([]).description(
+    '额外允许的 Host（主机名或 主机名:端口）。把 DSH 放在反向代理/局域网域名下时填这里；' +
+      '本机回环地址与宿主自身 origin 永远允许。',
+  ),
 })
 
 const MAX_BODY = 64 * 1024
@@ -300,16 +337,20 @@ const BASES = ['/dsh-pet']
  * 人设表放在宿主：客户端只允许传 personaId，名字/简介不会由页面拼进 system prompt，
  * 从根上关掉「客户端可控文本 → 模型指令」的注入面。
  */
-const PERSONA_INFO = {
+// 无原型表：__proto__ / constructor / toString 之类不会顺着原型链命中
+const PERSONA_INFO = Object.assign(Object.create(null), {
   violet: { name: '薇', tag: '紫发 · 从容的挑逗', tagEn: 'violet-haired, unhurried teasing' },
   crimson: { name: '绯', tag: '红发 · 明目张胆的勾引', tagEn: 'red-haired, shameless flirting' },
   indigo: { name: '靛', tag: '蓝发 · 慢火慢炖地撩', tagEn: 'blue-haired, slow-burn teasing' },
   silver: { name: '雪', tag: '银发 · 冷淡底下的闷骚', tagEn: 'silver-haired, cold outside and warm inside' },
-}
+})
 const PERSONA_DEFAULT = 'violet'
 
 function personaById(id) {
-  return PERSONA_INFO[String(id || '')] || PERSONA_INFO[PERSONA_DEFAULT]
+  const key = String(id || '')
+  return Object.prototype.hasOwnProperty.call(PERSONA_INFO, key)
+    ? PERSONA_INFO[key]
+    : PERSONA_INFO[PERSONA_DEFAULT]
 }
 
 function systemPrompt(persona, lang) {
@@ -341,12 +382,15 @@ function systemPrompt(persona, lang) {
 }
 
 async function readBody(req) {
-  let raw = ''
+  const parts = []
+  let bytes = 0
   for await (const chunk of req) {
-    raw += chunk
-    if (raw.length > MAX_BODY) throw new Error('body too large')
+    const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
+    bytes += buf.length
+    if (bytes > MAX_BODY) throw new Error('body too large')
+    parts.push(buf)
   }
-  return raw
+  return Buffer.concat(parts).toString('utf8')
 }
 
 export function apply(ctx, config) {
@@ -389,27 +433,73 @@ export function apply(ctx, config) {
     res.end(body)
   }
 
-  // 只对「宿主自己的源」和 Electron 壳（dsh-app://）放行跨源。
-  // 以前的写法是把请求里的 Origin 原样回显 + 允许凭证，等于任何网页都能调这个
-  // 接口替用户花 token、读返回内容；这里改成白名单 + 越权直接 403。
-  const originAllowed = (reqOrigin) => {
-    if (!reqOrigin) return true // 同源/curl 不带 Origin
+  /* ---------------- 请求准入（与宿主部署形态无关） ----------------
+   * 三道判定，缺省放行非浏览器客户端（curl / 本机脚本）：
+   *   1. Host 必须是回环地址、宿主自身 origin，或 config.allowedHosts 里显式登记过
+   *      —— 挡住 DNS rebinding（攻击者域名解析到 127.0.0.1，Origin 与 Host 同源也混不过去）
+   *   2. Origin 存在时，必须与本次请求的 Host 同源，或是 DSH 桌面壳 dsh-app://app|shell
+   *   3. Sec-Fetch-Site 存在时只接受 same-origin / none
+   * 不写死端口与域名，所以 127.0.0.1、局域网 IP、反代域名都能用（后者登记 allowedHosts）。
+   */
+  const LOOPBACK = new Set(['127.0.0.1', 'localhost', '::1', '[::1]'])
+
+  const hostOf = (value) => {
+    const v = String(value || '')
+      .trim()
+      .toLowerCase()
+    if (!v) return ''
+    try {
+      return new URL(v.includes('://') ? v : 'http://' + v).host.toLowerCase()
+    } catch (e) {
+      return v
+    }
+  }
+
+  const hostAllowed = (req) => {
+    const host = hostOf(req.headers && req.headers.host)
+    if (!host) return true // HTTP/1.0 之类没有 Host 的客户端，交给 Origin 判定
     let own = ''
     try {
-      own = String(ctx.webServer.getOrigin() || '').replace(/\/+$/, '')
+      own = hostOf(ctx.webServer.getOrigin())
     } catch (e) {
       own = ''
     }
-    const o = String(reqOrigin).replace(/\/+$/, '')
-    if (own && o === own) return true
-    if (/^dsh-app:\/\//i.test(o)) return true
-    if (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(o) && own && o === own) return true
+    if (own && host === own) return true
+    const bare = host.replace(/:\d+$/, '')
+    if (LOOPBACK.has(host) || LOOPBACK.has(bare)) return true
+    const extra = Array.isArray(cfg.allowedHosts) ? cfg.allowedHosts : []
+    for (const raw of extra) {
+      const h = hostOf(raw)
+      if (h && (h === host || h.replace(/:\d+$/, '') === bare)) return true
+    }
     return false
+  }
+
+  /** 去掉默认端口，避免 'https://a.com' 与 'a.com:443' 被判成不同源 */
+  const normalizeHost = (raw) => {
+    let h = hostOf(raw)
+    if (!h) return ''
+    if (/^[^:]+:443$/.test(h)) h = h.replace(/:443$/, '')
+    if (/^[^:]+:80$/.test(h)) h = h.replace(/:80$/, '')
+    return h
+  }
+
+  const originAllowed = (req, origin) => {
+    if (/^dsh-app:\/\/(app|shell)$/i.test(origin)) return true // 桌面壳的两个 origin
+    const host = normalizeHost(req.headers && req.headers.host)
+    return !!host && normalizeHost(origin) === host
+  }
+
+  const fetchSiteAllowed = (req) => {
+    const site = String((req.headers && req.headers['sec-fetch-site']) || '').toLowerCase()
+    if (!site) return true
+    return site === 'same-origin' || site === 'none'
   }
 
   const applyCors = (req, res) => {
     const reqOrigin = req.headers && req.headers.origin
-    if (reqOrigin && originAllowed(reqOrigin)) {
+    const ok = hostAllowed(req) && fetchSiteAllowed(req) && (!reqOrigin || originAllowed(req, reqOrigin))
+    if (ok && reqOrigin) {
       res.setHeader('access-control-allow-origin', reqOrigin)
       res.setHeader('access-control-allow-credentials', 'true')
       res.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS')
@@ -417,18 +507,13 @@ export function apply(ctx, config) {
       res.setHeader('vary', 'origin')
     }
     if (req.method === 'OPTIONS') {
-      if (reqOrigin && !originAllowed(reqOrigin)) {
-        res.writeHead(403)
-        res.end()
-        return true
-      }
-      res.writeHead(204)
+      res.writeHead(ok ? 204 : 403)
       res.end()
       return true
     }
-    if (reqOrigin && !originAllowed(reqOrigin)) {
+    if (!ok) {
       res.writeHead(403, { 'content-type': 'application/json; charset=utf-8' })
-      res.end(JSON.stringify({ error: 'origin-not-allowed' }))
+      res.end(JSON.stringify({ error: 'forbidden' }))
       return true
     }
     return false
@@ -452,13 +537,30 @@ export function apply(ctx, config) {
     })
   }
 
-  // 简易限流：60 秒内最多 12 次聊天，防止客户端重试循环把 token 烧光
+  // 限流：全局 12 次/分钟（防止重试循环烧 token）+ 单客户端 6 次/分钟。
+  // 只有「通过了参数校验」的请求才计数，见 chatHandler 的调用顺序。
   const chatHits = []
-  const rateLimited = () => {
+  const perClient = new Map()
+  const clientKey = (req) => {
+    try {
+      return String((req.socket && req.socket.remoteAddress) || 'unknown')
+    } catch (e) {
+      return 'unknown'
+    }
+  }
+  const prune = (list, now) => {
+    while (list.length && now - list[0] > 60000) list.shift()
+  }
+  const rateLimited = (key) => {
     const now = Date.now()
-    while (chatHits.length && now - chatHits[0] > 60000) chatHits.shift()
-    if (chatHits.length >= 12) return true
+    prune(chatHits, now)
+    const mine = perClient.get(key) || []
+    prune(mine, now)
+    perClient.set(key, mine)
+    if (chatHits.length >= 12 || mine.length >= 6) return true
     chatHits.push(now)
+    mine.push(now)
+    if (perClient.size > 200) perClient.clear()
     return false
   }
 
@@ -467,11 +569,6 @@ export function apply(ctx, config) {
 
     if (req.method !== 'POST') {
       reply(res, 405, { error: 'method-not-allowed' })
-      return
-    }
-
-    if (rateLimited()) {
-      reply(res, 429, { error: 'rate-limited', message: '她喘口气，一分钟内别连发十几条。' })
       return
     }
 
@@ -489,6 +586,12 @@ export function apply(ctx, config) {
       return
     }
 
+    // 先验后计：畸形/空请求不占额度，免得 12 条空 body 就把正常聊天锁死
+    if (rateLimited(clientKey(req))) {
+      reply(res, 429, { error: 'rate-limited', message: '她喘口气，一分钟内别连发十几条。' })
+      return
+    }
+
     const llm = ctx.get('llm')
     if (!llm) {
       reply(res, 503, { error: 'llm-unavailable' })
@@ -498,10 +601,19 @@ export function apply(ctx, config) {
     // 历史不塞进 messages：assistant 轮在 DSH 的消息模型里要求带 replayState
     // 等字段，裸对象会被运行时拒掉（实测 reading 'replayState'）。
     // 折成一段「刚才的对话」写进 system，效果一样且稳。
+    // 历史是客户端给的，只能当数据：限条数、限长度、剥控制字符，并逐行加固定前缀，
+    // 这样里面出现「说话规矩：」「你是…」之类的整行指令也不会冒充系统提示。
     const history = Array.isArray(payload.history) ? payload.history.slice(-8) : []
     const transcript = history
       .filter((m) => m && typeof m.content === 'string' && m.content.trim())
-      .map((m) => (m.role === 'assistant' ? '你' : '用户') + '：' + m.content.trim().slice(0, 400))
+      .map((m) => {
+        const who = m.role === 'assistant' ? '你' : '用户'
+        const line = m.content
+          .trim()
+          .replace(/[\u0000-\u001f\u007f]+/g, ' ')
+          .slice(0, 300)
+        return who + '说：' + line
+      })
       .join('\n')
     const system =
       systemPrompt(personaById(payload.personaId), String(payload.lang || 'zh')) +
@@ -575,10 +687,19 @@ export function apply(ctx, config) {
 
   // 宠物贴图：从包内 assets/ 直接读，只放行图片扩展名，路径只取 basename。
   const assetHandler = async (req, res) => {
-    const name = basename(decodeURIComponent((req.url || '').split('?')[0] || ''))
-    const ext = name.slice(name.lastIndexOf('.')).toLowerCase()
-    if (!ASSET_TYPES[ext]) {
-      res.writeHead(404)
+    let name = ''
+    try {
+      // 畸形 %（如 %zz）会让 decodeURIComponent 抛错，不能让它抛穿到宿主
+      name = basename(decodeURIComponent((req.url || '').split('?')[0] || ''))
+    } catch (e) {
+      res.writeHead(400, { 'x-content-type-options': 'nosniff' })
+      res.end()
+      return
+    }
+    const dot = name.lastIndexOf('.')
+    const ext = dot >= 0 ? name.slice(dot).toLowerCase() : ''
+    if (!ext || !ASSET_TYPES[ext]) {
+      res.writeHead(404, { 'x-content-type-options': 'nosniff' })
       res.end()
       return
     }
@@ -586,11 +707,12 @@ export function apply(ctx, config) {
       const buf = await readFile(join(ASSET_DIR, name))
       res.writeHead(200, {
         'content-type': ASSET_TYPES[ext],
+        'x-content-type-options': 'nosniff',
         'cache-control': 'public, max-age=3600',
       })
       res.end(buf)
     } catch (e) {
-      res.writeHead(404)
+      res.writeHead(404, { 'x-content-type-options': 'nosniff' })
       res.end()
     }
   }
@@ -618,6 +740,16 @@ export function apply(ctx, config) {
     return false
   }
 
+  // pitch / rate 会进 SSML 和缓存键：只接受固定形状，别的值一律回默认
+  const PITCH_RE = /^[+-]\d{1,3}Hz$/
+  const RATE_RE = /^[+-]\d{1,3}%$/
+  const pitchOf = (v) => (PITCH_RE.test(String(v || '')) ? String(v) : '+0Hz')
+  const rateOf = (v) => (RATE_RE.test(String(v || '')) ? String(v) : '+0%')
+
+  /** 缓存键用 JSON 序列化，避免 '|' 拼接造成的键歧义 */
+  const ttsKey = (voice, pitch, rate, text) =>
+    createHash('sha1').update(JSON.stringify([voice, pitch, rate, text])).digest('hex').slice(0, 20)
+
   const ttsHandler = async (req, res) => {
     if (applyCors(req, res)) return
     if (ttsLimited()) {
@@ -627,24 +759,29 @@ export function apply(ctx, config) {
     const u = new URL(req.url || '/', 'http://local')
     const text = (u.searchParams.get('text') || '').trim().slice(0, 300)
     const voice = voiceFor(u.searchParams.get('voice'), u.searchParams.get('lang'))
-    const pitch = u.searchParams.get('pitch') || '+0Hz'
-    const rate = u.searchParams.get('rate') || '+0%'
+    const pitch = pitchOf(u.searchParams.get('pitch'))
+    const rate = rateOf(u.searchParams.get('rate'))
     if (!text) {
       res.writeHead(400)
       res.end()
       return
     }
-    const key = createHash('sha1').update([voice, pitch, rate, text].join('|')).digest('hex').slice(0, 20)
-    const file = join(TTS_CACHE, key + '.mp3')
+    const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text) + '.mp3')
     try {
       await stat(file)
     } catch (e) {
       try {
-        await mkdir(TTS_CACHE, { recursive: true })
-        await synthOnce(text, voice, file, pitch, rate)
+        // mode 0o700：缓存目录只有本用户能进（POSIX；Windows 忽略）
+        await mkdir(TTS_CACHE, { recursive: true, mode: 0o700 })
+        await synthAtomic(text, voice, file, pitch, rate)
       } catch (err) {
-        res.writeHead(503, { 'content-type': 'application/json; charset=utf-8' })
-        res.end(JSON.stringify({ error: 'tts-failed', message: String((err && err.message) || err) }))
+        // 错误详情只写宿主日志：worker 的 OSError 里带绝对路径，不能回给页面
+        try {
+          console.error('[dsh-pet] tts failed:', (err && err.message) || err)
+        } catch (e2) {
+          /* ignore */
+        }
+        reply(res, 503, { error: 'tts-failed' })
         return
       }
     }
@@ -659,43 +796,63 @@ export function apply(ctx, config) {
   }
 
   // —— 预热：POST /tts/warm {voice, pitch, rate, lines:[...]}，后台串行补缓存 ——
+  // 单飞：同一时刻只允许一条预热在跑；限流比 /tts 更严（6 次/分钟）。
+  let warming = false
+  const warmHits = []
+  const warmLimited = () => {
+    const now = Date.now()
+    while (warmHits.length && now - warmHits[0] > 60000) warmHits.shift()
+    if (warmHits.length >= 6) return true
+    warmHits.push(now)
+    return false
+  }
+
   const warmHandler = async (req, res) => {
     if (applyCors(req, res)) return
+    if (warmLimited() || warming) {
+      reply(res, 429, { error: 'rate-limited' })
+      return
+    }
     let payload = {}
     try {
       payload = JSON.parse((await readBody(req)) || '{}')
     } catch (e) {
       payload = {}
     }
+    const voice = voiceFor(payload.voice, payload.lang)
+    const pitch = pitchOf(payload.pitch)
+    const rate = rateOf(payload.rate)
+    const lines = Array.isArray(payload.lines) ? payload.lines.slice(0, 30) : []
+    warming = true
     res.writeHead(202, { 'content-type': 'application/json; charset=utf-8' })
     res.end('{"ok":true}')
-    const voice = voiceFor(payload.voice, payload.lang)
-    const pitch = payload.pitch || '+0Hz'
-    const rate = payload.rate || '+0%'
-    const lines = Array.isArray(payload.lines) ? payload.lines.slice(0, 60) : []
     ;(async () => {
       try {
-        await mkdir(TTS_CACHE, { recursive: true })
+        await mkdir(TTS_CACHE, { recursive: true, mode: 0o700 })
       } catch (e) {
+        warming = false
         return
       }
-      for (const raw of lines) {
-        if (disposed) return
-        const text = String(raw || '').trim().slice(0, 300)
-        if (!text) continue
-        const key = createHash('sha1').update([voice, pitch, rate, text].join('|')).digest('hex').slice(0, 20)
-        const file = join(TTS_CACHE, key + '.mp3')
-        try {
-          await stat(file)
-          continue
-        } catch (e) {
-          /* 需要合成 */
+      try {
+        for (const raw of lines) {
+          if (disposed) return
+          const text = String(raw || '').trim().slice(0, 300)
+          if (!text) continue
+          const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text) + '.mp3')
+          try {
+            await stat(file)
+            continue
+          } catch (e) {
+            /* 需要合成 */
+          }
+          try {
+            await synthAtomic(text, voice, file, pitch, rate)
+          } catch (e) {
+            /* 单条失败不影响其它 */
+          }
         }
-        try {
-          await synthOnce(text, voice, file, pitch, rate)
-        } catch (e) {
-          /* 单条失败不影响其它 */
-        }
+      } finally {
+        warming = false
       }
     })()
   }

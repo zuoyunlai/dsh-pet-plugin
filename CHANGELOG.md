@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.9.4 — 2026-10-21
+
+安全修订（依据 `SECURITY-AUDIT-v1.9.3.md`）。所有判定都不绑定端口/域名/平台，
+任意宿主部署形态（本机、局域网、反代、桌面壳）都成立。
+
+- **准入**：Host 必须是回环地址 / 宿主自身 origin / `allowedHosts` 登记值；Origin 存在时
+  必须与本次 Host 同源（默认端口归一）或为 `dsh-app://app|shell`；`Sec-Fetch-Site` 存在时
+  只接受 same-origin/none。挡住 DNS rebinding 与跨站调用。
+- **缓存上限真的生效**：`trimCache()` 原来只在启动时跑一次，现在每次合成后（60 秒节流）复检；
+  实测缓存从"无限增长"变为受 60 MB 约束。
+- **落盘安全**：随机临时名 + `rename`，预先埋好的符号链接无法改落点；缓存目录 0700。
+- **参数白名单**：`pitch`/`rate` 只接受 `±NNNHz` / `±NN%`；缓存键改 JSON 序列化（消除 `|` 歧义）。
+- **错误脱敏**：worker 的 OSError（含绝对路径）只进宿主日志，HTTP 只回 `tts-failed`；
+  worker stderr 收进 4 KB 环形缓冲，不再 `ignore`。
+- **限流**：改成"先验后计"（畸形/空请求不占额度），全局 12 次/分 + 单客户端 6 次/分；
+  `/tts/warm` 独立 6 次/分 + 单飞（同一时刻只跑一条）+ 单次条数 60→30。
+- **提示注入面**：`personaId` 走无原型表 + `hasOwnProperty`（`__proto__` 不再命中）；
+  聊天历史逐行加固定前缀、剥控制字符、限长。
+- **隐私**：面板明示「神经音色会把朗读文本发往微软」；「恢复默认」同时清聊天历史；
+  卸载脚本清 TTS 缓存。
+- **打包/发布**：`install.ps1 -Update` 只拷运行时文件（不再把 `.git`/旧 tgz/预览图塞进
+  profile，9 MB+ → 2.1 MB）；`tools/release.cjs` 默认不在本机 publish，交给 CI 带
+  `--provenance` 发，需本机发时显式 `--publish`。
+- **杂项**：assets 畸形 `%` 不再抛穿（400 + nosniff）；`readBody` 按字节计数；客户端设置
+  做类型/范围校验（NaN/字符串不再让她消失）；音色切换预热防抖 600ms；`xiaomo` 音色映射
+  之前被误改成 Xiaoxiao，已改回 Xiaomo。
+
+- 测试：宿主单测 10 → 21 条（Host/Origin/Sec-Fetch-Site/原型链/限流/参数/畸形 URL）。
+
 ## 1.9.3 — 2026-10-21
 
 - **台词补齐西 / 葡 / 印三语**：四个形象各 27 句，按性格重写（不是直译）。

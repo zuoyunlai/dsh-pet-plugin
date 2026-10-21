@@ -47,6 +47,7 @@
     "pet.toggle": "Desk pet",
     "pet.toggleOff": "She is off-screen — click to bring her back",
     "hint.neuralOff": "Neural voice unavailable, using the system voice",
+    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
     "placeholder.chat": "Say something to {name}…"
   }
 }

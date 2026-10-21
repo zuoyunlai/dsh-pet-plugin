@@ -62,6 +62,22 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - Novos humores: keyframes no bloco `CSS` e o mapeamento da classe em `Face`/`PetArt`.
 - `provider`, `model`, `maxTokens` e `temperature` são configuração do plugin.
 
+## Security model
+
+- As rotas do host têm três controles, nenhum preso a porta ou domínio fixo: `Host` deve
+  ser um endereço de loopback, a origem do próprio host, ou estar em `allowedHosts`
+  (para proxy reverso / LAN); se houver `Origin`, ele deve ser da mesma origem desse
+  `Host` ou do shell de desktop (`dsh-app://app`, `dsh-app://shell`); e
+  `Sec-Fetch-Site`, quando presente, só aceita `same-origin` ou `none`. Clientes que
+  não enviam nada disso passam — esse é o limite real de um endpoint HTTP local.
+- O áudio sintetizado fica no diretório temporário com um teto revalidado **depois de
+  cada síntese**, e a escrita usa nome temporário aleatório + `rename`, então um link
+  simbólico plantado não consegue desviá-la.
+- Tudo o que a página envia (ajustes, histórico, id do personagem) é tratado como dado:
+  validado, com limite de tamanho, nunca interpolado como instrução ou marcação.
+- A voz neural envia o texto lido ao endpoint edge-tts da Microsoft. Desligue-a (ou não
+  instale `edge-tts`) para manter tudo local; o painel avisa.
+
 ## Known limits
 
 - A voz neural exige um python do host com `edge_tts`.

@@ -86,7 +86,18 @@ if ($Update) {
     # matches the package name (dsh-pet-plugin), and Copy-Item -Destination $destDir
     # would create node_modules\dsh-pet instead of updating node_modules\dsh-pet-plugin.
     if (-not (Test-Path -LiteralPath $dest)) { New-Item -ItemType Directory -Force -Path $dest | Out-Null }
-    Copy-Item -Path (Join-Path $src '*') -Destination $dest -Recurse -Force
+    # only what the runtime needs: a file: install used to drag .git, old tarballs and
+    # preview PNGs into the profile (9 MB+). Everything else stays in the source folder.
+    $keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
+    foreach ($item in Get-ChildItem -LiteralPath $src -Force) {
+      if ($keep -notcontains $item.Name) { continue }
+      Copy-Item -LiteralPath $item.FullName -Destination $dest -Recurse -Force
+    }
+    # tools/ only ships the python worker
+    $toolsDst = Join-Path $dest 'tools'
+    if (Test-Path -LiteralPath $toolsDst) {
+      Get-ChildItem -LiteralPath $toolsDst -Force | Where-Object { $_.Name -ne 'tts_worker.py' } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+    }
     Write-Host "[ok] refreshed $dest"
   }
   $node = Get-Command node -ErrorAction SilentlyContinue
@@ -151,6 +162,12 @@ if ($Uninstall) {
   if (-not $isTest) {
     & pnpm install --dir $profileDir --prefer-offline
     Write-Host "[ok] pnpm install finished (exit $LASTEXITCODE)"
+  }
+  # the synthesised speech cache holds the text that was read out loud: drop it
+  $ttsCache = Join-Path $env:TEMP 'dsh-pet-tts'
+  if (Test-Path -LiteralPath $ttsCache) {
+    Remove-Item -LiteralPath $ttsCache -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "[ok] removed the TTS cache ($ttsCache)"
   }
   Write-Host ''
   Write-Host 'Done. Restart DSH to finish.'

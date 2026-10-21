@@ -47,6 +47,7 @@
     "pet.toggle": "桌宠",
     "pet.toggleOff": "她在屏幕外，点一下拉回来",
     "hint.neuralOff": "神经音色不可用，改用系统语音",
+    "hint.privacy": "神经音色会把朗读的文本发往微软服务器。不想外发就关掉它，改用系统语音。",
     "placeholder.chat": "跟{name}说句话…"
   }
 }

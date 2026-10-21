@@ -63,6 +63,23 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - Naye moods: `CSS` block mein keyframes jodein aur class ko `Face`/`PetArt` mein map karein.
 - `provider`, `model`, `maxTokens`, `temperature` plugin config hain.
 
+## Security model
+
+- Host routes par teen niyantran hain, koi bhi fixed port ya domain se bandha nahi:
+  `Host` ko loopback pata, host ke apane origin, yaa `allowedHosts` config mein hona
+  chahiye (reverse proxy / LAN ke liye); `Origin` ho to usi `Host` ke saath same-origin
+  yaa desktop shell (`dsh-app://app`, `dsh-app://shell`) hona chahiye; aur
+  `Sec-Fetch-Site`, jab ho, sirf `same-origin` yaa `none` chalta hai. Jin clients mein
+  yeh headers nahi hote, unhe jaane diya jaata hai — local HTTP endpoint ki yahi seema hai.
+- Synthesised audio temp directory mein rehta hai, aur uska size cap **har synthesis ke
+  baad** dobara check hota hai; likhai random temp naam + `rename` se hoti hai, is liye
+  pehle se rakha gaya symlink use mod nahi sakta.
+- Page jo bhejta hai (settings, chat history, persona id) sab data maana jaata hai:
+  validate, length-capped, kabhi instruction yaa markup ki tarah nahi jodaa jaata.
+- Neural voice padhe jaane wale text ko Microsoft ke edge-tts endpoint par bhejti hai.
+  Sab kuchh local rakhne ke liye ise band karein (ya `edge-tts` install na karein);
+  panel mein yeh likha hai.
+
 ## Known limits
 
 - Neural voice ke liye host python mein `edge_tts` chahiye.

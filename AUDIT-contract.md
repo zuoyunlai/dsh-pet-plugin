@@ -144,6 +144,11 @@ dsh plugin --profile desktop add dsh-pet-plugin
 > 即可 —— `index.js`、`cordis.patch.yml`、`install.ps1` 都从 `package.json` 读名字，
 > 但 `index.js` 的 `export const name` 与 patch 行是**字面量**，要一起改（两处）。
 
+
+> **更正（1.9.4）**：上面第 7 条当时写「有 60 MB 上限兜底」是错的 —— 那份审计里
+> `trimCache()` 只在 `apply()` 里调用过一次，合成路径从不触发，上限等于没生效
+> （实测缓存 207 个 mp3 / 3.9 MB 单调增长）。1.9.4 已把 trim 挂到合成之后（60 秒节流）。
+
 ## 三、优化建议（按收益排序）
 
 1. **把接口面收成一个**：删掉 `/api` 那半边（先实测桌面壳），路由从 12 条降到 6 条，

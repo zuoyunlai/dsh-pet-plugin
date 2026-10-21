@@ -104,6 +104,23 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - **Artwork**: drop transparent WebPs into `assets/` and reference them from `PERSONAS`;
   the `/dsh-pet/assets/` route only serves image extensions.
 
+## Security model
+
+- The host routes are gated three ways, none of them tied to a fixed port or domain:
+  `Host` must be a loopback address, the host's own origin, or listed in the
+  `allowedHosts` plugin config (for reverse-proxy / LAN deployments); a present
+  `Origin` must be same-origin with that `Host` or the desktop shell
+  (`dsh-app://app`, `dsh-app://shell`); and `Sec-Fetch-Site`, when present, must be
+  `same-origin` or `none`. Non-browser clients that send none of these are allowed —
+  that is the deliberate limit of a local HTTP endpoint, see below.
+- Synthesised speech is cached in the OS temp dir with a size cap that is re-checked
+  after every synthesis, and writes go through a random temp name + rename so a
+  pre-planted symlink cannot redirect them.
+- Anything the page sends (settings, chat history, persona id) is treated as data:
+  validated, length-capped, and never interpolated as instructions or markup.
+- Neural voice sends the spoken text to Microsoft's edge-tts endpoint. Turn it off
+  (or never install `edge-tts`) to keep everything local; the panel says so.
+
 ## Known limits
 
 - Neural voice needs a host python with `edge_tts`; otherwise the system SAPI voice is used.

@@ -47,6 +47,7 @@
     "pet.toggle": "Pet",
     "pet.toggleOff": "Woh screen se bahar hai, wapas laane ke liye click karein",
     "hint.neuralOff": "Neural aawaaz upalabdh nahi, system voice use ho rahi hai",
+    "hint.privacy": "Neural voice padhe jaane wale text ko Microsoft bhejti hai. Sab kuchh is machine par rakhne ke liye ise band karein.",
     "placeholder.chat": "{name} se kuchh kahein…"
   }
 }

@@ -18,6 +18,9 @@ const { execFileSync, execSync } = require('node:child_process')
 const fs = require('node:fs')
 
 const dry = process.argv.includes('--dry-run')
+// 默认不在本机 publish：让 GitHub Actions 用 --provenance 发，产物才有来源证明。
+// 需要本机发时显式加 --publish。
+const shouldPublish = process.argv.includes('--publish')
 const printIdx = process.argv.indexOf('--print-notes')
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
 const version = pkg.version
@@ -152,7 +155,10 @@ try {
 
 // 4) npm
 if (dry) console.log('[dry] npm publish --registry=https://registry.npmjs.org/')
-else {
+else if (!shouldPublish) {
+  console.log('skip npm publish (push the tag and let CI publish with --provenance;')
+  console.log('pass --publish to publish from this machine instead)')
+} else {
   // Windows: npm is npm.cmd; execFile cannot spawn it (ENOENT / EINVAL), so go through
   // a shell. The argument list is fixed, nothing user-supplied reaches the command line.
   execSync('npm publish --registry=https://registry.npmjs.org/', { stdio: 'inherit' })

@@ -31,6 +31,10 @@ function makeCtx() {
     on() {
       return () => {}
     },
+    // chat 会 ctx.get('llm')；这里故意返回 undefined（没有模型），走 503 分支
+    get() {
+      return undefined
+    },
   }
 }
 
@@ -45,6 +49,10 @@ function call(handler, { method = 'GET', url = '/', body = '', headers = {} } = 
       if (ev === 'end') fn()
       return req
     },
+    // readBody 用 for await (const chunk of req)，所以假 req 要能异步迭代
+    async *[Symbol.asyncIterator]() {
+      if (body) yield Buffer.from(body)
+    },
   }
   const chunks = []
   const res = {
@@ -52,8 +60,11 @@ function call(handler, { method = 'GET', url = '/', body = '', headers = {} } = 
     headers: {},
     writeHead(code, hdrs) {
       this.statusCode = code
-      this.headers = hdrs || {}
+      this.headers = { ...this.headers, ...(hdrs || {}) }
       return this
+    },
+    setHeader(k, v) {
+      this.headers[k.toLowerCase()] = v
     },
     end(buf) {
       if (buf) chunks.push(Buffer.isBuffer(buf) ? buf : Buffer.from(String(buf)))
@@ -62,7 +73,8 @@ function call(handler, { method = 'GET', url = '/', body = '', headers = {} } = 
       return Buffer.concat(chunks).toString('utf8')
     },
   }
-  return handler(req, res).then(() => res)
+  // 同步 handler（ping）返回 undefined，统一包成 Promise
+  return Promise.resolve(handler(req, res)).then(() => res)
 }
 
 test('路由都注册上了', () => {
@@ -107,15 +119,28 @@ test('chat 只接受 POST', async () => {
   assert.equal(res.statusCode, 405)
 })
 
-test('chat 连发会被限流', async () => {
+test('chat 连发会被限流（合法请求才计数）', async () => {
   const ctx = makeCtx()
   apply(ctx, {})
   const handler = ctx.routes.get('/dsh-pet/chat')
   let last
   for (let i = 0; i < 14; i++) {
-    last = await call(handler, { method: 'POST', url: '/dsh-pet/chat', body: '{"text":""}' })
+    last = await call(handler, { method: 'POST', url: '/dsh-pet/chat', body: '{"text":"hi"}' })
   }
   assert.equal(last.statusCode, 429)
+})
+
+test('畸形/空请求不占限流额度', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const handler = ctx.routes.get('/dsh-pet/chat')
+  for (let i = 0; i < 20; i++) {
+    const r = await call(handler, { method: 'POST', url: '/dsh-pet/chat', body: '{"text":""}' })
+    assert.equal(r.statusCode, 400)
+  }
+  // 20 条空 body 之后，第一条真正的请求仍然应该被受理（不是 429）
+  const ok = await call(handler, { method: 'POST', url: '/dsh-pet/chat', body: '{"text":"hi"}' })
+  assert.notEqual(ok.statusCode, 429)
 })
 
 test('assets 不吃路径穿越', async () => {
@@ -154,4 +179,105 @@ test('只挂 /dsh-pet 一个前缀（不再占用宿主 /api）', () => {
   for (const p of ['/api/dsh-pet/ping', '/api/dsh-pet/chat']) {
     assert.ok(!ctx.routes.has(p), '不应注册 ' + p)
   }
+})
+
+test('Host 与 origin 不同源时拒绝（挡 DNS rebinding）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), {
+    url: '/dsh-pet/ping',
+    headers: { host: 'evil.example:5908', origin: 'http://evil.example:5908' },
+  })
+  assert.equal(res.statusCode, 403)
+})
+
+test('Host 是陌生域名时拒绝（即便没有 Origin）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), {
+    url: '/dsh-pet/ping',
+    headers: { host: 'evil.example' },
+  })
+  assert.equal(res.statusCode, 403)
+})
+
+test('回环 Host 正常放行（本机部署）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  for (const host of ['127.0.0.1:5908', 'localhost:5908', '[::1]:5908']) {
+    const res = await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping', headers: { host } })
+    assert.equal(res.statusCode, 200, host)
+  }
+})
+
+test('config.allowedHosts 可以放行反代域名', async () => {
+  const ctx = makeCtx()
+  apply(ctx, { allowedHosts: ['pet.example.com'] })
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), {
+    url: '/dsh-pet/ping',
+    headers: { host: 'pet.example.com:443', origin: 'https://pet.example.com' },
+  })
+  assert.equal(res.statusCode, 200)
+})
+
+test('Sec-Fetch-Site 跨站时拒绝', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), {
+    url: '/dsh-pet/ping',
+    headers: { host: '127.0.0.1:5908', 'sec-fetch-site': 'cross-site' },
+  })
+  assert.equal(res.statusCode, 403)
+})
+
+test('dsh-app 桌面壳的两个 origin 都放行', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  for (const origin of ['dsh-app://app', 'dsh-app://shell']) {
+    const res = await call(ctx.routes.get('/dsh-pet/ping'), {
+      url: '/dsh-pet/ping',
+      headers: { host: '127.0.0.1:5908', origin },
+    })
+    assert.equal(res.statusCode, 200, origin)
+  }
+})
+
+test('personaId 走原型链时回落默认人设', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  // 没有 llm 时返回 503，但绝不能因为 __proto__ 抛错或命中 Object.prototype
+  const res = await call(ctx.routes.get('/dsh-pet/chat'), {
+    method: 'POST',
+    url: '/dsh-pet/chat',
+    body: '{"text":"hi","personaId":"__proto__"}',
+  })
+  assert.equal(res.statusCode, 503)
+})
+
+test('tts 的 pitch/rate 只接受固定形状', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  // 这两条不该 500：要么 503（合成不可用），要么 200，但绝不能是因为参数怪而崩
+  for (const q of ['pitch=evil%3Cx%3E', 'rate=%00%00', 'pitch=+999999Hz']) {
+    const res = await call(ctx.routes.get('/dsh-pet/tts'), { url: '/dsh-pet/tts?text=hi&' + q })
+    assert.ok([200, 503].indexOf(res.statusCode) >= 0, q + ' -> ' + res.statusCode)
+  }
+})
+
+test('tts/warm 也有独立限流', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const handler = ctx.routes.get('/dsh-pet/tts/warm')
+  let last
+  for (let i = 0; i < 8; i++) {
+    last = await call(handler, { method: 'POST', url: '/dsh-pet/tts/warm', body: '{"lines":[]}' })
+  }
+  assert.equal(last.statusCode, 429)
+})
+
+test('assets 畸形百分号不抛穿（400 而不是 500 崩溃）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/assets'), { url: '/dsh-pet/assets/%zz' })
+  assert.equal(res.statusCode, 400)
 })

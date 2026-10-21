@@ -47,6 +47,7 @@
     "pet.toggle": "Mascota",
     "pet.toggleOff": "Está fuera de pantalla, pulsa para traerla",
     "hint.neuralOff": "Voz neural no disponible, se usa la del sistema",
+    "hint.privacy": "La voz neuronal envía el texto leído a Microsoft. Desactívala para que todo quede en este equipo.",
     "placeholder.chat": "Dile algo a {name}…"
   }
 }

@@ -135,6 +135,19 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - **立绘**：透明底 WebP 丢进 `assets/`，在 `PERSONAS` 里引用；宿主路由 `/dsh-pet/assets/`
   只放行图片扩展名。
 
+## Security model
+
+- 宿主路由三道准入，都不绑定端口或域名：`Host` 必须是回环地址、宿主自身 origin，或
+  插件配置 `allowedHosts` 里登记的域名（反代 / 局域网部署用）；带了 `Origin` 就必须
+  与本次 `Host` 同源，或是桌面壳（`dsh-app://app`、`dsh-app://shell`）；带了
+  `Sec-Fetch-Site` 就只接受 `same-origin`/`none`。三者都没有的非浏览器客户端放行
+  —— 这是本机 HTTP 端点的固有限度，见下。
+- 合成音频缓存在系统临时目录，上限在**每次合成后**复检（不是只在启动时），落盘走
+  「随机临时名 + rename」，预先埋好的符号链接改不了落点。
+- 页面送来的一切（设置、聊天历史、人设 id）都当数据：校验、限长，绝不拼成指令或标记。
+- 神经音色会把朗读文本发往微软 edge-tts 端点；关掉它（或干脆不装 `edge-tts`）就全部留在
+  本机，面板里有这句提示。
+
 ## Known limits
 
 - 神经语音是**可选增强**：宿主得有 python + `edge_tts`，否则退回系统 `speechSynthesis`
