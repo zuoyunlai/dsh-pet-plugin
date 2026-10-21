@@ -13,7 +13,29 @@
           petDebug = false
         }
         if (petDebug) {
-          globalThis.__dshPet = { runtime, PERSONAS, inActiveWindow, toMinutes, weighted, pick, tick, showPet, hidePet, bubble, playFx, notify, runToCenterAndDance, PetArt, CSS }
+          globalThis.__dshPet = {
+            runtime,
+            PERSONAS,
+            inActiveWindow,
+            toMinutes,
+            weighted,
+            pick,
+            tick,
+            showPet,
+            hidePet,
+            bubble,
+            playFx,
+            notify,
+            runToCenterAndDance,
+            PetArt,
+            CSS,
+            // 自检用：当前语言 + 任意心情会抽到的那句台词 / 当前生效的文案
+            lang: () => PET_LANG,
+            lineFor: (mood) => randomLine(mood || 'appear'),
+            text: (key) => t(key),
+            setLang,
+            syncLangOverride,
+          }
         }
       }
     } catch (e) {

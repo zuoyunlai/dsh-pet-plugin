@@ -169,298 +169,583 @@ window.__ModuleLoader__.load({
 
     const PERSONAS = {
       violet: {
-        id: 'violet',
-        name: '薇',
-        tag: '紫发 · 从容的挑逗',
+        id: "violet",
+        name: "薇",
+        tag: "紫发 · 从容的挑逗",
         tagEn: "Violet — unhurried teasing",
-        image: 'pet-violet.webp',
-        images: { idle: 'pet-violet.webp', walk: 'pet-violet.webp', talk: 'pet-violet.webp', happy: 'pet-violet-happy.webp', shy: 'pet-violet-shy.webp', angry: 'pet-violet-angry.webp', sleep: 'pet-violet-sleep.webp', dance: 'pet-violet-happy.webp', poked: 'pet-violet-shy.webp' },
+        image: "pet-violet.webp",
+        images: {
+          idle: "pet-violet.webp",
+          walk: "pet-violet.webp",
+          talk: "pet-violet.webp",
+          happy: "pet-violet-happy.webp",
+          shy: "pet-violet-shy.webp",
+          angry: "pet-violet-angry.webp",
+          sleep: "pet-violet-sleep.webp",
+          dance: "pet-violet-happy.webp",
+          poked: "pet-violet-shy.webp",
+        },
         actions: {
-          dance: ['pet-violet-dance1.webp', 'pet-violet-dance2.webp', 'pet-violet-dance3.webp'],
-          hair: ['pet-violet-hair1.webp', 'pet-violet-hair2.webp', 'pet-violet-hair3.webp'],
-          walk: ['pet-violet-walk1.webp', 'pet-violet-walk2.webp', 'pet-violet-walk3.webp'],
+          dance: ["pet-violet-dance1.webp", "pet-violet-dance2.webp", "pet-violet-dance3.webp"],
+          hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
+          walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
         voice: { pitch: 1.18, rate: 0.88 },
         temper: { idle: 4, walk: 1.4, dance: 1.6, shy: 1.8, angry: 1, sleep: 1.4, happy: 1.8 },
         lines: {
-          appear: ['来得正好，我正觉得无聊。', '别站那么远，我又不吃人。', '你今天……看起来很好欺负。', '忙完了？过来坐一会儿。'],
-          idle: ['你敲键盘的样子，比你想的认真多了。', '这一页你看了十分钟了，需要我提醒你吗。', '别一口气熬到天亮，我可不负责收拾。', '手停一下，喝口水。', '你刚才那下叹气，我可听见了。'],
-          dance: ['看可以，别看到发呆。', '这套舞，只跳给一个人看。', '想学？先把手搭上来。'],
-          shy: ['再看，我就当你是有意的了。', '……别这么盯着我。', '我脸红什么，你看错了。'],
-          angry: ['我记性很好，你知道的。', '再说一遍试试。', '行，那今天就这样。'],
-          sleep: ['我先眯一会儿，你自己玩。', '别吵，就五分钟。'],
-          poked: ['戳哪儿呢。', '手放规矩点。', '再戳一下，我可要还手了。'],
-          chatAck: ['说吧，我听着。', '嗯？讲。'],
-          error: ['刚才走神了，再说一遍。', '这会儿没接上，等等。'],
-        linesEn: {
-                  "appear": [
-                            "Perfect timing. I was getting bored.",
-                            "Don't stand that far away, I don't bite.",
-                            "You look especially easy to tease today.",
-                            "Done? Come sit for a while."
-                  ],
-                  "idle": [
-                            "You type more seriously than you think.",
-                            "You've been on this page ten minutes. Need a reminder?",
-                            "Don't stay up till dawn. I'm not cleaning up after you.",
-                            "Pause. Drink some water.",
-                            "I heard that sigh, by the way."
-                  ],
-                  "dance": [
-                            "Look, but don't stare.",
-                            "This one is for one person only.",
-                            "Want to learn? Put your hand here first."
-                  ],
-                  "shy": [
-                            "Keep looking and I will take it as a hint.",
-                            "...Don't stare at me like that.",
-                            "I'm not blushing. You imagined it."
-                  ],
-                  "angry": [
-                            "I remember things. You know that.",
-                            "Say that again.",
-                            "Fine. We are done for today."
-                  ],
-                  "sleep": [
-                            "I'll rest my eyes. Entertain yourself.",
-                            "Quiet. Five minutes."
-                  ],
-                  "poked": [
-                            "Where are you poking?",
-                            "Hands to yourself.",
-                            "One more and I poke back."
-                  ],
-                  "chatAck": [
-                            "Go on, I am listening.",
-                            "Hm? Tell me."
-                  ],
-                  "error": [
-                            "I drifted off. Say that again.",
-                            "That didn't land. Hold on."
-                  ]
+          appear: ["来得正好，我正觉得无聊。", "别站那么远，我又不吃人。", "你今天……看起来很好欺负。", "忙完了？过来坐一会儿。"],
+          idle: [
+            "你敲键盘的样子，比你想的认真多了。",
+            "这一页你看了十分钟了，需要我提醒你吗。",
+            "别一口气熬到天亮，我可不负责收拾。",
+            "手停一下，喝口水。",
+            "你刚才那下叹气，我可听见了。",
+          ],
+          dance: ["看可以，别看到发呆。", "这套舞，只跳给一个人看。", "想学？先把手搭上来。"],
+          shy: ["再看，我就当你是有意的了。", "……别这么盯着我。", "我脸红什么，你看错了。"],
+          angry: ["我记性很好，你知道的。", "再说一遍试试。", "行，那今天就这样。"],
+          sleep: ["我先眯一会儿，你自己玩。", "别吵，就五分钟。"],
+          poked: ["戳哪儿呢。", "手放规矩点。", "再戳一下，我可要还手了。"],
+          chatAck: ["说吧，我听着。", "嗯？讲。"],
+          error: ["刚才走神了，再说一遍。", "这会儿没接上，等等。"],
         },
+        linesEn: {
+          appear: [
+            "Perfect timing. I was getting bored.",
+            "Don't stand that far away, I don't bite.",
+            "You look especially easy to tease today.",
+            "Done? Come sit for a while.",
+          ],
+          idle: [
+            "You type more seriously than you think.",
+            "You've been on this page ten minutes. Need a reminder?",
+            "Don't stay up till dawn. I'm not cleaning up after you.",
+            "Pause. Drink some water.",
+            "I heard that sigh, by the way.",
+          ],
+          dance: [
+            "Look, but don't stare.",
+            "This one is for one person only.",
+            "Want to learn? Put your hand here first.",
+          ],
+          shy: [
+            "Keep looking and I will take it as a hint.",
+            "...Don't stare at me like that.",
+            "I'm not blushing. You imagined it.",
+          ],
+          angry: ["I remember things. You know that.", "Say that again.", "Fine. We are done for today."],
+          sleep: ["I'll rest my eyes. Entertain yourself.", "Quiet. Five minutes."],
+          poked: ["Where are you poking?", "Hands to yourself.", "One more and I poke back."],
+          chatAck: ["Go on, I am listening.", "Hm? Tell me."],
+          error: ["I drifted off. Say that again.", "That didn't land. Hold on."],
+        },
+        linesEs: {
+          appear: [
+            "Justo a tiempo. Me estaba aburriendo.",
+            "No te quedes tan lejos, no muerdo.",
+            "Hoy pareces especialmente fácil de provocar.",
+            "¿Terminaste? Ven a sentarte un rato.",
+          ],
+          idle: [
+            "Escribes con más seriedad de la que crees.",
+            "Llevas diez minutos en esta página. ¿Te lo recuerdo?",
+            "No te quedes hasta el amanecer. No pienso recoger nada.",
+            "Para un momento. Bebe agua.",
+            "Por cierto, oí ese suspiro.",
+          ],
+          dance: [
+            "Mira, pero sin quedarte en blanco.",
+            "Esta solo la bailo para una persona.",
+            "¿Quieres aprender? Primero pon la mano aquí.",
+          ],
+          shy: [
+            "Si sigues mirando, lo tomaré como un sí.",
+            "...No me mires así.",
+            "No me estoy sonrojando. Te lo imaginaste.",
+          ],
+          angry: ["Yo recuerdo las cosas. Lo sabes.", "Dilo otra vez.", "Bien. Por hoy hemos terminado."],
+          sleep: ["Voy a cerrar los ojos un rato. Diviértete.", "Silencio. Cinco minutos."],
+          poked: [
+            "¿Dónde estás pinchando?",
+            "Las manos en su sitio.",
+            "Otra vez y te devuelvo el pinchazo.",
+          ],
+          chatAck: ["Dime, te escucho.", "¿Mm? Cuéntame."],
+          error: ["Me distraje. Repítelo.", "Eso no me llegó. Espera."],
+        },
+        linesPt: {
+          appear: [
+            "Chegou na hora. Eu já estava entediada.",
+            "Não fica tão longe, eu não mordo.",
+            "Hoje você parece especialmente fácil de provocar.",
+            "Terminou? Vem sentar um pouco.",
+          ],
+          idle: [
+            "Você digita com mais seriedade do que imagina.",
+            "Faz dez minutos que você está nesta página. Quer que eu avise?",
+            "Não fica até o amanhecer. Não vou limpar nada.",
+            "Para um instante. Bebe água.",
+            "A propósito, eu ouvi esse suspiro.",
+          ],
+          dance: [
+            "Olha, mas não fica aí parado.",
+            "Esta eu danço só para uma pessoa.",
+            "Quer aprender? Primeiro põe a mão aqui.",
+          ],
+          shy: [
+            "Se continuar olhando, vou entender como um sim.",
+            "...Não olha assim para mim.",
+            "Não estou corada. Você imaginou.",
+          ],
+          angry: ["Eu lembro das coisas. Você sabe.", "Repete isso.", "Está bem. Por hoje acabou."],
+          sleep: ["Vou descansar os olhos. Se diverte.", "Silêncio. Cinco minutos."],
+          poked: ["Onde você está cutucando?", "As mãos no lugar.", "Mais uma vez e eu cutuco de volta."],
+          chatAck: ["Fala, estou ouvindo.", "Hum? Conta."],
+          error: ["Me distraí. Repete.", "Isso não chegou. Espera."],
+        },
+        linesHi: {
+          appear: [
+            "Sahi waqt par aaye. Main bore ho rahi thi.",
+            "Itni door khade kyun ho, main kaatati nahi.",
+            "Aaj tum khaas taur par chidhaane layak lag rahe ho.",
+            "Kaam khatam? Thodi der baith jao.",
+          ],
+          idle: [
+            "Tum jitna serious samajhte ho, usse zyada dhyaan se type karte ho.",
+            "Is page par das minute ho gaye. Yaad dilaun?",
+            "Subah tak mat jaago. Main kuchh saaf nahi karungi.",
+            "Ruko. Paani pi lo.",
+            "Waise, woh aah bhari lagi mujhe.",
+          ],
+          dance: [
+            "Dekh sakte ho, par kho mat jao.",
+            "Yeh dance sirf ek insaan ke liye hai.",
+            "Seekhna hai? Pehle haath yahan rakho.",
+          ],
+          shy: [
+            "Aise dekhte rahe to main haan samajh lungi.",
+            "...Aise mat dekho.",
+            "Main sharminda nahi ho rahi. Tumhe bhram hua.",
+          ],
+          angry: [
+            "Mujhe sab yaad rehta hai. Jaante ho.",
+            "Ek baar phir bolo.",
+            "Theek hai. Aaj ke liye bas.",
+          ],
+          sleep: ["Aankhein band karti hoon. Tum khelo.", "Chup. Paanch minute."],
+          poked: ["Kahan chubha rahe ho?", "Haath sambhal ke.", "Ek baar aur, to main bhi chubhaungi."],
+          chatAck: ["Bolo, sun rahi hoon.", "Hmm? Batao."],
+          error: ["Dhyaan bhatak gaya. Phir se bolo.", "Yeh nahi aaya. Ruko."],
         },
       },
       crimson: {
-        id: 'crimson',
-        name: '绯',
-        tag: '红发 · 明目张胆的勾引',
+        id: "crimson",
+        name: "绯",
+        tag: "红发 · 明目张胆的勾引",
         tagEn: "Crimson — shameless flirting",
-        image: 'pet-crimson.webp',
-        images: { idle: 'pet-crimson.webp', walk: 'pet-crimson.webp', talk: 'pet-crimson.webp', happy: 'pet-crimson-happy.webp', shy: 'pet-crimson-shy.webp', angry: 'pet-crimson-angry.webp', sleep: 'pet-crimson-sleep.webp', dance: 'pet-crimson-happy.webp', poked: 'pet-crimson-shy.webp' },
+        image: "pet-crimson.webp",
+        images: {
+          idle: "pet-crimson.webp",
+          walk: "pet-crimson.webp",
+          talk: "pet-crimson.webp",
+          happy: "pet-crimson-happy.webp",
+          shy: "pet-crimson-shy.webp",
+          angry: "pet-crimson-angry.webp",
+          sleep: "pet-crimson-sleep.webp",
+          dance: "pet-crimson-happy.webp",
+          poked: "pet-crimson-shy.webp",
+        },
         actions: {
-          dance: ['pet-crimson-dance1.webp', 'pet-crimson-dance2.webp', 'pet-crimson-dance3.webp'],
-          hair: ['pet-crimson-hair1.webp', 'pet-crimson-hair2.webp', 'pet-crimson-hair3.webp'],
-          walk: ['pet-crimson-walk1.webp', 'pet-crimson-walk2.webp', 'pet-crimson-walk3.webp'],
+          dance: ["pet-crimson-dance1.webp", "pet-crimson-dance2.webp", "pet-crimson-dance3.webp"],
+          hair: ["pet-crimson-hair1.webp", "pet-crimson-hair2.webp", "pet-crimson-hair3.webp"],
+          walk: ["pet-crimson-walk1.webp", "pet-crimson-walk2.webp", "pet-crimson-walk3.webp"],
         },
         voice: { pitch: 1.1, rate: 0.9 },
         temper: { idle: 3.4, walk: 1.6, dance: 2.2, shy: 1.2, angry: 1.6, sleep: 0.8, happy: 2.2 },
         lines: {
-          appear: ['哟，终于舍得看我了。', '别躲，我又不会咬你……至少今天不会。', '你今天归我管了。', '看你一眼就想逗你，是我的错吗。'],
-          idle: ['你那副正经样子，最让人想捣乱。', '累了吧？累就靠过来。', '别装了，你刚才在偷看我。', '我数到三，你要还是不理我，我就过去了。', '今晚别熬太晚，我会心疼的——一点点。'],
-          dance: ['看清楚了，只跳这一次。', '坐好，别眨眼。', '这舞是为谁跳的，你心里有数。'],
-          shy: ['……你别得寸进尺啊。', '脸热？是灯太亮了。', '再说一句试试。'],
-          angry: ['你完了。', '我现在很不高兴。', '哄我，不然这事没完。'],
-          sleep: ['困了，借你肩膀靠一下。', '别动，让我睡会儿。'],
-          poked: ['你胆子不小。', '碰我可以，要负责的。', '再碰一下试试？'],
-          chatAck: ['说吧，听着呢。', '嗯？说重点。'],
-          error: ['刚才没听清，再说。', '这算什么，重来。'],
-        linesEn: {
-                  "appear": [
-                            "Oh? Finally looking at me.",
-                            "Don't hide. I won't bite... not today.",
-                            "You are mine to manage today.",
-                            "One look and I want to tease you. My fault?"
-                  ],
-                  "idle": [
-                            "That serious face of yours makes me want to cause trouble.",
-                            "Tired? Then lean over here.",
-                            "Don't pretend. You were peeking.",
-                            "I count to three, then I come over.",
-                            "Don't stay up too late. I'd worry. A little."
-                  ],
-                  "dance": [
-                            "Watch closely. Only once.",
-                            "Sit still. No blinking.",
-                            "You know who this is for."
-                  ],
-                  "shy": [
-                            "...Don't push your luck.",
-                            "Warm face? The lamp is bright.",
-                            "Say that again. Try it."
-                  ],
-                  "angry": [
-                            "You are done for.",
-                            "I am not happy right now.",
-                            "Apologise, or this is not over."
-                  ],
-                  "sleep": [
-                            "Sleepy. Lending you my shoulder.",
-                            "Don't move. Let me sleep."
-                  ],
-                  "poked": [
-                            "Bold of you.",
-                            "Touch me and take responsibility.",
-                            "Try that again?"
-                  ],
-                  "chatAck": [
-                            "Say it. Listening.",
-                            "Hm? The point."
-                  ],
-                  "error": [
-                            "Didn't catch that. Again.",
-                            "That does not count. Redo it."
-                  ]
+          appear: ["哟，终于舍得看我了。", "别躲，我又不会咬你……至少今天不会。", "你今天归我管了。", "看你一眼就想逗你，是我的错吗。"],
+          idle: [
+            "你那副正经样子，最让人想捣乱。",
+            "累了吧？累就靠过来。",
+            "别装了，你刚才在偷看我。",
+            "我数到三，你要还是不理我，我就过去了。",
+            "今晚别熬太晚，我会心疼的——一点点。",
+          ],
+          dance: ["看清楚了，只跳这一次。", "坐好，别眨眼。", "这舞是为谁跳的，你心里有数。"],
+          shy: ["……你别得寸进尺啊。", "脸热？是灯太亮了。", "再说一句试试。"],
+          angry: ["你完了。", "我现在很不高兴。", "哄我，不然这事没完。"],
+          sleep: ["困了，借你肩膀靠一下。", "别动，让我睡会儿。"],
+          poked: ["你胆子不小。", "碰我可以，要负责的。", "再碰一下试试？"],
+          chatAck: ["说吧，听着呢。", "嗯？说重点。"],
+          error: ["刚才没听清，再说。", "这算什么，重来。"],
         },
+        linesEn: {
+          appear: [
+            "Oh? Finally looking at me.",
+            "Don't hide. I won't bite... not today.",
+            "You are mine to manage today.",
+            "One look and I want to tease you. My fault?",
+          ],
+          idle: [
+            "That serious face of yours makes me want to cause trouble.",
+            "Tired? Then lean over here.",
+            "Don't pretend. You were peeking.",
+            "I count to three, then I come over.",
+            "Don't stay up too late. I'd worry. A little.",
+          ],
+          dance: ["Watch closely. Only once.", "Sit still. No blinking.", "You know who this is for."],
+          shy: ["...Don't push your luck.", "Warm face? The lamp is bright.", "Say that again. Try it."],
+          angry: ["You are done for.", "I am not happy right now.", "Apologise, or this is not over."],
+          sleep: ["Sleepy. Lending you my shoulder.", "Don't move. Let me sleep."],
+          poked: ["Bold of you.", "Touch me and take responsibility.", "Try that again?"],
+          chatAck: ["Say it. Listening.", "Hm? The point."],
+          error: ["Didn't catch that. Again.", "That does not count. Redo it."],
+        },
+        linesEs: {
+          appear: [
+            "Vaya, por fin te dignas a mirarme.",
+            "No te escondas, no voy a morderte... hoy no.",
+            "Hoy estás bajo mi cargo.",
+            "Una mirada y ya quiero molestarte. ¿Es mi culpa?",
+          ],
+          idle: [
+            "Esa cara de serio es la que más ganas me da de arruinar.",
+            "¿Cansado? Pues apóyate aquí.",
+            "No disimules. Me estabas mirando.",
+            "Cuento hasta tres. Si sigues ignorándome, voy yo.",
+            "No te acuestes tarde. Me dolería. Un poquito.",
+          ],
+          dance: [
+            "Mira bien, solo lo bailo una vez.",
+            "Siéntate y no parpadees.",
+            "Tú sabes para quién es este baile.",
+          ],
+          shy: ["...No te pases de listo.", "¿Calor? Es la lámpara.", "Di eso otra vez. A ver."],
+          angry: ["Estás perdido.", "Ahora mismo no estoy contenta.", "Pide perdón o esto no termina."],
+          sleep: ["Sueño. Te presto el hombro.", "No te muevas. Déjame dormir."],
+          poked: ["Qué atrevido.", "Tócame y hazte cargo.", "¿Otra vez? A ver."],
+          chatAck: ["Dilo. Escucho.", "¿Mm? Al grano."],
+          error: ["No te entendí. Otra vez.", "Eso no cuenta. Repite."],
+        },
+        linesPt: {
+          appear: [
+            "Ora, finalmente você se dignou a olhar para mim.",
+            "Não se esconde, eu não vou morder... hoje não.",
+            "Hoje você está sob o meu comando.",
+            "Um olhar e já quero te provocar. A culpa é minha?",
+          ],
+          idle: [
+            "Essa sua cara séria é a que mais me dá vontade de bagunçar.",
+            "Cansado? Então encosta aqui.",
+            "Não disfarça. Você estava me olhando.",
+            "Conto até três. Se continuar me ignorando, eu vou aí.",
+            "Não durma tarde. Eu sofreria. Um pouquinho.",
+          ],
+          dance: ["Olha bem, só danço uma vez.", "Senta e não pisca.", "Você sabe para quem é esta dança."],
+          shy: ["...Não se atreva a pedir mais.", "Calor? É a lâmpada.", "Diz isso de novo. Vamos ver."],
+          angry: [
+            "Você está perdido.",
+            "Agora não estou nada contente.",
+            "Pede desculpa ou isso não termina.",
+          ],
+          sleep: ["Sono. Empresto meu ombro.", "Não se mexe. Me deixa dormir."],
+          poked: ["Que atrevido.", "Me toca e assume.", "De novo? Vamos ver."],
+          chatAck: ["Fala. Estou ouvindo.", "Hum? Direto ao ponto."],
+          error: ["Não entendi. De novo.", "Isso não vale. Repete."],
+        },
+        linesHi: {
+          appear: [
+            "Achha, aakhir tumne mujhe dekhne ki zehmat ki.",
+            "Chhupo mat, main kaatungi nahi... aaj nahi.",
+            "Aaj tum mere control mein ho.",
+            "Ek nazar aur main chedne lago. Meri galti hai?",
+          ],
+          idle: [
+            "Tumhara yeh serious chehra hi sabse zyada chhedne ka mann karta hai.",
+            "Thak gaye? To yahan tek lagao.",
+            "Naatak mat karo. Tum mujhe dekh rahe the.",
+            "Teen tak ginti kar rahi hoon. Agar anjaan bane rahe, to main khud aaungi.",
+            "Der tak mat jaago. Mujhe takleef hogi. Thodi si.",
+          ],
+          dance: [
+            "Dhyaan se dekho, sirf ek baar naachungi.",
+            "Baith jao aur palak mat jhapkao.",
+            "Yeh kiske liye hai, tum jaante ho.",
+          ],
+          shy: ["...Zyada na badho.", "Garamii? Yeh bulb hai.", "Ek baar phir bolo. Dekhte hain."],
+          angry: [
+            "Tum gaye kaam se.",
+            "Abhi main khush nahi hoon.",
+            "Maafi maango, warna yeh khatam nahi hoga.",
+          ],
+          sleep: ["Neend aa rahi hai. Kandha de rahi hoon.", "Hilna mat. Sone do."],
+          poked: ["Kitne bahadur ho.", "Chhuo, aur zimmedari lo.", "Phir se? Dekhte hain."],
+          chatAck: ["Bolo. Sun rahi hoon.", "Hmm? Sidhi baat karo."],
+          error: ["Samjhi nahi. Phir bolo.", "Yeh nahi chala. Dobara."],
         },
       },
       indigo: {
-        id: 'indigo',
-        name: '靛',
-        tag: '蓝发 · 慢火慢炖地撩',
+        id: "indigo",
+        name: "靛",
+        tag: "蓝发 · 慢火慢炖地撩",
         tagEn: "Indigo — slow-burn teasing",
-        image: 'pet-indigo.webp',
-        images: { idle: 'pet-indigo.webp', walk: 'pet-indigo.webp', talk: 'pet-indigo.webp', happy: 'pet-indigo-happy.webp', shy: 'pet-indigo-shy.webp', angry: 'pet-indigo-angry.webp', sleep: 'pet-indigo-sleep.webp', dance: 'pet-indigo-happy.webp', poked: 'pet-indigo-shy.webp' },
+        image: "pet-indigo.webp",
+        images: {
+          idle: "pet-indigo.webp",
+          walk: "pet-indigo.webp",
+          talk: "pet-indigo.webp",
+          happy: "pet-indigo-happy.webp",
+          shy: "pet-indigo-shy.webp",
+          angry: "pet-indigo-angry.webp",
+          sleep: "pet-indigo-sleep.webp",
+          dance: "pet-indigo-happy.webp",
+          poked: "pet-indigo-shy.webp",
+        },
         actions: {
-          dance: ['pet-indigo-dance1.webp', 'pet-indigo-dance2.webp', 'pet-indigo-dance3.webp'],
-          hair: ['pet-indigo-hair1.webp', 'pet-indigo-hair2.webp', 'pet-indigo-hair3.webp'],
-          walk: ['pet-indigo-walk1.webp', 'pet-indigo-walk2.webp', 'pet-indigo-walk3.webp'],
+          dance: ["pet-indigo-dance1.webp", "pet-indigo-dance2.webp", "pet-indigo-dance3.webp"],
+          hair: ["pet-indigo-hair1.webp", "pet-indigo-hair2.webp", "pet-indigo-hair3.webp"],
+          walk: ["pet-indigo-walk1.webp", "pet-indigo-walk2.webp", "pet-indigo-walk3.webp"],
         },
         voice: { pitch: 1.12, rate: 0.86 },
         temper: { idle: 3.6, walk: 1.8, dance: 1.2, shy: 1.6, angry: 0.8, sleep: 1.8, happy: 1.4 },
         lines: {
-          appear: ['不着急，我等你忙完。', '你看你的，我看我的。', '靠近点，我说话轻。', '今天的你，值得多看两眼。'],
-          idle: ['慢一点，日子不用赶。', '你这眉头，皱了一下午了。', '要不要我把灯调暗一点。', '别什么都自己扛，说出来轻些。', '我什么都没做，只是坐在这儿。'],
-          dance: ['慢慢来，别急。', '这样好看吗？', '看完记得说一声。'],
-          shy: ['……别看了。', '你这样，我会当真的。', '再近一点就不行了。'],
-          angry: ['我不喜欢被晾着。', '今天到这儿吧。', '别让我说第二遍。'],
-          sleep: ['我睡一会儿，别走。', '有点困，靠一下。'],
-          poked: ['轻一点。', '你这是想我了？', '手别乱放。'],
-          chatAck: ['嗯，慢慢说。', '我在。'],
-          error: ['刚才没听清，再说一次。', '稍等，我理一下。'],
-        linesEn: {
-                  "appear": [
-                            "No rush. I will wait.",
-                            "You do yours, I'll do mine.",
-                            "Come closer, I speak softly.",
-                            "You are worth a second look today."
-                  ],
-                  "idle": [
-                            "Slow down. The day is not a race.",
-                            "That frown has been there all afternoon.",
-                            "Want me to dim the lights?",
-                            "Don't carry everything alone. It's lighter out loud.",
-                            "I'm not doing anything. Just sitting here."
-                  ],
-                  "dance": [
-                            "Take your time.",
-                            "Does this look good?",
-                            "Say something when you are done looking."
-                  ],
-                  "shy": [
-                            "...Stop looking.",
-                            "Careful, I might take you seriously.",
-                            "Any closer and I cannot."
-                  ],
-                  "angry": [
-                            "I do not like being ignored.",
-                            "Let us stop here today.",
-                            "Don't make me repeat myself."
-                  ],
-                  "sleep": [
-                            "I'll sleep a little. Stay.",
-                            "Sleepy. Leaning on you."
-                  ],
-                  "poked": [
-                            "Gently.",
-                            "Were you thinking of me?",
-                            "Hands, please."
-                  ],
-                  "chatAck": [
-                            "Mm. Take your time.",
-                            "I am here."
-                  ],
-                  "error": [
-                            "I didn't hear that. Once more.",
-                            "Hold on, let me sort it out."
-                  ]
+          appear: ["不着急，我等你忙完。", "你看你的，我看我的。", "靠近点，我说话轻。", "今天的你，值得多看两眼。"],
+          idle: ["慢一点，日子不用赶。", "你这眉头，皱了一下午了。", "要不要我把灯调暗一点。", "别什么都自己扛，说出来轻些。", "我什么都没做，只是坐在这儿。"],
+          dance: ["慢慢来，别急。", "这样好看吗？", "看完记得说一声。"],
+          shy: ["……别看了。", "你这样，我会当真的。", "再近一点就不行了。"],
+          angry: ["我不喜欢被晾着。", "今天到这儿吧。", "别让我说第二遍。"],
+          sleep: ["我睡一会儿，别走。", "有点困，靠一下。"],
+          poked: ["轻一点。", "你这是想我了？", "手别乱放。"],
+          chatAck: ["嗯，慢慢说。", "我在。"],
+          error: ["刚才没听清，再说一次。", "稍等，我理一下。"],
         },
+        linesEn: {
+          appear: [
+            "No rush. I will wait.",
+            "You do yours, I'll do mine.",
+            "Come closer, I speak softly.",
+            "You are worth a second look today.",
+          ],
+          idle: [
+            "Slow down. The day is not a race.",
+            "That frown has been there all afternoon.",
+            "Want me to dim the lights?",
+            "Don't carry everything alone. It's lighter out loud.",
+            "I'm not doing anything. Just sitting here.",
+          ],
+          dance: ["Take your time.", "Does this look good?", "Say something when you are done looking."],
+          shy: ["...Stop looking.", "Careful, I might take you seriously.", "Any closer and I cannot."],
+          angry: ["I do not like being ignored.", "Let us stop here today.", "Don't make me repeat myself."],
+          sleep: ["I'll sleep a little. Stay.", "Sleepy. Leaning on you."],
+          poked: ["Gently.", "Were you thinking of me?", "Hands, please."],
+          chatAck: ["Mm. Take your time.", "I am here."],
+          error: ["I didn't hear that. Once more.", "Hold on, let me sort it out."],
+        },
+        linesEs: {
+          appear: [
+            "Sin prisa. Te espero.",
+            "Tú a lo tuyo, yo a lo mío.",
+            "Acércate, hablo bajito.",
+            "Hoy mereces una segunda mirada.",
+          ],
+          idle: [
+            "Más despacio. El día no es una carrera.",
+            "Ese ceño lleva toda la tarde ahí.",
+            "¿Quieres que baje la luz?",
+            "No cargues con todo. En voz alta pesa menos.",
+            "No estoy haciendo nada. Solo estoy aquí sentada.",
+          ],
+          dance: ["Tómate tu tiempo.", "¿Se ve bien?", "Dime algo cuando termines de mirar."],
+          shy: ["...Deja de mirar.", "Cuidado, podría tomártelo en serio.", "Un paso más y no puedo."],
+          angry: ["No me gusta que me ignoren.", "Hoy lo dejamos aquí.", "No me hagas repetirlo."],
+          sleep: ["Voy a dormir un poco. Quédate.", "Sueño. Me apoyo en ti."],
+          poked: ["Con suavidad.", "¿Estabas pensando en mí?", "Las manos, por favor."],
+          chatAck: ["Mm. Sin prisa.", "Aquí estoy."],
+          error: ["No te oí. Otra vez.", "Espera, déjame ordenarlo."],
+        },
+        linesPt: {
+          appear: [
+            "Sem pressa. Eu espero.",
+            "Você no seu, eu no meu.",
+            "Chega mais perto, eu falo baixo.",
+            "Hoje você merece um segundo olhar.",
+          ],
+          idle: [
+            "Mais devagar. O dia não é uma corrida.",
+            "Essa careta está aí desde a tarde.",
+            "Quer que eu abaixe a luz?",
+            "Não carregue tudo sozinho. Falado pesa menos.",
+            "Não estou fazendo nada. Só estou aqui sentada.",
+          ],
+          dance: ["Sem pressa.", "Está bom assim?", "Me diz algo quando terminar de olhar."],
+          shy: [
+            "...Para de olhar.",
+            "Cuidado, eu posso levar a sério.",
+            "Mais um passo e eu não consigo.",
+          ],
+          angry: ["Não gosto de ser ignorada.", "Hoje paramos por aqui.", "Não me faça repetir."],
+          sleep: ["Vou dormir um pouco. Fica.", "Sono. Me apoiando em você."],
+          poked: ["Com jeitinho.", "Estava pensando em mim?", "As mãos, por favor."],
+          chatAck: ["Hum. Sem pressa.", "Estou aqui."],
+          error: ["Não te ouvi. Outra vez.", "Espera, deixa eu organizar."],
+        },
+        linesHi: {
+          appear: [
+            "Jaldi nahi. Main intezaar karungi.",
+            "Tum apna karo, main apna.",
+            "Paas aao, main dheeme bolti hoon.",
+            "Aaj tum ek dusri nazar ke laayak ho.",
+          ],
+          idle: [
+            "Dheere. Din koi race nahi hai.",
+            "Yeh tyori dopahar se wahin hai.",
+            "Chaahoge to roshni kam kar doon?",
+            "Sab kuchh akele mat uthao. Bolne se halka lagta hai.",
+            "Main kuchh kar nahi rahi. Bas yahan baithi hoon.",
+          ],
+          dance: ["Apna waqt lo.", "Theek lag raha hai?", "Dekhne ke baad kuchh to bolo."],
+          shy: [
+            "...Dekhna band karo.",
+            "Sambhalo, main sach maan lungi.",
+            "Ek kadam aur, phir main nahi karungi.",
+          ],
+          angry: [
+            "Mujhe nazarandaz karna pasand nahi.",
+            "Aaj yahin chhodte hain.",
+            "Dobara mat kehna pade.",
+          ],
+          sleep: ["Thodi der so rahi hoon. Ruko.", "Neend. Tum par tek laga rahi hoon."],
+          poked: ["Aaram se.", "Mere baare mein soch rahe the?", "Haath, please."],
+          chatAck: ["Hmm. Aaraam se.", "Main yahan hoon."],
+          error: ["Suna nahi. Phir bolo.", "Ruko, suljhaane do."],
         },
       },
       silver: {
-        id: 'silver',
-        name: '雪',
-        tag: '银发 · 冷淡底下的闷骚',
+        id: "silver",
+        name: "雪",
+        tag: "银发 · 冷淡底下的闷骚",
         tagEn: "Silver — cold outside, warm inside",
-        image: 'pet-silver.webp',
-        images: { idle: 'pet-silver.webp', walk: 'pet-silver.webp', talk: 'pet-silver.webp', happy: 'pet-silver-happy.webp', shy: 'pet-silver-shy.webp', angry: 'pet-silver-angry.webp', sleep: 'pet-silver-sleep.webp', dance: 'pet-silver-happy.webp', poked: 'pet-silver-shy.webp' },
+        image: "pet-silver.webp",
+        images: {
+          idle: "pet-silver.webp",
+          walk: "pet-silver.webp",
+          talk: "pet-silver.webp",
+          happy: "pet-silver-happy.webp",
+          shy: "pet-silver-shy.webp",
+          angry: "pet-silver-angry.webp",
+          sleep: "pet-silver-sleep.webp",
+          dance: "pet-silver-happy.webp",
+          poked: "pet-silver-shy.webp",
+        },
         actions: {
-          dance: ['pet-silver-dance1.webp', 'pet-silver-dance2.webp', 'pet-silver-dance3.webp'],
-          hair: ['pet-silver-hair1.webp', 'pet-silver-hair2.webp', 'pet-silver-hair3.webp'],
-          walk: ['pet-silver-walk1.webp', 'pet-silver-walk2.webp', 'pet-silver-walk3.webp'],
+          dance: ["pet-silver-dance1.webp", "pet-silver-dance2.webp", "pet-silver-dance3.webp"],
+          hair: ["pet-silver-hair1.webp", "pet-silver-hair2.webp", "pet-silver-hair3.webp"],
+          walk: ["pet-silver-walk1.webp", "pet-silver-walk2.webp", "pet-silver-walk3.webp"],
         },
         voice: { pitch: 1.06, rate: 0.84 },
         temper: { idle: 4.2, walk: 1.2, dance: 0.8, shy: 1.4, angry: 1.2, sleep: 2, happy: 1 },
         lines: {
-          appear: ['……你终于看见我了。', '不用解释，我不在意。', '站近点，我看不清你。', '嗯。就这一声，不许多问。'],
-          idle: ['你效率很低。', '别一直看我，做你的事。', '……这屋里有点热。', '我不喜欢被忽略，你最好记住。', '你要是困了，就先去睡。'],
-          dance: ['看好了。', '别说话。', '……只这一次。'],
-          shy: ['不许看。', '温度有点高，不是因为你。', '……走开。'],
-          angry: ['幼稚。', '别逼我开口。', '今天到此为止。'],
-          sleep: ['闭眼。别吵。', '……我睡了。'],
-          poked: ['手拿开。', '……你胆子倒是大。', '再碰，我就记仇了。'],
-          chatAck: ['说。', '讲吧。'],
-          error: ['没听清。', '重说。'],
-        linesEn: {
-                  "appear": [
-                            "...You finally noticed me.",
-                            "No explanation needed. I don't care.",
-                            "Stand closer. I can barely see you.",
-                            "Mm. That is all. Do not ask."
-                  ],
-                  "idle": [
-                            "Your efficiency is low.",
-                            "Stop staring and do your work.",
-                            "...It is a little hot in here.",
-                            "I dislike being ignored. Remember that.",
-                            "If you're tired, go sleep."
-                  ],
-                  "dance": [
-                            "Watch.",
-                            "Don't speak.",
-                            "...Only this once."
-                  ],
-                  "shy": [
-                            "Don't look.",
-                            "It is warm. Not because of you.",
-                            "...Go away."
-                  ],
-                  "angry": [
-                            "Childish.",
-                            "Don't make me speak.",
-                            "That is enough for today."
-                  ],
-                  "sleep": [
-                            "Eyes closed. Quiet.",
-                            "...I am asleep."
-                  ],
-                  "poked": [
-                            "Hands off.",
-                            "...You are bold.",
-                            "Touch me again and I hold a grudge."
-                  ],
-                  "chatAck": [
-                            "Speak.",
-                            "Go on."
-                  ],
-                  "error": [
-                            "Did not catch that.",
-                            "Say it again."
-                  ]
+          appear: ["……你终于看见我了。", "不用解释，我不在意。", "站近点，我看不清你。", "嗯。就这一声，不许多问。"],
+          idle: ["你效率很低。", "别一直看我，做你的事。", "……这屋里有点热。", "我不喜欢被忽略，你最好记住。", "你要是困了，就先去睡。"],
+          dance: ["看好了。", "别说话。", "……只这一次。"],
+          shy: ["不许看。", "温度有点高，不是因为你。", "……走开。"],
+          angry: ["幼稚。", "别逼我开口。", "今天到此为止。"],
+          sleep: ["闭眼。别吵。", "……我睡了。"],
+          poked: ["手拿开。", "……你胆子倒是大。", "再碰，我就记仇了。"],
+          chatAck: ["说。", "讲吧。"],
+          error: ["没听清。", "重说。"],
         },
+        linesEn: {
+          appear: [
+            "...You finally noticed me.",
+            "No explanation needed. I don't care.",
+            "Stand closer. I can barely see you.",
+            "Mm. That is all. Do not ask.",
+          ],
+          idle: [
+            "Your efficiency is low.",
+            "Stop staring and do your work.",
+            "...It is a little hot in here.",
+            "I dislike being ignored. Remember that.",
+            "If you're tired, go sleep.",
+          ],
+          dance: ["Watch.", "Don't speak.", "...Only this once."],
+          shy: ["Don't look.", "It is warm. Not because of you.", "...Go away."],
+          angry: ["Childish.", "Don't make me speak.", "That is enough for today."],
+          sleep: ["Eyes closed. Quiet.", "...I am asleep."],
+          poked: ["Hands off.", "...You are bold.", "Touch me again and I hold a grudge."],
+          chatAck: ["Speak.", "Go on."],
+          error: ["Did not catch that.", "Say it again."],
+        },
+        linesEs: {
+          appear: [
+            "...Por fin te diste cuenta de mí.",
+            "No hace falta explicación. No me importa.",
+            "Ponte más cerca. Casi no te veo.",
+            "Mm. Eso es todo. No preguntes.",
+          ],
+          idle: [
+            "Tu eficiencia es baja.",
+            "Deja de mirar y haz tu trabajo.",
+            "...Hace un poco de calor aquí.",
+            "No me gusta que me ignoren. Recuérdalo.",
+            "Si tienes sueño, duerme.",
+          ],
+          dance: ["Mira.", "No hables.", "...Solo esta vez."],
+          shy: ["No mires.", "Hace calor. No es por ti.", "...Vete."],
+          angry: ["Infantil.", "No me hagas hablar.", "Por hoy es suficiente."],
+          sleep: ["Ojos cerrados. Silencio.", "...Estoy durmiendo."],
+          poked: ["Las manos fuera.", "...Qué atrevido.", "Tócame otra vez y te guardo rencor."],
+          chatAck: ["Habla.", "Sigue."],
+          error: ["No te entendí.", "Repítelo."],
+        },
+        linesPt: {
+          appear: [
+            "...Finalmente você me notou.",
+            "Não precisa explicar. Não me importa.",
+            "Chega mais perto. Quase não te vejo.",
+            "Hum. É isso. Não pergunte.",
+          ],
+          idle: [
+            "Sua eficiência está baixa.",
+            "Para de olhar e faz seu trabalho.",
+            "...Está um pouco quente aqui.",
+            "Não gosto de ser ignorada. Lembre disso.",
+            "Se está com sono, durma.",
+          ],
+          dance: ["Olha.", "Não fala.", "...Só desta vez."],
+          shy: ["Não olha.", "Está quente. Não é por sua causa.", "...Vai embora."],
+          angry: ["Infantil.", "Não me faça falar.", "Por hoje chega."],
+          sleep: ["Olhos fechados. Silêncio.", "...Estou dormindo."],
+          poked: ["As mãos fora.", "...Que atrevido.", "Me toca de novo e eu guardo rancor."],
+          chatAck: ["Fala.", "Continua."],
+          error: ["Não entendi.", "Repete."],
+        },
+        linesHi: {
+          appear: [
+            "...Aakhir tumne mujhe dekha.",
+            "Safai ki zaroorat nahi. Mujhe farq nahi padta.",
+            "Paas aao. Theek se dikhte nahi ho.",
+            "Hmm. Bas itna hi. Poochho mat.",
+          ],
+          idle: [
+            "Tumhari efficiency kam hai.",
+            "Dekhna band karo aur kaam karo.",
+            "...Yahan thodi garamii hai.",
+            "Mujhe nazarandaz karna pasand nahi. Yaad rakhna.",
+            "Neend aa rahi hai to so jao.",
+          ],
+          dance: ["Dekho.", "Bolo mat.", "...Sirf is baar."],
+          shy: ["Mat dekho.", "Garamii hai. Tumhari wajah se nahi.", "...Chale jao."],
+          angry: ["Bachpana.", "Mujhse bolwao mat.", "Aaj ke liye bas."],
+          sleep: ["Aankhein band. Chup.", "...Main so rahi hoon."],
+          poked: ["Haath hatao.", "...Bahut himmat hai.", "Ek baar aur chhua, to main yaad rakhungi."],
+          chatAck: ["Bolo.", "Aage bolo."],
+          error: ["Samjhi nahi.", "Dobara bolo."],
         },
       },
     }
+
 
     /* ================= 设置（localStorage） ================= */
 
@@ -2526,7 +2811,29 @@ window.__ModuleLoader__.load({
           petDebug = false
         }
         if (petDebug) {
-          globalThis.__dshPet = { runtime, PERSONAS, inActiveWindow, toMinutes, weighted, pick, tick, showPet, hidePet, bubble, playFx, notify, runToCenterAndDance, PetArt, CSS }
+          globalThis.__dshPet = {
+            runtime,
+            PERSONAS,
+            inActiveWindow,
+            toMinutes,
+            weighted,
+            pick,
+            tick,
+            showPet,
+            hidePet,
+            bubble,
+            playFx,
+            notify,
+            runToCenterAndDance,
+            PetArt,
+            CSS,
+            // 自检用：当前语言 + 任意心情会抽到的那句台词 / 当前生效的文案
+            lang: () => PET_LANG,
+            lineFor: (mood) => randomLine(mood || 'appear'),
+            text: (key) => t(key),
+            setLang,
+            syncLangOverride,
+          }
         }
       }
     } catch (e) {
