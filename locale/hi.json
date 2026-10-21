@@ -6,6 +6,8 @@
   "pet": {
     "panel.title": "Pet",
     "panel.look": "Roop",
+    "panel.lang": "Bhasha",
+    "panel.langAuto": "Auto (DSH)",
     "panel.voice": "Aawaaz",
     "panel.display": "Dikhaav",
     "panel.actions": "Harkat",

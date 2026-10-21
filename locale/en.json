@@ -6,6 +6,8 @@
   "pet": {
     "panel.title": "Desk pet",
     "panel.look": "Look",
+    "panel.lang": "Language",
+    "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "Voice",
     "panel.display": "Display",
     "panel.actions": "Actions",

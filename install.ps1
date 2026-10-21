@@ -82,7 +82,11 @@ if ($Update) {
   if ($resolved -eq $src) {
     Write-Host "[ok] installed copy IS this folder (file: dependency) - nothing to copy"
   } else {
-    Copy-Item -LiteralPath $src -Destination $destDir -Recurse -Force
+    # copy the CONTENTS, not the folder: the source folder name (dsh-pet) no longer
+    # matches the package name (dsh-pet-plugin), and Copy-Item -Destination $destDir
+    # would create node_modules\dsh-pet instead of updating node_modules\dsh-pet-plugin.
+    if (-not (Test-Path -LiteralPath $dest)) { New-Item -ItemType Directory -Force -Path $dest | Out-Null }
+    Copy-Item -Path (Join-Path $src '*') -Destination $dest -Recurse -Force
     Write-Host "[ok] refreshed $dest"
   }
   $node = Get-Command node -ErrorAction SilentlyContinue

@@ -108,6 +108,26 @@
         h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.persona, options: personaOpts, onChange: (v) => update({ persona: v }) })),
         h(
           'div',
+          { className: 'dsh-pet-field wide' },
+          h('span', { className: 'lb' }, t('panel.lang')),
+          h(PetSelect, {
+            value: s.lang || 'auto',
+            options: [
+              { value: 'auto', label: t('panel.langAuto') },
+              { value: 'zh', label: '中文' },
+              { value: 'en', label: 'English' },
+              { value: 'es', label: 'Español' },
+              { value: 'pt', label: 'Português' },
+              { value: 'hi', label: 'हिन्दी' },
+            ],
+            onChange: (v) => {
+              update({ lang: v })
+              syncLangOverride(v)
+            },
+          }),
+        ),
+        h(
+          'div',
           { className: 'dsh-pet-seg' },
           h('button', { className: s.mode === 'always' ? 'on' : '', onClick: () => update({ mode: 'always' }) }, t('panel.always')),
           h('button', { className: s.mode === 'random' ? 'on' : '', onClick: () => update({ mode: 'random' }) }, t('panel.random')),

@@ -118,6 +118,16 @@
           }
         })
 
+        // 语言：settings.lang 手动锁定则写进 localStorage 覆盖，否则跟随 <html lang>
+        try {
+          const saved = runtime.settings && runtime.settings.lang
+          if (saved && saved !== 'auto') window.localStorage.setItem(PET_LANG_KEY, saved)
+          setLang(detectLang())
+        } catch (e) {
+          /* ignore */
+        }
+        ctx.effect(() => watchHostLang())
+
         ctx.slots.inject('shell.overlay', () =>
           ctx.slots.register({ name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' }, PetOverlay),
         )

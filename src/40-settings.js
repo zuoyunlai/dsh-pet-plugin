@@ -4,6 +4,7 @@
 
     const DEFAULT_SETTINGS = {
       persona: 'violet',
+      lang: 'auto', // 'auto' 跟随 DSH 界面语言 | en/zh/es/pt/hi 手动锁定
       mode: 'always', // 'always' 常驻 | 'random' 随机出现
       probability: 35, // 随机模式：每小时出现概率（%）
       activeStart: '09:00',

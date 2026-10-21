@@ -6,6 +6,8 @@
   "pet": {
     "panel.title": "Mascote",
     "panel.look": "Aparência",
+    "panel.lang": "Idioma",
+    "panel.langAuto": "Automático (DSH)",
     "panel.voice": "Voz",
     "panel.display": "Exibição",
     "panel.actions": "Ações",

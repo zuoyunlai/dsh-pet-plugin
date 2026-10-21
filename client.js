@@ -57,17 +57,105 @@ window.__ModuleLoader__.load({
 
     /* ================= 文案（i18n） ================= */
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
-    // 语言取浏览器界面语言；没有对应语言时回落英文。
-    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.hide":"Hide 1h","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","placeholder.chat":"Say something to {name}…"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.hide":"藏 1h","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","placeholder.chat":"跟{name}说句话…"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.hide":"Ocultar 1h","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","placeholder.chat":"Dile algo a {name}…"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.hide":"Ocultar 1h","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","placeholder.chat":"Diga algo para {name}…"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.hide":"1 ghantaa chhupao","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","placeholder.chat":"{name} se kuchh kahein…"}}
+    // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
+    // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
+    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.hide":"Hide 1h","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","placeholder.chat":"Say something to {name}…"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"语言","panel.langAuto":"跟随 DSH","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.hide":"藏 1h","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","placeholder.chat":"跟{name}说句话…"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Automático (DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.hide":"Ocultar 1h","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","placeholder.chat":"Dile algo a {name}…"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Automático (DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.hide":"Ocultar 1h","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","placeholder.chat":"Diga algo para {name}…"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Bhasha","panel.langAuto":"Auto (DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.hide":"1 ghantaa chhupao","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","placeholder.chat":"{name} se kuchh kahein…"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
-    const PET_LANG = (() => {
+    const PET_LANG_KEY = 'dsh-pet.lang'
+
+    function normalizeLang(tag) {
+      const l = String(tag || '').slice(0, 2).toLowerCase()
+      return PET_LANGS.indexOf(l) >= 0 ? l : ''
+    }
+
+    function detectLang() {
+      // 1) 手动覆盖（面板里的「语言」下拉，或控制台设置）
       try {
-        const l = String((navigator.language || 'en')).slice(0, 2).toLowerCase()
-        return PET_LANGS.indexOf(l) >= 0 ? l : 'en'
+        const manual = normalizeLang(window.localStorage.getItem(PET_LANG_KEY))
+        if (manual) return manual
       } catch (e) {
-        return 'en'
+        /* ignore */
       }
-    })()
+      // 2) 宿主界面语言：DSH 切语言时会写 <html lang>
+      try {
+        const docLang = normalizeLang(document.documentElement.getAttribute('lang'))
+        if (docLang) return docLang
+      } catch (e) {
+        /* ignore */
+      }
+      // 3) 浏览器语言
+      try {
+        const nav = normalizeLang(navigator.language)
+        if (nav) return nav
+      } catch (e) {
+        /* ignore */
+      }
+      return 'en'
+    }
+
+    let PET_LANG = detectLang()
+
+    function setLang(next) {
+      const v = normalizeLang(next)
+      if (!v) return PET_LANG
+      if (v === PET_LANG) return PET_LANG
+      PET_LANG = v
+      return PET_LANG
+    }
+
+    /**
+     * 面板里的语言下拉：auto = 跟随宿主（清掉覆盖），其它 = 写 localStorage 覆盖。
+     * 立即重渲染，不用等下一次 tick。
+     */
+    function syncLangOverride(v) {
+      try {
+        if (!v || v === 'auto') window.localStorage.removeItem(PET_LANG_KEY)
+        else window.localStorage.setItem(PET_LANG_KEY, v)
+      } catch (e) {
+        /* ignore */
+      }
+      setLang(detectLang())
+      try {
+        notify()
+      } catch (e) {
+        /* runtime 还没起来 */
+      }
+    }
+
+    /**
+     * 宿主切换语言时只改 <html lang>，不会通知插件。盯住这个属性，
+     * 一变就重算语言并重渲染（手动手动覆盖优先，见 detectLang）。
+     */
+    function watchHostLang() {
+      let mo = null
+      try {
+        const el = document.documentElement
+        if (!el || typeof MutationObserver === 'undefined') return () => {}
+        mo = new MutationObserver(() => {
+          const before = PET_LANG
+          const next = detectLang()
+          if (next !== before) {
+            setLang(next)
+            try {
+              notify()
+            } catch (e) {
+              /* ignore */
+            }
+          }
+        })
+        mo.observe(el, { attributes: true, attributeFilter: ['lang'] })
+      } catch (e) {
+        return () => {}
+      }
+      return () => {
+        try {
+          if (mo) mo.disconnect()
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+
     function t(key, vars) {
       const d = PET_LOCALES[PET_LANG] || PET_LOCALES.en
       let out = (d && d[key]) || PET_LOCALES.en[key] || key
@@ -380,6 +468,7 @@ window.__ModuleLoader__.load({
 
     const DEFAULT_SETTINGS = {
       persona: 'violet',
+      lang: 'auto', // 'auto' 跟随 DSH 界面语言 | en/zh/es/pt/hi 手动锁定
       mode: 'always', // 'always' 常驻 | 'random' 随机出现
       probability: 35, // 随机模式：每小时出现概率（%）
       activeStart: '09:00',
@@ -1537,6 +1626,26 @@ window.__ModuleLoader__.load({
         h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.persona, options: personaOpts, onChange: (v) => update({ persona: v }) })),
         h(
           'div',
+          { className: 'dsh-pet-field wide' },
+          h('span', { className: 'lb' }, t('panel.lang')),
+          h(PetSelect, {
+            value: s.lang || 'auto',
+            options: [
+              { value: 'auto', label: t('panel.langAuto') },
+              { value: 'zh', label: '中文' },
+              { value: 'en', label: 'English' },
+              { value: 'es', label: 'Español' },
+              { value: 'pt', label: 'Português' },
+              { value: 'hi', label: 'हिन्दी' },
+            ],
+            onChange: (v) => {
+              update({ lang: v })
+              syncLangOverride(v)
+            },
+          }),
+        ),
+        h(
+          'div',
           { className: 'dsh-pet-seg' },
           h('button', { className: s.mode === 'always' ? 'on' : '', onClick: () => update({ mode: 'always' }) }, t('panel.always')),
           h('button', { className: s.mode === 'random' ? 'on' : '', onClick: () => update({ mode: 'random' }) }, t('panel.random')),
@@ -2508,6 +2617,16 @@ window.__ModuleLoader__.load({
             clearInterval(t)
           }
         })
+
+        // 语言：settings.lang 手动锁定则写进 localStorage 覆盖，否则跟随 <html lang>
+        try {
+          const saved = runtime.settings && runtime.settings.lang
+          if (saved && saved !== 'auto') window.localStorage.setItem(PET_LANG_KEY, saved)
+          setLang(detectLang())
+        } catch (e) {
+          /* ignore */
+        }
+        ctx.effect(() => watchHostLang())
 
         ctx.slots.inject('shell.overlay', () =>
           ctx.slots.register({ name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' }, PetOverlay),

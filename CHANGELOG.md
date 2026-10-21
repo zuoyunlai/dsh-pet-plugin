@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.9.1 — 2026-10-21
+
+- **修：文案不跟随 DSH 界面语言。** 原来读 `navigator.language`（操作系统/浏览器语言），
+  用户在 DSH 里切成英文时它仍是 `zh-CN`，面板一直中文。现在按宿主约定读 `<html lang>`
+  （DSH 的 i18n 服务切语言时会写它），并用 `MutationObserver` 监听，切换即时生效。
+- 检测顺序：`localStorage['dsh-pet.lang']` 手动覆盖 → `<html lang>` → `navigator.language` → 英文。
+- 面板「形象」区新增语言下拉（跟随 DSH / 中文 / English / Español / Português / हिन्दी）。
+
 ## 1.9.0 — 2026-10-21
 
 - **源码拆分**：2523 行的 `client.js` 拆成 `src/` 下 15 个文件（工具 / i18n / 形象 / 设置 /
