@@ -19,6 +19,7 @@
     "panel.active": "Hours",
     "panel.voiceOn": "Speech",
     "panel.neural": "Neural",
+    "voice.auto": "Auto (by language)",
     "panel.voiceName": "Timbre",
     "panel.volume": "Volume",
     "panel.pitch": "Pitch",

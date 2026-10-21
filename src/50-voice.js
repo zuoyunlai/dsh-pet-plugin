@@ -37,13 +37,18 @@
       if (runtime.mood === 'talk') runtime.mood = 'idle'
     }
 
+    /** 系统语音用的 locale 标签（神经音色由宿主按 lang 选） */
+    const SAPI_LANG = { zh: 'zh-CN', en: 'en-US', es: 'es-ES', pt: 'pt-BR', hi: 'hi-IN' }
+
     function voiceParams() {
       const p = persona()
       const s = runtime.settings
       return {
         pitch: Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch),
         rate: Number(s.voiceRate != null ? s.voiceRate : p.voice.rate),
-        voice: s.ttsVoice || 'xiaoxiao',
+        // 'auto' = 交给宿主按界面语言挑；其余是用户手选的具体音色
+        voice: s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : '',
+        lang: PET_LANG,
       }
     }
 
@@ -77,7 +82,8 @@
       const rate = ((v.rate - 1) * 100).toFixed(0)
       return (
         base +
-        '/dsh-pet/tts?voice=' + encodeURIComponent(v.voice) +
+        '/dsh-pet/tts?lang=' + encodeURIComponent(v.lang) +
+        (v.voice ? '&voice=' + encodeURIComponent(v.voice) : '') +
         '&pitch=' + encodeURIComponent((pitch >= 0 ? '+' : '') + pitch + 'Hz') +
         '&rate=' + encodeURIComponent((rate >= 0 ? '+' : '') + rate + '%') +
         '&text=' + encodeURIComponent(text)
@@ -96,7 +102,7 @@
         synth.cancel()
         const v = voiceParams()
         const u = new window.SpeechSynthesisUtterance(text)
-        u.lang = 'zh-CN'
+        u.lang = SAPI_LANG[PET_LANG] || 'zh-CN'
         u.pitch = clamp(v.pitch, 0, 2)
         u.rate = clamp(v.rate, 0.5, 2)
         u.volume = clamp(runtime.settings.volume, 0, 1)

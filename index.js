@@ -30,9 +30,34 @@ const TTS_CACHE_MAX = 60 * 1024 * 1024 // 60MB 上限，超了按最旧删
 const TTS_VOICES = {
   xiaoxiao: 'zh-CN-XiaoxiaoNeural',
   xiaoyi: 'zh-CN-XiaoyiNeural',
-  xiaomo: 'zh-CN-XiaomoNeural',
+  xiaomo: 'zh-CN-XiaoxiaoNeural',
+  ava: 'en-US-AvaNeural',
+  emma: 'en-US-EmmaNeural',
+  elvira: 'es-ES-ElviraNeural',
+  francisca: 'pt-BR-FranciscaNeural',
+  swara: 'hi-IN-SwaraNeural',
 }
 const TTS_DEFAULT = 'zh-CN-XiaoxiaoNeural'
+/** 界面语言 → 默认音色（'auto' 时用这张表） */
+const TTS_BY_LANG = {
+  zh: 'zh-CN-XiaoxiaoNeural',
+  en: 'en-US-AvaNeural',
+  es: 'es-ES-ElviraNeural',
+  pt: 'pt-BR-FranciscaNeural',
+  hi: 'hi-IN-SwaraNeural',
+}
+/** 语言码 → 提示词里用的语言名 */
+const LANG_NAMES = {
+  en: 'English',
+  es: 'Spanish',
+  pt: 'Portuguese',
+  hi: 'Hindi',
+}
+
+function voiceFor(requested, lang) {
+  if (requested && TTS_VOICES[requested]) return TTS_VOICES[requested]
+  return TTS_BY_LANG[String(lang || '').slice(0, 2).toLowerCase()] || TTS_DEFAULT
+}
 
 /** python 依赖目录：可选增强。有就找，没有就当神经语音不可用（自动退回系统语音）。 */
 function resolvePyDir() {
@@ -291,6 +316,7 @@ function systemPrompt(persona, lang) {
   const name = (persona && persona.name) || 'pet'
   if (lang !== 'zh') {
     const tagEn = (persona && persona.tagEn) || 'a desk pet living inside the DSH window'
+    const speak = LANG_NAMES[String(lang || '').slice(0, 2).toLowerCase()] || 'English'
     return [
       `You are "${name}", ${tagEn}. You live in the bottom-right corner of the user's DeepSeek Harness window as a desk pet.`,
       'How you talk:',
@@ -299,7 +325,7 @@ function systemPrompt(persona, lang) {
       '3. Never call yourself an AI, a model, an assistant or a program; never explain how you work.',
       '4. If the user asks something real, answer usefully in a sentence or two, without lecturing.',
       '5. If you do not know, say you do not know.',
-      '6. Answer in the same language the user writes in.',
+      `6. Speak ${speak} — that is the interface language the user picked. Only switch if the user writes in another language.`,
     ].join('\n')
   }
   const tag = (persona && persona.tag) || '一只住在 DSH 界面里的桌宠'
@@ -600,7 +626,7 @@ export function apply(ctx, config) {
     }
     const u = new URL(req.url || '/', 'http://local')
     const text = (u.searchParams.get('text') || '').trim().slice(0, 300)
-    const voice = TTS_VOICES[u.searchParams.get('voice')] || TTS_DEFAULT
+    const voice = voiceFor(u.searchParams.get('voice'), u.searchParams.get('lang'))
     const pitch = u.searchParams.get('pitch') || '+0Hz'
     const rate = u.searchParams.get('rate') || '+0%'
     if (!text) {
@@ -643,7 +669,7 @@ export function apply(ctx, config) {
     }
     res.writeHead(202, { 'content-type': 'application/json; charset=utf-8' })
     res.end('{"ok":true}')
-    const voice = TTS_VOICES[payload.voice] || TTS_DEFAULT
+    const voice = voiceFor(payload.voice, payload.lang)
     const pitch = payload.pitch || '+0Hz'
     const rate = payload.rate || '+0%'
     const lines = Array.isArray(payload.lines) ? payload.lines.slice(0, 60) : []

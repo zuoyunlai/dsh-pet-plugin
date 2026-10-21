@@ -14,7 +14,7 @@
       voicePitch: null, // null = 用形象自带的音高
       voiceRate: null, // null = 用形象自带的语速
       neuralVoice: true, // 用 edge-tts 的神经音色（失败自动退回系统 SAPI）
-      ttsVoice: 'xiaoxiao', // xiaoxiao / xiaoyi / xiaomo
+      ttsVoice: 'auto', // 'auto' 按界面语言挑 | xiaoxiao/ava/elvira/francisca/swara…
       chatter: true, // 主动蹦话
       showInput: true, // 宠物旁边的小输入框
       scale: 1.15,

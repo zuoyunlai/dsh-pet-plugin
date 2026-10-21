@@ -19,6 +19,7 @@
     "panel.active": "活跃",
     "panel.voiceOn": "说话",
     "panel.neural": "神经音色",
+    "voice.auto": "自动（按语言）",
     "panel.voiceName": "音色",
     "panel.volume": "音量",
     "panel.pitch": "音高",

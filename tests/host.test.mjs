@@ -83,6 +83,16 @@ test('tts/status 返回可用性布尔值', async () => {
   assert.ok(Array.isArray(j.voices))
 })
 
+test('tts 音色表覆盖多语言（界面语言切换后仍能出声）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/tts/status'), { url: '/dsh-pet/tts/status' })
+  const j = JSON.parse(res.body())
+  for (const v of ['xiaoxiao', 'ava', 'elvira', 'francisca', 'swara']) {
+    assert.ok(j.voices.indexOf(v) >= 0, 'missing voice ' + v)
+  }
+})
+
 test('tts 缺 text 时 400', async () => {
   const ctx = makeCtx()
   apply(ctx, {})

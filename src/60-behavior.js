@@ -11,7 +11,9 @@
 
     function randomLine(mood) {
       const p = persona()
-      const pack = PET_LANG === 'zh' || !p.linesEn ? p.lines : p.linesEn
+      // 语言包优先：lines<Lang> → linesEn → lines（中文原稿）
+      const key = 'lines' + PET_LANG.charAt(0).toUpperCase() + PET_LANG.slice(1)
+      const pack = (p[key] && PET_LANG !== 'zh' ? p[key] : null) || (PET_LANG === 'zh' || !p.linesEn ? p.lines : p.linesEn)
       const list = (pack && pack[mood]) || (p.lines && p.lines[mood]) || (p.lines && p.lines.idle) || []
       return list.length ? pick(list) : ''
     }

@@ -86,9 +86,14 @@
         label: PERSONAS[k].name + ' · ' + (PET_LANG === 'zh' || !PERSONAS[k].tagEn ? PERSONAS[k].tag : PERSONAS[k].tagEn),
       }))
       const voiceOpts = [
+        { value: 'auto', label: t('voice.auto') },
         { value: 'xiaoxiao', label: t('voice.xiaoxiao') },
         { value: 'xiaoyi', label: t('voice.xiaoyi') },
-        { value: 'xiaomo', label: t('voice.xiaomo') },
+        { value: 'ava', label: 'Ava · en' },
+        { value: 'emma', label: 'Emma · en' },
+        { value: 'elvira', label: 'Elvira · es' },
+        { value: 'francisca', label: 'Francisca · pt' },
+        { value: 'swara', label: 'Swara · hi' },
       ]
       const pitch = Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch)
       const rate = Number(s.voiceRate != null ? s.voiceRate : p.voice.rate)
