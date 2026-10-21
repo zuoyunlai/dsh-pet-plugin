@@ -124,11 +124,16 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 
 ## Customize
 
-- 加形象：在 `client.js` 的 `PERSONAS` 里加一项 —— `colors`（配色）、`ears`
-  （`antenna` / `cat` / `round`）、`voice`（pitch/rate）、`temper`（心情权重）、
-  `lines`（台词包）。不需要改任何渲染代码。
-- 加台词：往对应心情的数组里塞句子即可。
-- 加动作：在 `CSS` 的 keyframes 段落加动画，再在 `Face`/`PetArt` 里按 `mood` 挂 class。
+- **客户端产物是生成的**：改 `src/*.js`，然后 `node build.mjs` 拼成 `client.js`（DSH 只加载这一个
+  文件）。别手改 `client.js`；`npm test` 会先重建再跑冒烟。
+- **形象 / 台词 / 脾气**：`src/30-personas.js` 的 `PERSONAS` —— `images`（五种表情）、
+  `actions`（跳舞 / 撩发 / 走路各三帧）、`voice`（pitch/rate）、`temper`（心情权重）、
+  `lines` 与 `linesEn`（中英台词包）。
+- **界面文案**：改 `locale/*.json` 的 `pet` 命名空间，再 `node build.mjs` —— 字典在构建时注入
+  产物，所以 locale 文件是唯一真源。加语言：先 `node tools/gen-locales.cjs` 出骨架，再补翻译。
+- **动作动画**：`src/70-style.js` 里加 keyframes，在 `src/96-overlay.js` 按 `mood` 挂 class。
+- **立绘**：透明底 WebP 丢进 `assets/`，在 `PERSONAS` 里引用；宿主路由 `/dsh-pet/assets/`
+  只放行图片扩展名。
 
 ## Known limits
 

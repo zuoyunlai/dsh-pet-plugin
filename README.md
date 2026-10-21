@@ -90,10 +90,19 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 
 ## Customize
 
-- Personas, line packs and tempers live in `PERSONAS` in `client.js`.
-- New moods: add keyframes in the `CSS` block and map the class in `Face`/`PetArt`.
-- Host tunables (`provider`, `model`, `maxTokens`, `temperature`) are plugin config,
-  editable from `cordis.yml`.
+- **The client bundle is generated**: edit `src/*.js` and run `node build.mjs`, which
+  concatenates the parts into `client.js` (the only file DSH loads). Never edit
+  `client.js` by hand — `npm test` rebuilds and then runs the smoke test.
+- **Personas, lines and tempers**: `PERSONAS` in `src/30-personas.js` — `images` (five
+  expressions), `actions` (dance / hair / walk, three frames each), `voice`, `temper`,
+  and `lines` / `linesEn` line packs.
+- **UI strings**: edit the `pet` namespace in `locale/*.json`, then `node build.mjs` — the
+  dictionaries are injected at build time, so the locale files are the single source of
+  truth. New language: run `node tools/gen-locales.cjs` for a skeleton, then translate.
+- **Moods and animations**: add keyframes in `src/70-style.js` and map the class by `mood`
+  in `src/96-overlay.js`.
+- **Artwork**: drop transparent WebPs into `assets/` and reference them from `PERSONAS`;
+  the `/dsh-pet/assets/` route only serves image extensions.
 
 ## Known limits
 
