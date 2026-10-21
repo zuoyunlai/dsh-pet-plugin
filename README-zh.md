@@ -136,4 +136,4 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
   （Windows 上就是那几个 SAPI 音色，靠面板的音高/语速调）。`speak()` 是唯一出口，替换容易。
 - 浏览器自动播放策略：页面没有用户手势前可能不出声，点一下宠物即可解锁。
 - 设置存在浏览器 localStorage，换浏览器配置就没了。
-- 本插件是本地私有包（`private: true`），没有发布 npm 的打算。
+- 已开源发布：GitHub [zuoyunlai/dsh-pet-plugin](https://github.com/zuoyunlai/dsh-pet-plugin)，npm `dsh-pet-plugin`（MIT）。装法：`dsh plugin --profile desktop add dsh-pet-plugin`。
