@@ -1,0 +1,79 @@
+{
+  "name": "dsh-pet-plugin",
+  "version": "1.8.1",
+  "description": "DSH 桌宠插件：四只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "assets/*.webp",
+    "tools/tts_worker.py",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "README-zh.md",
+    "README-es.md",
+    "README-pt.md",
+    "README-hi.md",
+    "tests/*.mjs"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "^3.18.2"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
+    }
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "desktop-pet",
+    "pet",
+    "tts",
+    "companion"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-alpha.2"
+  },
+  "packageManager": "pnpm@11.7.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/host.test.mjs"
+  },
+  "author": {
+    "name": "TODO: your name",
+    "email": "TODO: you@example.com",
+    "url": "https://github.com/TODO"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TODO/dsh-pet-plugin.git"
+  },
+  "homepage": "https://github.com/TODO/dsh-pet-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/TODO/dsh-pet-plugin/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

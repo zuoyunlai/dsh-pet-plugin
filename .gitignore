@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+pnpm-lock.yaml
+
+# one-off previews (regenerate with `node tools/shoot-preview.mjs` when needed)
+preview*.png
+*.tgz
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# backups the installer leaves behind
+*.bak
+*.bak-*
+
+# scratch
+_*
