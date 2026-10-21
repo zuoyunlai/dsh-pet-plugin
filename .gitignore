@@ -5,6 +5,7 @@ pnpm-lock.yaml
 # one-off previews (regenerate with `node tools/shoot-preview.mjs` when needed)
 preview*.png
 *.tgz
+.github/release-notes/*.json
 
 # editor / OS
 .DS_Store
