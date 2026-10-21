@@ -61,17 +61,16 @@
     "test": "node --test tests/host.test.mjs"
   },
   "author": {
-    "name": "TODO: your name",
-    "email": "TODO: you@example.com",
-    "url": "https://github.com/TODO"
+    "name": "zuoyunlai",
+    "url": "https://github.com/zuoyunlai"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TODO/dsh-pet-plugin.git"
+    "url": "git+https://github.com/zuoyunlai/dsh-pet-plugin.git"
   },
-  "homepage": "https://github.com/TODO/dsh-pet-plugin#readme",
+  "homepage": "https://github.com/zuoyunlai/dsh-pet-plugin#readme",
   "bugs": {
-    "url": "https://github.com/TODO/dsh-pet-plugin/issues"
+    "url": "https://github.com/zuoyunlai/dsh-pet-plugin/issues"
   },
   "publishConfig": {
     "access": "public"

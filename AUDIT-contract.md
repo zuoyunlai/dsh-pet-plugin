@@ -117,7 +117,7 @@ GET 会合成音频并写盘。同源页面可刷缓存（有 60 MB 上限兜底
 | `private: true` | ✅ 已移除 | 发布必需 |
 | `publishConfig.access` | ✅ `public` | 避免 scoped 包默认私有 |
 | LICENSE | ✅ | MIT，文件 + `license` 字段（年份/作者留了 TODO） |
-| repository / homepage / bugs | ⚠️ 占位 | 已写 `github.com/TODO/...`，发布前替换成真地址 |
+| repository / homepage / bugs | ✅ | `github.com/zuoyunlai/dsh-pet-plugin`（仓库已建并推送） |
 | `files` 白名单 | ✅ | 14 项：入口、客户端、patch、locale、icon、`assets/*.webp`、TTS worker、CHANGELOG、LICENSE、五语 README |
 | `engines.dsh` | ✅ | `>=0.2.1-alpha.2` |
 | peerDependencies | ✅ | 只有 `@deepseek-ai/schemastery`，无 dependencies |
