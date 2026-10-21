@@ -750,20 +750,30 @@ export function apply(ctx, config) {
   const ttsKey = (voice, pitch, rate, text) =>
     createHash('sha1').update(JSON.stringify([voice, pitch, rate, text])).digest('hex').slice(0, 20)
 
+  // 只接受 POST：GET 版本会让任意网页（甚至本机任意进程）用一句 <audio src> 就驱动合成。
+  // 客户端改为 fetch 拿 blob 再 createObjectURL，所以不再需要可被直接当作 URL 的端点。
   const ttsHandler = async (req, res) => {
     if (applyCors(req, res)) return
+    if (req.method !== 'POST') {
+      reply(res, 405, { error: 'method-not-allowed' })
+      return
+    }
+    let payload = {}
+    try {
+      payload = JSON.parse((await readBody(req)) || '{}')
+    } catch (e) {
+      payload = {}
+    }
     if (ttsLimited()) {
       reply(res, 429, { error: 'rate-limited' })
       return
     }
-    const u = new URL(req.url || '/', 'http://local')
-    const text = (u.searchParams.get('text') || '').trim().slice(0, 300)
-    const voice = voiceFor(u.searchParams.get('voice'), u.searchParams.get('lang'))
-    const pitch = pitchOf(u.searchParams.get('pitch'))
-    const rate = rateOf(u.searchParams.get('rate'))
+    const text = typeof payload.text === 'string' ? payload.text.trim().slice(0, 300) : ''
+    const voice = voiceFor(payload.voice, payload.lang)
+    const pitch = pitchOf(payload.pitch)
+    const rate = rateOf(payload.rate)
     if (!text) {
-      res.writeHead(400)
-      res.end()
+      reply(res, 400, { error: 'empty-text' })
       return
     }
     const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text) + '.mp3')
@@ -787,7 +797,7 @@ export function apply(ctx, config) {
     }
     try {
       const buf = await readFile(file)
-      res.writeHead(200, { 'content-type': 'audio/mpeg', 'cache-control': 'public, max-age=604800' })
+      res.writeHead(200, { 'content-type': 'audio/mpeg', 'cache-control': 'no-store' })
       res.end(buf)
     } catch (e) {
       res.writeHead(500)

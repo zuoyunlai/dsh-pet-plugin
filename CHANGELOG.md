@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.0 — 2026-10-21
+
+**接口形态变更**：`/dsh-pet/tts` 从 `GET` 改成 `POST`，`GET` 端点取消（返回 405）。
+
+- 起因：只要存在可以喂给 `<audio src>` 的 URL，任何页面（以及本机任意进程——它自己
+  `GET /` 就能拿到 token）都能驱动宿主合成音频并写盘。token 校验挡不住这条路，
+  唯一根治办法是不提供"可被当作 URL 使用的合成端点"。
+- 客户端改为 `fetch(POST)` 拿 `blob` → `URL.createObjectURL` → `<audio>` 播放，
+  播完/失败即 `revokeObjectURL`；连说两句时用自增序号丢弃过期的那个，避免两句抢播。
+- 响应头 `cache-control: no-store`（POST 结果不进浏览器缓存）。
+- 冒烟新增断言：请求必须是 POST、必须打到 `/dsh-pet/tts`、播放的必须是 blob URL。
+- 宿主单测：`tts 只接受 POST` 与 `tts 缺 text 时 400` 拆成两条。
+
+升级提示：这是唯一不向后兼容的改动（外部脚本若直接 `GET /dsh-pet/tts?text=` 会拿到 405）。
+面板与语音行为不变。
+
 ## 1.9.4 — 2026-10-21
 
 安全修订（依据 `SECURITY-AUDIT-v1.9.3.md`）。所有判定都不绑定端口/域名/平台，

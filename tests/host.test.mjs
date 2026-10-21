@@ -105,10 +105,21 @@ test('tts 音色表覆盖多语言（界面语言切换后仍能出声）', asyn
   }
 })
 
+test('tts 只接受 POST（GET 端点已取消）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/tts'), { method: 'GET', url: '/dsh-pet/tts?text=hi' })
+  assert.equal(res.statusCode, 405)
+})
+
 test('tts 缺 text 时 400', async () => {
   const ctx = makeCtx()
   apply(ctx, {})
-  const res = await call(ctx.routes.get('/dsh-pet/tts'), { url: '/dsh-pet/tts' })
+  const res = await call(ctx.routes.get('/dsh-pet/tts'), {
+    method: 'POST',
+    url: '/dsh-pet/tts',
+    body: '{}',
+  })
   assert.equal(res.statusCode, 400)
 })
 
@@ -258,8 +269,8 @@ test('tts 的 pitch/rate 只接受固定形状', async () => {
   const ctx = makeCtx()
   apply(ctx, {})
   // 这两条不该 500：要么 503（合成不可用），要么 200，但绝不能是因为参数怪而崩
-  for (const q of ['pitch=evil%3Cx%3E', 'rate=%00%00', 'pitch=+999999Hz']) {
-    const res = await call(ctx.routes.get('/dsh-pet/tts'), { url: '/dsh-pet/tts?text=hi&' + q })
+  for (const q of ['{"text":"hi","pitch":"<x>"}', '{"text":"hi","rate":"\\u0000"}', '{"text":"hi","pitch":"+999999Hz"}']) {
+    const res = await call(ctx.routes.get('/dsh-pet/tts'), { method: 'POST', url: '/dsh-pet/tts', body: q })
     assert.ok([200, 503].indexOf(res.statusCode) >= 0, q + ' -> ' + res.statusCode)
   }
 })

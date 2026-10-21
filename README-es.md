@@ -73,6 +73,8 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   `dsh-app://shell`); y `Sec-Fetch-Site`, cuando existe, solo admite `same-origin` o
   `none`. Los clientes que no envían nada de eso pasan — ese es el límite real de un
   endpoint HTTP local.
+- La síntesis es un endpoint `POST` que devuelve los bytes; no hay URL GET que
+  poner en un `<audio src>`.
 - El audio sintetizado se guarda en el directorio temporal con un tope que se revisa
   **después de cada síntesis**, y se escribe con un nombre temporal aleatorio y
   `rename`, así que un enlace simbólico plantado no puede desviarlo.

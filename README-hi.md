@@ -71,6 +71,8 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   yaa desktop shell (`dsh-app://app`, `dsh-app://shell`) hona chahiye; aur
   `Sec-Fetch-Site`, jab ho, sirf `same-origin` yaa `none` chalta hai. Jin clients mein
   yeh headers nahi hote, unhe jaane diya jaata hai — local HTTP endpoint ki yahi seema hai.
+- Synthesis ek `POST` endpoint hai jo bytes lautaa hai; `<audio src>` mein daalne ke
+  liye koi GET URL nahi hai.
 - Synthesised audio temp directory mein rehta hai, aur uska size cap **har synthesis ke
   baad** dobara check hota hai; likhai random temp naam + `rename` se hoti hai, is liye
   pehle se rakha gaya symlink use mod nahi sakta.

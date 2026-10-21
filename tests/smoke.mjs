@@ -70,6 +70,31 @@ ctx.window.speechSynthesis = {
     if (u.onend) u.onend()
   },
 }
+// 神经语音链路（1.10 起是 POST + blob）的桩
+const neuralTts = { calls: [], played: [], revoked: [] }
+ctx.fetch = async (url, init) => {
+  neuralTts.calls.push({ url, method: (init && init.method) || 'GET', body: init && init.body })
+  return { ok: true, status: 200, blob: async () => ({ size: 2048, type: 'audio/mpeg' }) }
+}
+ctx.window.URL = {
+  createObjectURL: (blob) => {
+    neuralTts.blobs = (neuralTts.blobs || 0) + 1
+    return 'blob:fake-' + neuralTts.blobs
+  },
+  revokeObjectURL: (u) => neuralTts.revoked.push(u),
+}
+ctx.Audio = class {
+  constructor(src) {
+    this.src = src
+  }
+  play() {
+    neuralTts.played.push(this.src)
+    return Promise.resolve()
+  }
+  pause() {}
+}
+ctx.window.speechSynthesis = ctx.window.speechSynthesis
+
 ctx.window.SpeechSynthesisUtterance = class {
   constructor(text) {
     this.text = text
@@ -209,6 +234,21 @@ assert.equal(inActiveWindow(at(10, 0), '09:00', '23:00'), true)
 assert.equal(inActiveWindow(at(8, 0), '09:00', '23:00'), false)
 assert.equal(inActiveWindow(at(1, 0), '22:00', '03:00'), true, '跨零点时段')
 assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时段之外')
+
+/* ---------- 神经语音：POST + blob ---------- */
+{
+  petApi.runtime.settings.neuralVoice = true
+  petApi.runtime.neuralOk = true
+  petApi.runtime.settings.voiceOn = true
+  petApi.bubble('神经语音测试', 3000)
+  await new Promise((r) => setTimeout(r, 60))
+  const call = neuralTts.calls[neuralTts.calls.length - 1]
+  assert.ok(call, '应该发起了一次 tts 请求')
+  assert.equal(call.method, 'POST', 'tts 必须走 POST（GET 端点已取消）')
+  assert.ok(String(call.url).endsWith('/dsh-pet/tts'), '请求应打到 /dsh-pet/tts')
+  assert.ok(neuralTts.played.some((u) => String(u).startsWith('blob:')), '播放的应是 blob URL')
+  console.log('OK  neural tts: POST + blob', call.url)
+}
 
 /* ---------- 结论 ---------- */
 console.log('OK  slots:', slots.join(', '))

@@ -939,6 +939,22 @@ window.__ModuleLoader__.load({
       if (runtime.mood === 'talk') runtime.mood = 'idle'
     }
 
+    // 每说一句自增：异步拿到 blob 时用它判断这句是不是已经过期
+    let speakSeq = 0
+
+    /** 连续失败 3 次才降级成系统语音；成功一次就清零 */
+    function noteNeuralFail(reason) {
+      runtime.neuralFails = (runtime.neuralFails || 0) + 1
+      runtime.neuralReason = reason
+      petLog('neural tts failed', { n: runtime.neuralFails, reason })
+      if (runtime.neuralFails >= 3) runtime.neuralOk = false
+    }
+
+    function noteNeuralOk() {
+      if (runtime.neuralFails) runtime.neuralFails = 0
+      if (runtime.neuralOk === false && runtime.settings.neuralVoice !== false) runtime.neuralOk = undefined
+    }
+
     /** 系统语音用的 locale 标签（神经音色由宿主按 lang 选） */
     const SAPI_LANG = { zh: 'zh-CN', en: 'en-US', es: 'es-ES', pt: 'pt-BR', hi: 'hi-IN' }
 
@@ -964,7 +980,8 @@ window.__ModuleLoader__.load({
         fetch(base + '/dsh-pet/tts/status')
           .then((r) => (r.ok ? r.json() : null))
           .then((j) => {
-            runtime.neuralOk = !!(j && j.available)
+            // 探测失败不永久关闭：置 undefined，下次说话再试（3 次连续失败才降级）
+            runtime.neuralOk = j && j.available ? true : undefined
             runtime.neuralReason = (j && j.reason) || ''
             petLog('tts status', { ok: runtime.neuralOk, reason: runtime.neuralReason })
             notify()
@@ -977,19 +994,34 @@ window.__ModuleLoader__.load({
       }
     }
 
-    function ttsUrl(text) {
+    /** POST 到 /dsh-pet/tts，拿回 mp3 的 objectURL（GET 端点已取消） */
+    async function ttsBlobUrl(text) {
       const v = voiceParams()
       const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
       const pitch = ((v.pitch - 1) * 100).toFixed(0)
       const rate = ((v.rate - 1) * 100).toFixed(0)
-      return (
-        base +
-        '/dsh-pet/tts?lang=' + encodeURIComponent(v.lang) +
-        (v.voice ? '&voice=' + encodeURIComponent(v.voice) : '') +
-        '&pitch=' + encodeURIComponent((pitch >= 0 ? '+' : '') + pitch + 'Hz') +
-        '&rate=' + encodeURIComponent((rate >= 0 ? '+' : '') + rate + '%') +
-        '&text=' + encodeURIComponent(text)
-      )
+      const body = {
+        text,
+        lang: v.lang,
+        voice: v.voice || undefined,
+        pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
+        rate: (rate >= 0 ? '+' : '') + rate + '%',
+      }
+      const res = await fetch(base + '/dsh-pet/tts', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error('tts http ' + res.status)
+      const blob = await res.blob()
+      try {
+        runtime.lastBlobSize = blob.size
+        runtime.lastBlobType = blob.type
+      } catch (e) {
+        /* ignore */
+      }
+      if (!blob || !blob.size) throw new Error('tts empty body')
+      return window.URL.createObjectURL(blob)
     }
 
     /** 系统 SAPI 兜底（神经语音失败时用）。 */
@@ -1055,26 +1087,55 @@ window.__ModuleLoader__.load({
             /* ignore */
           }
         }
-        const a = new Audio(ttsUrl(text))
-        runtime.lastTts = 'neural'
-        a.volume = clamp(runtime.settings.volume, 0, 1)
-        currentAudio = a
-        a.onended = restore
-        a.onerror = () => {
-          currentAudio = null
-          runtime.neuralOk = false
-          runtime.neuralReason = 'audio error ' + ((a.error && a.error.code) || '?')
-          petLog('neural tts failed, fallback to sapi')
-          saySapi(text, restore)
-        }
-        const pr = a.play()
-        if (pr && typeof pr.catch === 'function') {
-          pr.catch((err) => {
-            currentAudio = null
-            runtime.lastTts = 'neural-blocked:' + String((err && err.name) || err)
+        const seq = ++speakSeq
+        ttsBlobUrl(text)
+          .then((url) => {
+            // 期间又说了新的一句：丢掉这条，别让两句抢着播
+            if (seq !== speakSeq) {
+              try {
+                window.URL.revokeObjectURL(url)
+              } catch (e) {
+                /* ignore */
+              }
+              return
+            }
+            const a = new Audio(url)
+            runtime.lastTts = 'neural'
+            a.volume = clamp(runtime.settings.volume, 0, 1)
+            currentAudio = a
+            const drop = () => {
+              try {
+                window.URL.revokeObjectURL(url)
+              } catch (e) {
+                /* ignore */
+              }
+            }
+            a.onended = () => {
+              drop()
+              restore()
+            }
+            a.onerror = () => {
+              drop()
+              currentAudio = null
+              noteNeuralFail('audio error ' + ((a.error && a.error.code) || '?') + ' size=' + (runtime.lastBlobSize || 0) + ' type=' + (runtime.lastBlobType || '-'))
+              saySapi(text, restore)
+            }
+            a.onplaying = () => noteNeuralOk()
+            const pr = a.play()
+            if (pr && typeof pr.catch === 'function') {
+              pr.catch((err) => {
+                drop()
+                currentAudio = null
+                runtime.lastTts = 'neural-blocked:' + String((err && err.name) || err)
+                saySapi(text, restore)
+              })
+            }
+          })
+          .catch((err) => {
+            if (seq !== speakSeq) return
+            noteNeuralFail(String((err && err.message) || err))
             saySapi(text, restore)
           })
-        }
       } catch (e) {
         saySapi(text, restore)
       }

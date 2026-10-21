@@ -113,6 +113,9 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   (`dsh-app://app`, `dsh-app://shell`); and `Sec-Fetch-Site`, when present, must be
   `same-origin` or `none`. Non-browser clients that send none of these are allowed —
   that is the deliberate limit of a local HTTP endpoint, see below.
+- Speech synthesis is a `POST` endpoint that returns the audio bytes; there is no
+  GET URL to feed to an `<audio src>`, so a page (or another local process) cannot make
+  the host synthesise anything by pointing an element at it.
 - Synthesised speech is cached in the OS temp dir with a size cap that is re-checked
   after every synthesis, and writes go through a random temp name + rename so a
   pre-planted symlink cannot redirect them.

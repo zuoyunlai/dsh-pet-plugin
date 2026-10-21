@@ -142,6 +142,8 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
   与本次 `Host` 同源，或是桌面壳（`dsh-app://app`、`dsh-app://shell`）；带了
   `Sec-Fetch-Site` 就只接受 `same-origin`/`none`。三者都没有的非浏览器客户端放行
   —— 这是本机 HTTP 端点的固有限度，见下。
+- 语音合成是 `POST` 端点、直接回音频字节；不存在可以喂给 `<audio src>` 的 GET URL，
+  所以页面（或本机其它进程）没法靠"指向一个地址"就让宿主合成。
 - 合成音频缓存在系统临时目录，上限在**每次合成后**复检（不是只在启动时），落盘走
   「随机临时名 + rename」，预先埋好的符号链接改不了落点。
 - 页面送来的一切（设置、聊天历史、人设 id）都当数据：校验、限长，绝不拼成指令或标记。
