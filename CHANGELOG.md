@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.17.1 — 2026-10-22
+
+审计 O2–O5 / O9 / O12：工程配套补齐。
+
+- **CI 测试工作流**（`.github/workflows/test.yml`）：push/PR 触发构建可复现校验、
+  生成器同步检查、30 条宿主测试、冒烟、语法检查、npm pack 试跑。
+- **`/ping` 轮询降频**：宠物可见时 8s，不可见时 30s（从 setInterval 改自调度 setTimeout）。
+- **`release.cjs --confirm`**：发布前显示当前/上次版本并要求输入 y；`--yes` 跳过。
+- **CONTRIBUTING.md**：项目结构、构建测试、加形象、素材管线、加语言、发版流程。
+- **冒烟新增 i18n 断言**：五语 × 46 键全部非空（防漏翻或错语言）。
+- **`pets/example/pack.json`** 模板：五语占位台词齐全，`gen-personas` 排除不进构建。
+
 ## 1.17.0 — 2026-10-22
 
 四只形象全部用上 24fps 跳舞视频；设置面板不再挡人。

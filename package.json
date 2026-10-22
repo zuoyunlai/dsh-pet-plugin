@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.17.0",
+  "version": "1.17.1",
   "description": "DSH 桌宠插件：四只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
