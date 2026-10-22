@@ -73,7 +73,8 @@
       const frames = (p.actions && p.actions[name]) || null
       if (!frames || !frames.length) return false
       const o = opts || {}
-      const step = o.step || 340
+      // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
+      const step = o.step || (frames.length >= 6 ? 230 : 340)
       const until = nowMs() + (o.ms || 2400)
       runtime.action = { name, frames, i: 0, step, until, persona: p.id }
       notify()

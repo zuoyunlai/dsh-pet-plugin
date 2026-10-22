@@ -19,7 +19,14 @@
           poked: "pet-violet-shy.webp",
         },
         actions: {
-          dance: ["pet-violet-dance1.webp", "pet-violet-dance2.webp", "pet-violet-dance3.webp"],
+          dance: [
+            "pet-violet-dance1.webp",
+            "pet-violet-dance2.webp",
+            "pet-violet-dance3.webp",
+            "pet-violet-dance4.webp",
+            "pet-violet-dance5.webp",
+            "pet-violet-dance6.webp",
+          ],
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },

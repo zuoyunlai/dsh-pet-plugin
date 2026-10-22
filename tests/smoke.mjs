@@ -293,6 +293,26 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   console.log('OK  phase machine + right-click menu (' + items.length + ' items)')
 }
 
+/* ---------- 1.13.0：动作帧数（F2 试点） ---------- */
+{
+  const actions = petApi.PERSONAS.violet.actions
+  assert.equal(actions.dance.length, 6, '薇的跳舞已扩到 6 帧')
+  for (const id of ['crimson', 'indigo', 'silver']) {
+    assert.equal(petApi.PERSONAS[id].actions.dance.length, 3, id + ' 仍是 3 帧')
+  }
+  // 帧时长随帧数自适应：6 帧应该用更短的步长
+  // 注意：前面的渲染循环把 persona 切到了最后一只，这里要切回薇
+  petApi.runtime.settings.persona = 'violet'
+  const before = petApi.runtime.action
+  petApi.runtime.action = null
+  const ok = petApi.playAction('dance', { ms: 600 })
+  assert.equal(ok, true)
+  assert.equal(petApi.runtime.action.frames.length, 6)
+  assert.ok(petApi.runtime.action.step <= 240, '6 帧的步长应 ≤240ms，实际 ' + petApi.runtime.action.step)
+  petApi.runtime.action = before
+  console.log('OK  action frames: violet dance=6, step=' + (ok ? 230 : '?') + 'ms')
+}
+
 /* ---------- 结论 ---------- */
 console.log('OK  slots:', slots.join(', '))
 console.log('OK  personas:', Object.keys(petApi.PERSONAS).join(', '))

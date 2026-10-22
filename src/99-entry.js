@@ -40,6 +40,7 @@
             syncPhase,
             hidePet,
             showPet,
+            playAction,
           }
         }
       }

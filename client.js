@@ -186,7 +186,14 @@ window.__ModuleLoader__.load({
           poked: "pet-violet-shy.webp",
         },
         actions: {
-          dance: ["pet-violet-dance1.webp", "pet-violet-dance2.webp", "pet-violet-dance3.webp"],
+          dance: [
+            "pet-violet-dance1.webp",
+            "pet-violet-dance2.webp",
+            "pet-violet-dance3.webp",
+            "pet-violet-dance4.webp",
+            "pet-violet-dance5.webp",
+            "pet-violet-dance6.webp",
+          ],
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
@@ -873,7 +880,8 @@ window.__ModuleLoader__.load({
       const frames = (p.actions && p.actions[name]) || null
       if (!frames || !frames.length) return false
       const o = opts || {}
-      const step = o.step || 340
+      // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
+      const step = o.step || (frames.length >= 6 ? 230 : 340)
       const until = nowMs() + (o.ms || 2400)
       runtime.action = { name, frames, i: 0, step, until, persona: p.id }
       notify()
@@ -3052,6 +3060,7 @@ window.__ModuleLoader__.load({
             syncPhase,
             hidePet,
             showPet,
+            playAction,
           }
         }
       }

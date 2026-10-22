@@ -21,12 +21,8 @@ im = Image.open(src).convert('RGB')
 w, h = im.size
 arr = np.asarray(im).astype(np.float32) / 255.0
 
-# 右下角水印：只对浅色背景那批有意义，绿幕批会把这一步结果冲掉
-y0, x0 = int(h * 0.90), int(w * 0.78)
-w_region = arr[y0:, x0:]
-if w_region.size and w_region[..., 1].mean() < 0.6:
-    arr[y0:, x0:] = np.array([0.98, 0.94, 0.95])
-
+# 先判背景类型：绿幕图不能跑「右下角水印」那一步——绿幕渲染的右下角常有投影，
+# 绿通道均值会低于阈值，于是被当成浅色底抹成一块白方块（实测踩过）。
 border = np.concatenate(
     [
         arr[:24].reshape(-1, 3),
@@ -36,6 +32,13 @@ border = np.concatenate(
     ]
 ).mean(axis=0)
 is_green = border[1] > 0.55 and border[1] - max(border[0], border[2]) > 0.3
+
+# 右下角水印：只对浅色渐变背景那批有意义
+if not is_green:
+    y0, x0 = int(h * 0.90), int(w * 0.78)
+    w_region = arr[y0:, x0:]
+    if w_region.size and w_region[..., 1].mean() < 0.6:
+        arr[y0:, x0:] = np.array([0.98, 0.94, 0.95])
 
 if is_green:
     g = arr[..., 1]
