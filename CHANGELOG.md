@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.10.2 — 2026-10-22
+
+- **宿主版本要求说清楚了**：
+  - `package.json` 补 `dsh.manifestVersion: 1`；`engines.dsh: ">=0.2.1-alpha.2"` 保留。
+    注意：`engines.dsh` **只是声明，安装器不校验**（指南 §7.0 明确写"当前安装器/加载器都不校验"）。
+    真正会被 `dsh plugin add` 强制的是 `@deepseek-ai/dsh-*` 的 peerDependencies —— 本插件刻意
+    **不声明**这类 peer，因为它一个 dsh 运行时包都不 import，加假的 peer 只会让老版本被误拒。
+  - 唯一的 dsh peer 是 `@deepseek-ai/schemastery@^3.18.2`（本机宿主 3.18.5，匹配）。
+  - 挂 slot 改成软失败：宿主太旧（没有 `shell.overlay` 插槽）时只打一行说明，
+    不再把异常抛进 boot 把整个 bundle 打掉。
+  - README 的 Known limits 里写明：在 0.2.1-alpha.2 上开发验证；0.1.x 会装上但挂不出来。
+
 ## 1.10.1 — 2026-10-21
 
 **接口形态变更**：`/dsh-pet/tts` 从 `GET` 改成 `POST`，`GET` 端点取消（返回 405）。

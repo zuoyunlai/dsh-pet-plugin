@@ -152,6 +152,13 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 
 ## Known limits
 
+- **宿主版本**：在 dsh `0.2.1-alpha.2` 上开发与验证。它需要 `webServer` 服务，以及
+  `shell.overlay` / `conversation.input.right` 两个插槽——这些是 0.2 世代的 API，装在
+  0.1.x 上会「装上但挂不出来」（控制台会打一行说明）。`package.json` 里的 `engines.dsh`
+  只是声明，安装器并不强制；本插件也**刻意不声明** `@deepseek-ai/dsh-*` 的 peer 范围，
+  所以版本不匹配不会阻断安装。
+
+
 - 神经语音是**可选增强**：宿主得有 python + `edge_tts`，否则退回系统 `speechSynthesis`
   （Windows 上就是那几个 SAPI 音色，靠面板的音高/语速调）。`speak()` 是唯一出口，替换容易。
 - 浏览器自动播放策略：页面没有用户手势前可能不出声，点一下宠物即可解锁。

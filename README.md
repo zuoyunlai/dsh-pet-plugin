@@ -126,6 +126,14 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 
 ## Known limits
 
+- **Host version**: built and tested against dsh `0.2.1-alpha.2`. It needs the
+  `webServer` service and the `shell.overlay` / `conversation.input.right` slots, which
+  are 0.2-generation APIs — on a 0.1.x host it installs but never mounts (one console line
+  says so). `engines.dsh` in `package.json` is a declaration only: the installer does not
+  enforce it, and the plugin declares no `@deepseek-ai/dsh-*` peer ranges on purpose, so a
+  version mismatch never blocks installation.
+
+
 - Neural voice needs a host python with `edge_tts`; otherwise the system SAPI voice is used.
 - Browsers block autoplay before the first user gesture — click the page once.
 - Settings live in `localStorage`. The debug handle (`globalThis.__dshPet`) stays off unless

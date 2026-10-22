@@ -3010,13 +3010,37 @@ window.__ModuleLoader__.load({
         }
         ctx.effect(() => watchHostLang())
 
-        ctx.slots.inject('shell.overlay', () =>
-          ctx.slots.register({ name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' }, PetOverlay),
+        /**
+         * 挂 slot。宿主版本太旧时（slot 名在 0.2 世代才统一成现在这套），
+         * 宁可打一行明确日志、什么都不挂，也不要把异常抛进 boot 把整个 bundle 打掉。
+         */
+        const mountSlot = (slot, spec, Component) => {
+          try {
+            ctx.slots.inject(slot, () => ctx.slots.register(spec, Component))
+          } catch (e) {
+            try {
+              console.warn(
+                '[dsh-pet] 这个宿主没有 "' +
+                  slot +
+                  '" 插槽，桌宠无法挂载。需要 dsh >= 0.2.1-alpha.2（本插件实测版本）。',
+              )
+            } catch (e2) {
+              /* ignore */
+            }
+          }
+        }
+
+        mountSlot(
+          'shell.overlay',
+          { name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' },
+          PetOverlay,
         )
 
         // 输入框右侧的常驻入口：宠物被挡住/藏起来时的唯一可靠入口
-        ctx.slots.inject('conversation.input.right', () =>
-          ctx.slots.register({ name: 'conversation.input.right', id: 'dsh-pet-toggle', order: 50, label: t('pet.toggle'), locale: 'pet' }, PetToggle),
+        mountSlot(
+          'conversation.input.right',
+          { name: 'conversation.input.right', id: 'dsh-pet-toggle', order: 50, label: t('pet.toggle'), locale: 'pet' },
+          PetToggle,
         )
       },
     }
