@@ -34,14 +34,20 @@ jobs:
       - name: Persona generator in sync
         run: node tools/gen-personas.cjs --check
 
-      - name: Host tests (30)
+      - name: Asset baseline (sha256 manifest)
+        run: node tools/assets-manifest.cjs
+
+      - name: Host tests
         run: node --test tests/host.test.mjs
 
-      - name: Smoke (renders personas/moods/panel, asserts video element)
+      - name: Asset tests
+        run: node --test tests/assets.test.mjs
+
+      - name: Smoke (renders personas/moods/panel, asserts video element + i18n)
         run: node tests/smoke.mjs
 
-      - name: Syntax check index.js
-        run: node --check index.js
+      - name: Syntax check index.js and lib
+        run: node --check index.js && node --check lib/tts.js && node --check lib/prompt.js
 
       - name: npm pack dry run
         run: npm pack --dry-run 2>&1 | tee /dev/stderr | grep -q "package size" || exit 1

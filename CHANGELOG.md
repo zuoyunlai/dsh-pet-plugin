@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.18.1 — 2026-10-22
+
+审计 O8 + O10：探测工具合并、资产回归基线。
+
+- **`tools/probe.mjs` 单一入口**：`--scenario=video|panel|clips|dom`，
+  共用同一套无头 Chrome + CDP 引导。原来三个脚本（probe-video / probe-panel /
+  probe-clips）与 `tests/probe.mjs` 全部合并删除，重复代码从 4 份降为 1 份。
+  三个场景实测通过：video（readyState=4、0.8s 内推进 0.802s）、
+  panel（重叠 143×0）、clips（四只全部实时播放）。
+- **资产回归基线**：`tools/assets-manifest.cjs` 生成 `tests/assets-manifest.json`
+  （66 个文件的 sha256 + 字节数），`tests/assets.test.mjs` 断言资产未被动过。
+  有意换素材时显式跑 `--update`——"资产变了"从此是一次决定，不是副作用。
+  另一个用例校验每个 pack 引用的贴图/动作/片段都真实存在于 assets/。
+- CI 增加两条：资产基线校验、`tests/assets.test.mjs`；语法检查覆盖 `lib/`。
+
+为什么不用截图对比：截图受动画时序、字体渲染、窗口尺寸影响，在 CI 上几乎必然误报；
+而"素材文件本身变了"是确定性的，正好是这类插件最容易悄悄回归的地方。
+
 ## 1.18.0 — 2026-10-22
 
 审计 O7：`index.js` 拆分（935 → 608 行），行为不变。

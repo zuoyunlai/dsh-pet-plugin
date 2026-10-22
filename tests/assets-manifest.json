@@ -1,0 +1,270 @@
+{
+  "generatedAt": "baseline",
+  "count": 66,
+  "files": {
+    "pet-crimson-angry.webp": {
+      "bytes": 31082,
+      "sha256": "23c62f7b24cf09e81fe081887046788dbc8a953e054d42e1fbadc9d5caf432cc"
+    },
+    "pet-crimson-dance.webm": {
+      "bytes": 899909,
+      "sha256": "1b4a3b862dc24ed93616b18546c0dc99ef913873f8809cf9a8bc4ef3c9b29360"
+    },
+    "pet-crimson-dance1.webp": {
+      "bytes": 34762,
+      "sha256": "bf5474fbe6d8be2c5427462e2a2ebc68a2a0e1b45712acfb11f8d0ade87311e3"
+    },
+    "pet-crimson-dance2.webp": {
+      "bytes": 45178,
+      "sha256": "cc4ca862a8abff71cbf62b999e66e16343f4c47a2bbfa09ca324bc8bcecb9554"
+    },
+    "pet-crimson-dance3.webp": {
+      "bytes": 28770,
+      "sha256": "c15cefdfe225dab6e2779ebc9051f22f5571c35b71dc113e639646a63620dc03"
+    },
+    "pet-crimson-dance4.webp": {
+      "bytes": 42454,
+      "sha256": "b66f28dd6de70cced8dcdf3d9caee214b5582ff6b9da0dd0dde11ed4d5dd12a4"
+    },
+    "pet-crimson-dance5.webp": {
+      "bytes": 41776,
+      "sha256": "60cc5a1ea882fc4bda3673bcefb442633625b916f287fc248969f073a7e92406"
+    },
+    "pet-crimson-dance6.webp": {
+      "bytes": 38408,
+      "sha256": "67569e9c82d5e1b87f125d24a1feba23734b612ad7354729d60ee3e7a354e1c4"
+    },
+    "pet-crimson-hair1.webp": {
+      "bytes": 37306,
+      "sha256": "e08e4f02774e987ff4161900410dc2446724e005f3d7dafabe9ed425dd5efa2f"
+    },
+    "pet-crimson-hair2.webp": {
+      "bytes": 38466,
+      "sha256": "96394746824a021f29d113a2f7fd462b0bbb74976b9e6d77d2e072c5bc0a6a6d"
+    },
+    "pet-crimson-hair3.webp": {
+      "bytes": 27836,
+      "sha256": "a7e556532ede23965ac401de722a0fed4fce4d08c80aef82962985b758f2165a"
+    },
+    "pet-crimson-happy.webp": {
+      "bytes": 31478,
+      "sha256": "a7ff2add508d7a938670e068ad0cc149424ee67e43a85eb8bcedbbfcff75d823"
+    },
+    "pet-crimson-shy.webp": {
+      "bytes": 32386,
+      "sha256": "d41b30d1bbc4e6ab12dd1e9def9dc131b5f65faeffd13f427ae37e06291643b5"
+    },
+    "pet-crimson-sleep.webp": {
+      "bytes": 31094,
+      "sha256": "d6abca36b36a1593fe5c504829d66314df1c9a98b90ebdbe2429a29e34e49c44"
+    },
+    "pet-crimson-walk1.webp": {
+      "bytes": 35438,
+      "sha256": "59cc234f792ef4fb575a55cc920e9412ac0f6ca65bbd4071ff41aa37f4546a2b"
+    },
+    "pet-crimson-walk2.webp": {
+      "bytes": 27600,
+      "sha256": "90b4cbec7b1e40c41dfa9951a0db04bbf7235100fe26307f3313686a224aa11b"
+    },
+    "pet-crimson-walk3.webp": {
+      "bytes": 30936,
+      "sha256": "4d86d10a576bdae107b98e0d6f5567950ca57b3c6555e906dd8e19747fc8eeb0"
+    },
+    "pet-crimson.webp": {
+      "bytes": 33146,
+      "sha256": "90ad1eaaf32d683b1ad9870f93facab35da0113f62047535c084e95be398948e"
+    },
+    "pet-indigo-angry.webp": {
+      "bytes": 33522,
+      "sha256": "3d3760c41467fb8f581c759910ea42d50e31c14d4f9e23ecc9354370bec0baf3"
+    },
+    "pet-indigo-dance.webm": {
+      "bytes": 846124,
+      "sha256": "22d95efd0ac1bf0f8a595dea1ccbdb1586cee3fb66eb9057897b6ab15df86fb9"
+    },
+    "pet-indigo-dance1.webp": {
+      "bytes": 33052,
+      "sha256": "04832748b6d89c980e79bebc742f65ce81b66ab2230e347c0077abbdb86dba1f"
+    },
+    "pet-indigo-dance2.webp": {
+      "bytes": 40066,
+      "sha256": "65578d575e51cf35e0b064b76f1f65e11c373e5c03ff55f53b07fb47e5358c2f"
+    },
+    "pet-indigo-dance3.webp": {
+      "bytes": 33910,
+      "sha256": "77023b03f4aecf62f7d763171e47da03b4470dc69d1463a220a45f4092c06587"
+    },
+    "pet-indigo-hair1.webp": {
+      "bytes": 33116,
+      "sha256": "5b97a0039be44a764fa83ba8fa1e9fffd3e88ecc2d3e42a87d4f8ccc892f9770"
+    },
+    "pet-indigo-hair2.webp": {
+      "bytes": 35046,
+      "sha256": "bfd7dcd5d4a3d4973a7c700b8b584d7bef354754d2b328ffd924361cf9fd38a6"
+    },
+    "pet-indigo-hair3.webp": {
+      "bytes": 32014,
+      "sha256": "f2b80d997c6cdb0d90f7e61f8c765558be19a76054f51a7db6a3af20e09eb2c2"
+    },
+    "pet-indigo-happy.webp": {
+      "bytes": 33362,
+      "sha256": "80aa94b4f7030cf7287670ef361269b5e3491a23677385250d0018425d47d501"
+    },
+    "pet-indigo-shy.webp": {
+      "bytes": 33054,
+      "sha256": "33a8ab3b1039601bf227411c2fda36866577f719feb09c94eab1cd22b46e49a7"
+    },
+    "pet-indigo-sleep.webp": {
+      "bytes": 33846,
+      "sha256": "e4093fb31b5e628292ad943c79a38d02ecc3f961241cb7d722e7ebca70b4f4b1"
+    },
+    "pet-indigo-walk1.webp": {
+      "bytes": 33364,
+      "sha256": "85511a509d321b3c4cec3ba99b9aee41c4106716cccd0bd89a92b306b67a0eaa"
+    },
+    "pet-indigo-walk2.webp": {
+      "bytes": 31184,
+      "sha256": "311d90fdf298c77c0eca0eb82a9a006ce8e7c4ff3e663f1d7299676edf77d577"
+    },
+    "pet-indigo-walk3.webp": {
+      "bytes": 33300,
+      "sha256": "890eb61cd286588bd227c329db0a2f462dacf17cc002b995bfe26f679095ce25"
+    },
+    "pet-indigo.webp": {
+      "bytes": 33288,
+      "sha256": "af6ff039c4217c5925e6f9005ded750f592d9fa6a3a4d643a7c1cb6cff97abf8"
+    },
+    "pet-silver-angry.webp": {
+      "bytes": 27486,
+      "sha256": "6fbf1f22d09558afd6c4eda1b7ed6a0d6446e6a53a1a4ad7b3931244389631d7"
+    },
+    "pet-silver-dance.webm": {
+      "bytes": 642042,
+      "sha256": "9e8306dbce5f0a8e851c8abc6a9f89808a32e4942c09751f981594d0d2f73eb0"
+    },
+    "pet-silver-dance1.webp": {
+      "bytes": 24476,
+      "sha256": "20bed8fc1a65c3e50655a214de4c1ac140db557fcc3abc1dd370ebf24f993159"
+    },
+    "pet-silver-dance2.webp": {
+      "bytes": 21916,
+      "sha256": "8c9edd1ca8f8c909c839165df1fdc5b02f47b8d02b9dc0d5ac3a42fa213e5f65"
+    },
+    "pet-silver-dance3.webp": {
+      "bytes": 22518,
+      "sha256": "4381ab130a795689c39c6b4cfa9def6084a8e29333b49e104d1b55ca226c01c6"
+    },
+    "pet-silver-hair1.webp": {
+      "bytes": 26976,
+      "sha256": "ba0e26763d03ce95a9835ff08bc4574036cbb4225cb8654769c269ffaea90a1d"
+    },
+    "pet-silver-hair2.webp": {
+      "bytes": 27162,
+      "sha256": "91812e68a69b815c7f9c57823f8eaf6a8ac0bed58be2cd84783226ab328a70f7"
+    },
+    "pet-silver-hair3.webp": {
+      "bytes": 23728,
+      "sha256": "467d5ea73f687301440265ef399d4cdac6427f778ac45e8a6704a4e81b5b16c5"
+    },
+    "pet-silver-happy.webp": {
+      "bytes": 27188,
+      "sha256": "6ba74f9b305ca11f841001d2f8962a93958e26d7d8260d0ca33ef730ed2c46fd"
+    },
+    "pet-silver-shy.webp": {
+      "bytes": 26834,
+      "sha256": "4ad53ed8fc11d47900b51415c78565bf4247b64e5d2a9b0b3be0d2155ac3e546"
+    },
+    "pet-silver-sleep.webp": {
+      "bytes": 26404,
+      "sha256": "79cc7b192e61e3ec67352982982cde0a8b4175c7ba1eacf0eb6327867c511f43"
+    },
+    "pet-silver-walk1.webp": {
+      "bytes": 25000,
+      "sha256": "e4df92784fd3471aa004f97a52be583cd5b04a4632e5df9886895aa2e3da6828"
+    },
+    "pet-silver-walk2.webp": {
+      "bytes": 21902,
+      "sha256": "d0c94e2438026a4a28d5452d01698fb73023d25c3947ebcae42013486c32db00"
+    },
+    "pet-silver-walk3.webp": {
+      "bytes": 26742,
+      "sha256": "769f1dcb195e5d17be1812281a27fa78ebf36bf5feb6ef7d8a574b70ba59a665"
+    },
+    "pet-silver.webp": {
+      "bytes": 26794,
+      "sha256": "2e125afae36cca3d84118297a198e12591690590bcc834bcf4eb4353e5c848b4"
+    },
+    "pet-violet-angry.webp": {
+      "bytes": 28312,
+      "sha256": "ba4c7bb0bd38400393f6bdde8ecfa551923a7bec72b603c50d373c91a660392c"
+    },
+    "pet-violet-dance.webm": {
+      "bytes": 676832,
+      "sha256": "f633da250d655bbd075eec2fd599698b05bfc577fd0f6168536440d1d454e2e6"
+    },
+    "pet-violet-dance1.webp": {
+      "bytes": 26666,
+      "sha256": "12e3ed5ee9d8a254e17c63e634a14544f3ab441fedda11facd9969c5680f7fc1"
+    },
+    "pet-violet-dance2.webp": {
+      "bytes": 34384,
+      "sha256": "87fc01a294d440c9e88d9b51805c9e21233afca8f0e5e3a3e0390f9ec070a73c"
+    },
+    "pet-violet-dance3.webp": {
+      "bytes": 30090,
+      "sha256": "4e929ff9ae3a4166a68590814fcbebed4a1bf4bbbacb81ed233bc56f1930f9e9"
+    },
+    "pet-violet-dance4.webp": {
+      "bytes": 31710,
+      "sha256": "ba543883dc6193680dcca1ad86d7fc460acc69dc41712b0b4f6cadc3f253a96b"
+    },
+    "pet-violet-dance5.webp": {
+      "bytes": 27172,
+      "sha256": "a745830e4f6dc047e150276e03506c356155cf4a17124dff608c031bd64b7ace"
+    },
+    "pet-violet-dance6.webp": {
+      "bytes": 24898,
+      "sha256": "768339465bfb72ffa11647990ee299f37992b769befb29cbea39aa1c7790cee4"
+    },
+    "pet-violet-hair1.webp": {
+      "bytes": 26022,
+      "sha256": "542ceee24f014609fc9cd2715c853bc67fb19bd2cd284d09da5cb678a1d31bad"
+    },
+    "pet-violet-hair2.webp": {
+      "bytes": 29358,
+      "sha256": "eb3d5f099bb0f80277a19f5218e45e5077a78940e6a8af3a75a7979fd44c03ba"
+    },
+    "pet-violet-hair3.webp": {
+      "bytes": 26474,
+      "sha256": "bd816d69e85c9a3bb702fef76df805225f00ddd09fa978e19cae897e085081d0"
+    },
+    "pet-violet-happy.webp": {
+      "bytes": 27116,
+      "sha256": "692482d99688c1f7739ba15d16135437bd18a213c1152134b4375562df00c49e"
+    },
+    "pet-violet-shy.webp": {
+      "bytes": 28352,
+      "sha256": "43b54e98ef74da7f45cf2935c8104c30b0492493b978951d1e5634b07702f7f2"
+    },
+    "pet-violet-sleep.webp": {
+      "bytes": 27030,
+      "sha256": "c76593faa470c93791192b89fda1dc8f3349c05b662d82d14e726d7c81f55bac"
+    },
+    "pet-violet-walk1.webp": {
+      "bytes": 29448,
+      "sha256": "8a99101d44cf3cd9f9747d3eb6bab7f08b27882dffa2d1275951eb543db5f981"
+    },
+    "pet-violet-walk2.webp": {
+      "bytes": 25734,
+      "sha256": "ee195d792e92c608e3a11dd97346f7759941c417bafe3f12615bf5027afe094e"
+    },
+    "pet-violet-walk3.webp": {
+      "bytes": 30178,
+      "sha256": "663c082d90164287de4602566088a5897a8cd029b840a59efb801a38ac1fbb01"
+    },
+    "pet-violet.webp": {
+      "bytes": 28278,
+      "sha256": "ff8d752778475bb55718f9534798bb2e841effe5809fd5aa78ee70be2af960cb"
+    }
+  }
+}
