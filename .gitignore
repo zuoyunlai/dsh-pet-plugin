@@ -4,6 +4,7 @@ pnpm-lock.yaml
 
 # one-off previews (regenerate with `node tools/shoot-preview.mjs` when needed)
 preview*.png
+preview*.gif
 *.tgz
 .github/release-notes/*.json
 
