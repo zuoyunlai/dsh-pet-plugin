@@ -1,0 +1,283 @@
+{
+  "id": "crimson",
+  "name": "绯",
+  "tag": "红发 · 明目张胆的勾引",
+  "tagEn": "Crimson — shameless flirting",
+  "image": "pet-crimson.webp",
+  "voice": {
+    "pitch": 1.1,
+    "rate": 0.9
+  },
+  "temper": {
+    "idle": 3.4,
+    "walk": 1.6,
+    "dance": 2.2,
+    "shy": 1.2,
+    "angry": 1.6,
+    "sleep": 0.8,
+    "happy": 2.2
+  },
+  "images": {
+    "idle": "pet-crimson.webp",
+    "walk": "pet-crimson.webp",
+    "talk": "pet-crimson.webp",
+    "happy": "pet-crimson-happy.webp",
+    "shy": "pet-crimson-shy.webp",
+    "angry": "pet-crimson-angry.webp",
+    "sleep": "pet-crimson-sleep.webp",
+    "dance": "pet-crimson-happy.webp",
+    "poked": "pet-crimson-shy.webp"
+  },
+  "actions": {
+    "dance": [
+      "pet-crimson-dance1.webp",
+      "pet-crimson-dance2.webp",
+      "pet-crimson-dance3.webp"
+    ],
+    "hair": [
+      "pet-crimson-hair1.webp",
+      "pet-crimson-hair2.webp",
+      "pet-crimson-hair3.webp"
+    ],
+    "walk": [
+      "pet-crimson-walk1.webp",
+      "pet-crimson-walk2.webp",
+      "pet-crimson-walk3.webp"
+    ]
+  },
+  "lines": {
+    "appear": [
+      "哟，终于舍得看我了。",
+      "别躲，我又不会咬你……至少今天不会。",
+      "你今天归我管了。",
+      "看你一眼就想逗你，是我的错吗。"
+    ],
+    "idle": [
+      "你那副正经样子，最让人想捣乱。",
+      "累了吧？累就靠过来。",
+      "别装了，你刚才在偷看我。",
+      "我数到三，你要还是不理我，我就过去了。",
+      "今晚别熬太晚，我会心疼的——一点点。"
+    ],
+    "dance": [
+      "看清楚了，只跳这一次。",
+      "坐好，别眨眼。",
+      "这舞是为谁跳的，你心里有数。"
+    ],
+    "shy": [
+      "……你别得寸进尺啊。",
+      "脸热？是灯太亮了。",
+      "再说一句试试。"
+    ],
+    "angry": [
+      "你完了。",
+      "我现在很不高兴。",
+      "哄我，不然这事没完。"
+    ],
+    "sleep": [
+      "困了，借你肩膀靠一下。",
+      "别动，让我睡会儿。"
+    ],
+    "poked": [
+      "你胆子不小。",
+      "碰我可以，要负责的。",
+      "再碰一下试试？"
+    ],
+    "chatAck": [
+      "说吧，听着呢。",
+      "嗯？说重点。"
+    ],
+    "error": [
+      "刚才没听清，再说。",
+      "这算什么，重来。"
+    ]
+  },
+  "linesEn": {
+    "appear": [
+      "Oh? Finally looking at me.",
+      "Don't hide. I won't bite... not today.",
+      "You are mine to manage today.",
+      "One look and I want to tease you. My fault?"
+    ],
+    "idle": [
+      "That serious face of yours makes me want to cause trouble.",
+      "Tired? Then lean over here.",
+      "Don't pretend. You were peeking.",
+      "I count to three, then I come over.",
+      "Don't stay up too late. I'd worry. A little."
+    ],
+    "dance": [
+      "Watch closely. Only once.",
+      "Sit still. No blinking.",
+      "You know who this is for."
+    ],
+    "shy": [
+      "...Don't push your luck.",
+      "Warm face? The lamp is bright.",
+      "Say that again. Try it."
+    ],
+    "angry": [
+      "You are done for.",
+      "I am not happy right now.",
+      "Apologise, or this is not over."
+    ],
+    "sleep": [
+      "Sleepy. Lending you my shoulder.",
+      "Don't move. Let me sleep."
+    ],
+    "poked": [
+      "Bold of you.",
+      "Touch me and take responsibility.",
+      "Try that again?"
+    ],
+    "chatAck": [
+      "Say it. Listening.",
+      "Hm? The point."
+    ],
+    "error": [
+      "Didn't catch that. Again.",
+      "That does not count. Redo it."
+    ]
+  },
+  "linesEs": {
+    "appear": [
+      "Vaya, por fin te dignas a mirarme.",
+      "No te escondas, no voy a morderte... hoy no.",
+      "Hoy estás bajo mi cargo.",
+      "Una mirada y ya quiero molestarte. ¿Es mi culpa?"
+    ],
+    "idle": [
+      "Esa cara de serio es la que más ganas me da de arruinar.",
+      "¿Cansado? Pues apóyate aquí.",
+      "No disimules. Me estabas mirando.",
+      "Cuento hasta tres. Si sigues ignorándome, voy yo.",
+      "No te acuestes tarde. Me dolería. Un poquito."
+    ],
+    "dance": [
+      "Mira bien, solo lo bailo una vez.",
+      "Siéntate y no parpadees.",
+      "Tú sabes para quién es este baile."
+    ],
+    "shy": [
+      "...No te pases de listo.",
+      "¿Calor? Es la lámpara.",
+      "Di eso otra vez. A ver."
+    ],
+    "angry": [
+      "Estás perdido.",
+      "Ahora mismo no estoy contenta.",
+      "Pide perdón o esto no termina."
+    ],
+    "sleep": [
+      "Sueño. Te presto el hombro.",
+      "No te muevas. Déjame dormir."
+    ],
+    "poked": [
+      "Qué atrevido.",
+      "Tócame y hazte cargo.",
+      "¿Otra vez? A ver."
+    ],
+    "chatAck": [
+      "Dilo. Escucho.",
+      "¿Mm? Al grano."
+    ],
+    "error": [
+      "No te entendí. Otra vez.",
+      "Eso no cuenta. Repite."
+    ]
+  },
+  "linesPt": {
+    "appear": [
+      "Ora, finalmente você se dignou a olhar para mim.",
+      "Não se esconde, eu não vou morder... hoje não.",
+      "Hoje você está sob o meu comando.",
+      "Um olhar e já quero te provocar. A culpa é minha?"
+    ],
+    "idle": [
+      "Essa sua cara séria é a que mais me dá vontade de bagunçar.",
+      "Cansado? Então encosta aqui.",
+      "Não disfarça. Você estava me olhando.",
+      "Conto até três. Se continuar me ignorando, eu vou aí.",
+      "Não durma tarde. Eu sofreria. Um pouquinho."
+    ],
+    "dance": [
+      "Olha bem, só danço uma vez.",
+      "Senta e não pisca.",
+      "Você sabe para quem é esta dança."
+    ],
+    "shy": [
+      "...Não se atreva a pedir mais.",
+      "Calor? É a lâmpada.",
+      "Diz isso de novo. Vamos ver."
+    ],
+    "angry": [
+      "Você está perdido.",
+      "Agora não estou nada contente.",
+      "Pede desculpa ou isso não termina."
+    ],
+    "sleep": [
+      "Sono. Empresto meu ombro.",
+      "Não se mexe. Me deixa dormir."
+    ],
+    "poked": [
+      "Que atrevido.",
+      "Me toca e assume.",
+      "De novo? Vamos ver."
+    ],
+    "chatAck": [
+      "Fala. Estou ouvindo.",
+      "Hum? Direto ao ponto."
+    ],
+    "error": [
+      "Não entendi. De novo.",
+      "Isso não vale. Repete."
+    ]
+  },
+  "linesHi": {
+    "appear": [
+      "Achha, aakhir tumne mujhe dekhne ki zehmat ki.",
+      "Chhupo mat, main kaatungi nahi... aaj nahi.",
+      "Aaj tum mere control mein ho.",
+      "Ek nazar aur main chedne lago. Meri galti hai?"
+    ],
+    "idle": [
+      "Tumhara yeh serious chehra hi sabse zyada chhedne ka mann karta hai.",
+      "Thak gaye? To yahan tek lagao.",
+      "Naatak mat karo. Tum mujhe dekh rahe the.",
+      "Teen tak ginti kar rahi hoon. Agar anjaan bane rahe, to main khud aaungi.",
+      "Der tak mat jaago. Mujhe takleef hogi. Thodi si."
+    ],
+    "dance": [
+      "Dhyaan se dekho, sirf ek baar naachungi.",
+      "Baith jao aur palak mat jhapkao.",
+      "Yeh kiske liye hai, tum jaante ho."
+    ],
+    "shy": [
+      "...Zyada na badho.",
+      "Garamii? Yeh bulb hai.",
+      "Ek baar phir bolo. Dekhte hain."
+    ],
+    "angry": [
+      "Tum gaye kaam se.",
+      "Abhi main khush nahi hoon.",
+      "Maafi maango, warna yeh khatam nahi hoga."
+    ],
+    "sleep": [
+      "Neend aa rahi hai. Kandha de rahi hoon.",
+      "Hilna mat. Sone do."
+    ],
+    "poked": [
+      "Kitne bahadur ho.",
+      "Chhuo, aur zimmedari lo.",
+      "Phir se? Dekhte hain."
+    ],
+    "chatAck": [
+      "Bolo. Sun rahi hoon.",
+      "Hmm? Sidhi baat karo."
+    ],
+    "error": [
+      "Samjhi nahi. Phir bolo.",
+      "Yeh nahi chala. Dobara."
+    ]
+  }
+}

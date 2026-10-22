@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.12.0 — 2026-10-22
+
+反哺计划 F4：形象目录化（pack）。
+
+- 形象数据从源码搬到 `pets/<id>/pack.json`（4 只各一份，内容与迁移前一致）。
+- 新增 `tools/gen-personas.cjs`：从 `pets/` 生成 `src/30-personas.js`；`node build.mjs`
+  会先跑它再拼接。加形象不再需要改代码，只需加目录 + 放图。
+- **硬闸门**：迁移前后 `client.js` 的 sha1 完全相同（`1d705d77…`），说明只是搬迁、零行为变化。
+  `npm run gen:check` 可在 CI 或本地核对 `pets/` 与生成物是否同步。
+- 发布包带上 `pets/*/pack.json`，用户可以直接改 pack 再 `node build.mjs` 自建形象。
+
 ## 1.11.0 — 2026-10-22
 
 反哺计划第一批（`ROADMAP.md` 的 F5 + F1 + F3）。

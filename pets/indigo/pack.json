@@ -1,0 +1,283 @@
+{
+  "id": "indigo",
+  "name": "靛",
+  "tag": "蓝发 · 慢火慢炖地撩",
+  "tagEn": "Indigo — slow-burn teasing",
+  "image": "pet-indigo.webp",
+  "voice": {
+    "pitch": 1.12,
+    "rate": 0.86
+  },
+  "temper": {
+    "idle": 3.6,
+    "walk": 1.8,
+    "dance": 1.2,
+    "shy": 1.6,
+    "angry": 0.8,
+    "sleep": 1.8,
+    "happy": 1.4
+  },
+  "images": {
+    "idle": "pet-indigo.webp",
+    "walk": "pet-indigo.webp",
+    "talk": "pet-indigo.webp",
+    "happy": "pet-indigo-happy.webp",
+    "shy": "pet-indigo-shy.webp",
+    "angry": "pet-indigo-angry.webp",
+    "sleep": "pet-indigo-sleep.webp",
+    "dance": "pet-indigo-happy.webp",
+    "poked": "pet-indigo-shy.webp"
+  },
+  "actions": {
+    "dance": [
+      "pet-indigo-dance1.webp",
+      "pet-indigo-dance2.webp",
+      "pet-indigo-dance3.webp"
+    ],
+    "hair": [
+      "pet-indigo-hair1.webp",
+      "pet-indigo-hair2.webp",
+      "pet-indigo-hair3.webp"
+    ],
+    "walk": [
+      "pet-indigo-walk1.webp",
+      "pet-indigo-walk2.webp",
+      "pet-indigo-walk3.webp"
+    ]
+  },
+  "lines": {
+    "appear": [
+      "不着急，我等你忙完。",
+      "你看你的，我看我的。",
+      "靠近点，我说话轻。",
+      "今天的你，值得多看两眼。"
+    ],
+    "idle": [
+      "慢一点，日子不用赶。",
+      "你这眉头，皱了一下午了。",
+      "要不要我把灯调暗一点。",
+      "别什么都自己扛，说出来轻些。",
+      "我什么都没做，只是坐在这儿。"
+    ],
+    "dance": [
+      "慢慢来，别急。",
+      "这样好看吗？",
+      "看完记得说一声。"
+    ],
+    "shy": [
+      "……别看了。",
+      "你这样，我会当真的。",
+      "再近一点就不行了。"
+    ],
+    "angry": [
+      "我不喜欢被晾着。",
+      "今天到这儿吧。",
+      "别让我说第二遍。"
+    ],
+    "sleep": [
+      "我睡一会儿，别走。",
+      "有点困，靠一下。"
+    ],
+    "poked": [
+      "轻一点。",
+      "你这是想我了？",
+      "手别乱放。"
+    ],
+    "chatAck": [
+      "嗯，慢慢说。",
+      "我在。"
+    ],
+    "error": [
+      "刚才没听清，再说一次。",
+      "稍等，我理一下。"
+    ]
+  },
+  "linesEn": {
+    "appear": [
+      "No rush. I will wait.",
+      "You do yours, I'll do mine.",
+      "Come closer, I speak softly.",
+      "You are worth a second look today."
+    ],
+    "idle": [
+      "Slow down. The day is not a race.",
+      "That frown has been there all afternoon.",
+      "Want me to dim the lights?",
+      "Don't carry everything alone. It's lighter out loud.",
+      "I'm not doing anything. Just sitting here."
+    ],
+    "dance": [
+      "Take your time.",
+      "Does this look good?",
+      "Say something when you are done looking."
+    ],
+    "shy": [
+      "...Stop looking.",
+      "Careful, I might take you seriously.",
+      "Any closer and I cannot."
+    ],
+    "angry": [
+      "I do not like being ignored.",
+      "Let us stop here today.",
+      "Don't make me repeat myself."
+    ],
+    "sleep": [
+      "I'll sleep a little. Stay.",
+      "Sleepy. Leaning on you."
+    ],
+    "poked": [
+      "Gently.",
+      "Were you thinking of me?",
+      "Hands, please."
+    ],
+    "chatAck": [
+      "Mm. Take your time.",
+      "I am here."
+    ],
+    "error": [
+      "I didn't hear that. Once more.",
+      "Hold on, let me sort it out."
+    ]
+  },
+  "linesEs": {
+    "appear": [
+      "Sin prisa. Te espero.",
+      "Tú a lo tuyo, yo a lo mío.",
+      "Acércate, hablo bajito.",
+      "Hoy mereces una segunda mirada."
+    ],
+    "idle": [
+      "Más despacio. El día no es una carrera.",
+      "Ese ceño lleva toda la tarde ahí.",
+      "¿Quieres que baje la luz?",
+      "No cargues con todo. En voz alta pesa menos.",
+      "No estoy haciendo nada. Solo estoy aquí sentada."
+    ],
+    "dance": [
+      "Tómate tu tiempo.",
+      "¿Se ve bien?",
+      "Dime algo cuando termines de mirar."
+    ],
+    "shy": [
+      "...Deja de mirar.",
+      "Cuidado, podría tomártelo en serio.",
+      "Un paso más y no puedo."
+    ],
+    "angry": [
+      "No me gusta que me ignoren.",
+      "Hoy lo dejamos aquí.",
+      "No me hagas repetirlo."
+    ],
+    "sleep": [
+      "Voy a dormir un poco. Quédate.",
+      "Sueño. Me apoyo en ti."
+    ],
+    "poked": [
+      "Con suavidad.",
+      "¿Estabas pensando en mí?",
+      "Las manos, por favor."
+    ],
+    "chatAck": [
+      "Mm. Sin prisa.",
+      "Aquí estoy."
+    ],
+    "error": [
+      "No te oí. Otra vez.",
+      "Espera, déjame ordenarlo."
+    ]
+  },
+  "linesPt": {
+    "appear": [
+      "Sem pressa. Eu espero.",
+      "Você no seu, eu no meu.",
+      "Chega mais perto, eu falo baixo.",
+      "Hoje você merece um segundo olhar."
+    ],
+    "idle": [
+      "Mais devagar. O dia não é uma corrida.",
+      "Essa careta está aí desde a tarde.",
+      "Quer que eu abaixe a luz?",
+      "Não carregue tudo sozinho. Falado pesa menos.",
+      "Não estou fazendo nada. Só estou aqui sentada."
+    ],
+    "dance": [
+      "Sem pressa.",
+      "Está bom assim?",
+      "Me diz algo quando terminar de olhar."
+    ],
+    "shy": [
+      "...Para de olhar.",
+      "Cuidado, eu posso levar a sério.",
+      "Mais um passo e eu não consigo."
+    ],
+    "angry": [
+      "Não gosto de ser ignorada.",
+      "Hoje paramos por aqui.",
+      "Não me faça repetir."
+    ],
+    "sleep": [
+      "Vou dormir um pouco. Fica.",
+      "Sono. Me apoiando em você."
+    ],
+    "poked": [
+      "Com jeitinho.",
+      "Estava pensando em mim?",
+      "As mãos, por favor."
+    ],
+    "chatAck": [
+      "Hum. Sem pressa.",
+      "Estou aqui."
+    ],
+    "error": [
+      "Não te ouvi. Outra vez.",
+      "Espera, deixa eu organizar."
+    ]
+  },
+  "linesHi": {
+    "appear": [
+      "Jaldi nahi. Main intezaar karungi.",
+      "Tum apna karo, main apna.",
+      "Paas aao, main dheeme bolti hoon.",
+      "Aaj tum ek dusri nazar ke laayak ho."
+    ],
+    "idle": [
+      "Dheere. Din koi race nahi hai.",
+      "Yeh tyori dopahar se wahin hai.",
+      "Chaahoge to roshni kam kar doon?",
+      "Sab kuchh akele mat uthao. Bolne se halka lagta hai.",
+      "Main kuchh kar nahi rahi. Bas yahan baithi hoon."
+    ],
+    "dance": [
+      "Apna waqt lo.",
+      "Theek lag raha hai?",
+      "Dekhne ke baad kuchh to bolo."
+    ],
+    "shy": [
+      "...Dekhna band karo.",
+      "Sambhalo, main sach maan lungi.",
+      "Ek kadam aur, phir main nahi karungi."
+    ],
+    "angry": [
+      "Mujhe nazarandaz karna pasand nahi.",
+      "Aaj yahin chhodte hain.",
+      "Dobara mat kehna pade."
+    ],
+    "sleep": [
+      "Thodi der so rahi hoon. Ruko.",
+      "Neend. Tum par tek laga rahi hoon."
+    ],
+    "poked": [
+      "Aaram se.",
+      "Mere baare mein soch rahe the?",
+      "Haath, please."
+    ],
+    "chatAck": [
+      "Hmm. Aaraam se.",
+      "Main yahan hoon."
+    ],
+    "error": [
+      "Suna nahi. Phir bolo.",
+      "Ruko, suljhaane do."
+    ]
+  }
+}

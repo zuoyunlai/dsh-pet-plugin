@@ -1,0 +1,283 @@
+{
+  "id": "violet",
+  "name": "薇",
+  "tag": "紫发 · 从容的挑逗",
+  "tagEn": "Violet — unhurried teasing",
+  "image": "pet-violet.webp",
+  "voice": {
+    "pitch": 1.18,
+    "rate": 0.88
+  },
+  "temper": {
+    "idle": 4,
+    "walk": 1.4,
+    "dance": 1.6,
+    "shy": 1.8,
+    "angry": 1,
+    "sleep": 1.4,
+    "happy": 1.8
+  },
+  "images": {
+    "idle": "pet-violet.webp",
+    "walk": "pet-violet.webp",
+    "talk": "pet-violet.webp",
+    "happy": "pet-violet-happy.webp",
+    "shy": "pet-violet-shy.webp",
+    "angry": "pet-violet-angry.webp",
+    "sleep": "pet-violet-sleep.webp",
+    "dance": "pet-violet-happy.webp",
+    "poked": "pet-violet-shy.webp"
+  },
+  "actions": {
+    "dance": [
+      "pet-violet-dance1.webp",
+      "pet-violet-dance2.webp",
+      "pet-violet-dance3.webp"
+    ],
+    "hair": [
+      "pet-violet-hair1.webp",
+      "pet-violet-hair2.webp",
+      "pet-violet-hair3.webp"
+    ],
+    "walk": [
+      "pet-violet-walk1.webp",
+      "pet-violet-walk2.webp",
+      "pet-violet-walk3.webp"
+    ]
+  },
+  "lines": {
+    "appear": [
+      "来得正好，我正觉得无聊。",
+      "别站那么远，我又不吃人。",
+      "你今天……看起来很好欺负。",
+      "忙完了？过来坐一会儿。"
+    ],
+    "idle": [
+      "你敲键盘的样子，比你想的认真多了。",
+      "这一页你看了十分钟了，需要我提醒你吗。",
+      "别一口气熬到天亮，我可不负责收拾。",
+      "手停一下，喝口水。",
+      "你刚才那下叹气，我可听见了。"
+    ],
+    "dance": [
+      "看可以，别看到发呆。",
+      "这套舞，只跳给一个人看。",
+      "想学？先把手搭上来。"
+    ],
+    "shy": [
+      "再看，我就当你是有意的了。",
+      "……别这么盯着我。",
+      "我脸红什么，你看错了。"
+    ],
+    "angry": [
+      "我记性很好，你知道的。",
+      "再说一遍试试。",
+      "行，那今天就这样。"
+    ],
+    "sleep": [
+      "我先眯一会儿，你自己玩。",
+      "别吵，就五分钟。"
+    ],
+    "poked": [
+      "戳哪儿呢。",
+      "手放规矩点。",
+      "再戳一下，我可要还手了。"
+    ],
+    "chatAck": [
+      "说吧，我听着。",
+      "嗯？讲。"
+    ],
+    "error": [
+      "刚才走神了，再说一遍。",
+      "这会儿没接上，等等。"
+    ]
+  },
+  "linesEn": {
+    "appear": [
+      "Perfect timing. I was getting bored.",
+      "Don't stand that far away, I don't bite.",
+      "You look especially easy to tease today.",
+      "Done? Come sit for a while."
+    ],
+    "idle": [
+      "You type more seriously than you think.",
+      "You've been on this page ten minutes. Need a reminder?",
+      "Don't stay up till dawn. I'm not cleaning up after you.",
+      "Pause. Drink some water.",
+      "I heard that sigh, by the way."
+    ],
+    "dance": [
+      "Look, but don't stare.",
+      "This one is for one person only.",
+      "Want to learn? Put your hand here first."
+    ],
+    "shy": [
+      "Keep looking and I will take it as a hint.",
+      "...Don't stare at me like that.",
+      "I'm not blushing. You imagined it."
+    ],
+    "angry": [
+      "I remember things. You know that.",
+      "Say that again.",
+      "Fine. We are done for today."
+    ],
+    "sleep": [
+      "I'll rest my eyes. Entertain yourself.",
+      "Quiet. Five minutes."
+    ],
+    "poked": [
+      "Where are you poking?",
+      "Hands to yourself.",
+      "One more and I poke back."
+    ],
+    "chatAck": [
+      "Go on, I am listening.",
+      "Hm? Tell me."
+    ],
+    "error": [
+      "I drifted off. Say that again.",
+      "That didn't land. Hold on."
+    ]
+  },
+  "linesEs": {
+    "appear": [
+      "Justo a tiempo. Me estaba aburriendo.",
+      "No te quedes tan lejos, no muerdo.",
+      "Hoy pareces especialmente fácil de provocar.",
+      "¿Terminaste? Ven a sentarte un rato."
+    ],
+    "idle": [
+      "Escribes con más seriedad de la que crees.",
+      "Llevas diez minutos en esta página. ¿Te lo recuerdo?",
+      "No te quedes hasta el amanecer. No pienso recoger nada.",
+      "Para un momento. Bebe agua.",
+      "Por cierto, oí ese suspiro."
+    ],
+    "dance": [
+      "Mira, pero sin quedarte en blanco.",
+      "Esta solo la bailo para una persona.",
+      "¿Quieres aprender? Primero pon la mano aquí."
+    ],
+    "shy": [
+      "Si sigues mirando, lo tomaré como un sí.",
+      "...No me mires así.",
+      "No me estoy sonrojando. Te lo imaginaste."
+    ],
+    "angry": [
+      "Yo recuerdo las cosas. Lo sabes.",
+      "Dilo otra vez.",
+      "Bien. Por hoy hemos terminado."
+    ],
+    "sleep": [
+      "Voy a cerrar los ojos un rato. Diviértete.",
+      "Silencio. Cinco minutos."
+    ],
+    "poked": [
+      "¿Dónde estás pinchando?",
+      "Las manos en su sitio.",
+      "Otra vez y te devuelvo el pinchazo."
+    ],
+    "chatAck": [
+      "Dime, te escucho.",
+      "¿Mm? Cuéntame."
+    ],
+    "error": [
+      "Me distraje. Repítelo.",
+      "Eso no me llegó. Espera."
+    ]
+  },
+  "linesPt": {
+    "appear": [
+      "Chegou na hora. Eu já estava entediada.",
+      "Não fica tão longe, eu não mordo.",
+      "Hoje você parece especialmente fácil de provocar.",
+      "Terminou? Vem sentar um pouco."
+    ],
+    "idle": [
+      "Você digita com mais seriedade do que imagina.",
+      "Faz dez minutos que você está nesta página. Quer que eu avise?",
+      "Não fica até o amanhecer. Não vou limpar nada.",
+      "Para um instante. Bebe água.",
+      "A propósito, eu ouvi esse suspiro."
+    ],
+    "dance": [
+      "Olha, mas não fica aí parado.",
+      "Esta eu danço só para uma pessoa.",
+      "Quer aprender? Primeiro põe a mão aqui."
+    ],
+    "shy": [
+      "Se continuar olhando, vou entender como um sim.",
+      "...Não olha assim para mim.",
+      "Não estou corada. Você imaginou."
+    ],
+    "angry": [
+      "Eu lembro das coisas. Você sabe.",
+      "Repete isso.",
+      "Está bem. Por hoje acabou."
+    ],
+    "sleep": [
+      "Vou descansar os olhos. Se diverte.",
+      "Silêncio. Cinco minutos."
+    ],
+    "poked": [
+      "Onde você está cutucando?",
+      "As mãos no lugar.",
+      "Mais uma vez e eu cutuco de volta."
+    ],
+    "chatAck": [
+      "Fala, estou ouvindo.",
+      "Hum? Conta."
+    ],
+    "error": [
+      "Me distraí. Repete.",
+      "Isso não chegou. Espera."
+    ]
+  },
+  "linesHi": {
+    "appear": [
+      "Sahi waqt par aaye. Main bore ho rahi thi.",
+      "Itni door khade kyun ho, main kaatati nahi.",
+      "Aaj tum khaas taur par chidhaane layak lag rahe ho.",
+      "Kaam khatam? Thodi der baith jao."
+    ],
+    "idle": [
+      "Tum jitna serious samajhte ho, usse zyada dhyaan se type karte ho.",
+      "Is page par das minute ho gaye. Yaad dilaun?",
+      "Subah tak mat jaago. Main kuchh saaf nahi karungi.",
+      "Ruko. Paani pi lo.",
+      "Waise, woh aah bhari lagi mujhe."
+    ],
+    "dance": [
+      "Dekh sakte ho, par kho mat jao.",
+      "Yeh dance sirf ek insaan ke liye hai.",
+      "Seekhna hai? Pehle haath yahan rakho."
+    ],
+    "shy": [
+      "Aise dekhte rahe to main haan samajh lungi.",
+      "...Aise mat dekho.",
+      "Main sharminda nahi ho rahi. Tumhe bhram hua."
+    ],
+    "angry": [
+      "Mujhe sab yaad rehta hai. Jaante ho.",
+      "Ek baar phir bolo.",
+      "Theek hai. Aaj ke liye bas."
+    ],
+    "sleep": [
+      "Aankhein band karti hoon. Tum khelo.",
+      "Chup. Paanch minute."
+    ],
+    "poked": [
+      "Kahan chubha rahe ho?",
+      "Haath sambhal ke.",
+      "Ek baar aur, to main bhi chubhaungi."
+    ],
+    "chatAck": [
+      "Bolo, sun rahi hoon.",
+      "Hmm? Batao."
+    ],
+    "error": [
+      "Dhyaan bhatak gaya. Phir se bolo.",
+      "Yeh nahi aaya. Ruko."
+    ]
+  }
+}

@@ -5,14 +5,20 @@
  * 为什么要拼：DSH 的 client-modules 只加载 package.json 里 `exports["./client"]`
  * 指向的单个文件，浏览器侧没有模块解析，所以源码分块、产物单文件。
  *
- * 拼接是纯文本连接（不加分隔符、不改缩进），唯一会被替换的是 i18n 块的
- * `/* @locales *\/ {}` 标记 —— 那里注入 locale/*.json 的 `pet` 命名空间，
- * 于是 locale 文件是文案的唯一真源。
+ * 拼接是纯文本连接（不加分隔符、不改缩进），会被替换的只有两处：
+ *   - i18n 块的 `/* @locales *\/ {}` 标记（注入 locale/*.json）
+ *   - src/30-personas.js：在拼接前由 tools/gen-personas.cjs 从 pets/<id>/pack.json 生成
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 
 const MARKER = '/* @locales */ {}'
+
+/** 形象数据源是 pets/，先重新生成 src/30-personas.js 再拼接 */
+function generatePersonas() {
+  const out = execFileSync(process.execPath, ['tools/gen-personas.cjs'], { encoding: 'utf8' })
+  process.stdout.write(out)
+}
 
 function localeDict() {
   const dict = {}
@@ -32,6 +38,8 @@ function localeDict() {
   }
   return dict
 }
+
+generatePersonas()
 
 const parts = readdirSync('src')
   .filter((f) => f.endsWith('.js'))

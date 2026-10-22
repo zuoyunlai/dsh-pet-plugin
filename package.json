@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "DSH 桌宠插件：四只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
@@ -28,7 +28,8 @@
     "tests/*.mjs",
     "src/*.js",
     "build.mjs",
-    "AUDIT-contract.md"
+    "AUDIT-contract.md",
+    "pets/*/pack.json"
   ],
   "peerDependencies": {
     "@deepseek-ai/schemastery": "^3.18.2"
@@ -64,7 +65,9 @@
   "scripts": {
     "build": "node build.mjs",
     "test": "node build.mjs && node tests/smoke.mjs",
-    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs"
+    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs",
+    "gen": "node tools/gen-personas.cjs",
+    "gen:check": "node tools/gen-personas.cjs --check"
   },
   "author": {
     "name": "zuoyunlai",

@@ -80,7 +80,7 @@
 - **验收**：单测断言命令注册与参数校验；`check --strict` 全绿；真机右键可用、`/dsh-pet` 出现在补全里。
 - **风险**：`ctx.commands` 在旧宿主不存在 → 软失败（和 1.10.2 的 slot 处理同一套写法）。
 
-### F4 —— 形象目录化（pet pack 轻量版）〔P1〕*（推迟到 1.12.0）*
+### F4 —— 形象目录化（pet pack 轻量版）〔P1〕**（1.12.0 已完成）**
 
 - **目标**：`pets/<id>/pack.json`（名字、tag、五语台词、音色、脾气、assets 清单）+ 图片放同目录；构建期合并进产物。用户加形象 = 加一个目录，不改代码。
 - **改动面**：`src/30-personas.js` 改为从生成物导入；`build.mjs` 扫 `pets/` 生成 `src/30-personas.generated.js`；现有 4 形象迁移成 4 个 pack 目录（只搬文件，不改内容）。
@@ -164,8 +164,10 @@
 | F3 右键菜单 | ✅ 完成 | 1.11.0 | 5 项，跟随点击位置并收进视口 |
 | F3 斜杠命令 | ✅ 完成 | 1.11.0 | `/dsh-pet [show\|hide]`，commandSeq 防重放 |
 | F2 六帧动作 | ⏳ 代码就绪 | — | `actions` 本来就是数组，`playAction` 按 `frames.length` 播；缺 36 张素材 |
-| F4 pack 目录化 | ⏸ 推迟 | 1.12.0 | 需以「构建产物 sha 不变」为闸门单独做，避免和本批混在一起 |
+| F4 pack 目录化 | ✅ 完成 | 1.12.0 | `pets/<id>/pack.json` 为真源，构建前自动生成；迁移前后 client.js sha1 相同（1d705d77…）|
 | F6 petdex | ⏸ 待人工 | — | 它的投稿是站点上传（Postgres/Redis/Clerk 全栈），不是 PR |
+
+验证（1.12.0 追加）：`gen:check` 通过、构建产物 sha 未变。`npm pack` 2.0 MB。
 
 验证（1.11.0）：`check --strict` 13/13、宿主单测 28/28、冒烟含六态与菜单断言、
 `npm pack` 1.9 MB。

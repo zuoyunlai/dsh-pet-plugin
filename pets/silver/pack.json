@@ -1,0 +1,283 @@
+{
+  "id": "silver",
+  "name": "雪",
+  "tag": "银发 · 冷淡底下的闷骚",
+  "tagEn": "Silver — cold outside, warm inside",
+  "image": "pet-silver.webp",
+  "voice": {
+    "pitch": 1.06,
+    "rate": 0.84
+  },
+  "temper": {
+    "idle": 4.2,
+    "walk": 1.2,
+    "dance": 0.8,
+    "shy": 1.4,
+    "angry": 1.2,
+    "sleep": 2,
+    "happy": 1
+  },
+  "images": {
+    "idle": "pet-silver.webp",
+    "walk": "pet-silver.webp",
+    "talk": "pet-silver.webp",
+    "happy": "pet-silver-happy.webp",
+    "shy": "pet-silver-shy.webp",
+    "angry": "pet-silver-angry.webp",
+    "sleep": "pet-silver-sleep.webp",
+    "dance": "pet-silver-happy.webp",
+    "poked": "pet-silver-shy.webp"
+  },
+  "actions": {
+    "dance": [
+      "pet-silver-dance1.webp",
+      "pet-silver-dance2.webp",
+      "pet-silver-dance3.webp"
+    ],
+    "hair": [
+      "pet-silver-hair1.webp",
+      "pet-silver-hair2.webp",
+      "pet-silver-hair3.webp"
+    ],
+    "walk": [
+      "pet-silver-walk1.webp",
+      "pet-silver-walk2.webp",
+      "pet-silver-walk3.webp"
+    ]
+  },
+  "lines": {
+    "appear": [
+      "……你终于看见我了。",
+      "不用解释，我不在意。",
+      "站近点，我看不清你。",
+      "嗯。就这一声，不许多问。"
+    ],
+    "idle": [
+      "你效率很低。",
+      "别一直看我，做你的事。",
+      "……这屋里有点热。",
+      "我不喜欢被忽略，你最好记住。",
+      "你要是困了，就先去睡。"
+    ],
+    "dance": [
+      "看好了。",
+      "别说话。",
+      "……只这一次。"
+    ],
+    "shy": [
+      "不许看。",
+      "温度有点高，不是因为你。",
+      "……走开。"
+    ],
+    "angry": [
+      "幼稚。",
+      "别逼我开口。",
+      "今天到此为止。"
+    ],
+    "sleep": [
+      "闭眼。别吵。",
+      "……我睡了。"
+    ],
+    "poked": [
+      "手拿开。",
+      "……你胆子倒是大。",
+      "再碰，我就记仇了。"
+    ],
+    "chatAck": [
+      "说。",
+      "讲吧。"
+    ],
+    "error": [
+      "没听清。",
+      "重说。"
+    ]
+  },
+  "linesEn": {
+    "appear": [
+      "...You finally noticed me.",
+      "No explanation needed. I don't care.",
+      "Stand closer. I can barely see you.",
+      "Mm. That is all. Do not ask."
+    ],
+    "idle": [
+      "Your efficiency is low.",
+      "Stop staring and do your work.",
+      "...It is a little hot in here.",
+      "I dislike being ignored. Remember that.",
+      "If you're tired, go sleep."
+    ],
+    "dance": [
+      "Watch.",
+      "Don't speak.",
+      "...Only this once."
+    ],
+    "shy": [
+      "Don't look.",
+      "It is warm. Not because of you.",
+      "...Go away."
+    ],
+    "angry": [
+      "Childish.",
+      "Don't make me speak.",
+      "That is enough for today."
+    ],
+    "sleep": [
+      "Eyes closed. Quiet.",
+      "...I am asleep."
+    ],
+    "poked": [
+      "Hands off.",
+      "...You are bold.",
+      "Touch me again and I hold a grudge."
+    ],
+    "chatAck": [
+      "Speak.",
+      "Go on."
+    ],
+    "error": [
+      "Did not catch that.",
+      "Say it again."
+    ]
+  },
+  "linesEs": {
+    "appear": [
+      "...Por fin te diste cuenta de mí.",
+      "No hace falta explicación. No me importa.",
+      "Ponte más cerca. Casi no te veo.",
+      "Mm. Eso es todo. No preguntes."
+    ],
+    "idle": [
+      "Tu eficiencia es baja.",
+      "Deja de mirar y haz tu trabajo.",
+      "...Hace un poco de calor aquí.",
+      "No me gusta que me ignoren. Recuérdalo.",
+      "Si tienes sueño, duerme."
+    ],
+    "dance": [
+      "Mira.",
+      "No hables.",
+      "...Solo esta vez."
+    ],
+    "shy": [
+      "No mires.",
+      "Hace calor. No es por ti.",
+      "...Vete."
+    ],
+    "angry": [
+      "Infantil.",
+      "No me hagas hablar.",
+      "Por hoy es suficiente."
+    ],
+    "sleep": [
+      "Ojos cerrados. Silencio.",
+      "...Estoy durmiendo."
+    ],
+    "poked": [
+      "Las manos fuera.",
+      "...Qué atrevido.",
+      "Tócame otra vez y te guardo rencor."
+    ],
+    "chatAck": [
+      "Habla.",
+      "Sigue."
+    ],
+    "error": [
+      "No te entendí.",
+      "Repítelo."
+    ]
+  },
+  "linesPt": {
+    "appear": [
+      "...Finalmente você me notou.",
+      "Não precisa explicar. Não me importa.",
+      "Chega mais perto. Quase não te vejo.",
+      "Hum. É isso. Não pergunte."
+    ],
+    "idle": [
+      "Sua eficiência está baixa.",
+      "Para de olhar e faz seu trabalho.",
+      "...Está um pouco quente aqui.",
+      "Não gosto de ser ignorada. Lembre disso.",
+      "Se está com sono, durma."
+    ],
+    "dance": [
+      "Olha.",
+      "Não fala.",
+      "...Só desta vez."
+    ],
+    "shy": [
+      "Não olha.",
+      "Está quente. Não é por sua causa.",
+      "...Vai embora."
+    ],
+    "angry": [
+      "Infantil.",
+      "Não me faça falar.",
+      "Por hoje chega."
+    ],
+    "sleep": [
+      "Olhos fechados. Silêncio.",
+      "...Estou dormindo."
+    ],
+    "poked": [
+      "As mãos fora.",
+      "...Que atrevido.",
+      "Me toca de novo e eu guardo rancor."
+    ],
+    "chatAck": [
+      "Fala.",
+      "Continua."
+    ],
+    "error": [
+      "Não entendi.",
+      "Repete."
+    ]
+  },
+  "linesHi": {
+    "appear": [
+      "...Aakhir tumne mujhe dekha.",
+      "Safai ki zaroorat nahi. Mujhe farq nahi padta.",
+      "Paas aao. Theek se dikhte nahi ho.",
+      "Hmm. Bas itna hi. Poochho mat."
+    ],
+    "idle": [
+      "Tumhari efficiency kam hai.",
+      "Dekhna band karo aur kaam karo.",
+      "...Yahan thodi garamii hai.",
+      "Mujhe nazarandaz karna pasand nahi. Yaad rakhna.",
+      "Neend aa rahi hai to so jao."
+    ],
+    "dance": [
+      "Dekho.",
+      "Bolo mat.",
+      "...Sirf is baar."
+    ],
+    "shy": [
+      "Mat dekho.",
+      "Garamii hai. Tumhari wajah se nahi.",
+      "...Chale jao."
+    ],
+    "angry": [
+      "Bachpana.",
+      "Mujhse bolwao mat.",
+      "Aaj ke liye bas."
+    ],
+    "sleep": [
+      "Aankhein band. Chup.",
+      "...Main so rahi hoon."
+    ],
+    "poked": [
+      "Haath hatao.",
+      "...Bahut himmat hai.",
+      "Ek baar aur chhua, to main yaad rakhungi."
+    ],
+    "chatAck": [
+      "Bolo.",
+      "Aage bolo."
+    ],
+    "error": [
+      "Samjhi nahi.",
+      "Dobara bolo."
+    ]
+  }
+}

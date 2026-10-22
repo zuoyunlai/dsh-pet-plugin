@@ -93,7 +93,7 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - **The client bundle is generated**: edit `src/*.js` and run `node build.mjs`, which
   concatenates the parts into `client.js` (the only file DSH loads). Never edit
   `client.js` by hand — `npm test` rebuilds and then runs the smoke test.
-- **Personas, lines and tempers**: `PERSONAS` in `src/30-personas.js` — `images` (five
+- **Personas, lines and tempers**: `pets/<id>/pack.json` — `images` (five
   expressions), `actions` (dance / hair / walk, three frames each), `voice`, `temper`,
   and `lines` / `linesEn` line packs.
 - **UI strings**: edit the `pet` namespace in `locale/*.json`, then `node build.mjs` — the
@@ -101,8 +101,9 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   truth. New language: run `node tools/gen-locales.cjs` for a skeleton, then translate.
 - **Moods and animations**: add keyframes in `src/70-style.js` and map the class by `mood`
   in `src/96-overlay.js`.
-- **Artwork**: drop transparent WebPs into `assets/` and reference them from `PERSONAS`;
-  the `/dsh-pet/assets/` route only serves image extensions.
+- **Artwork**: drop transparent WebPs into `assets/` and reference them from
+  `pets/<id>/pack.json`, then `node build.mjs` (it regenerates `src/30-personas.js`).
+  The `/dsh-pet/assets/` route only serves image extensions.
 
 ## Security model
 
