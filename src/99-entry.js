@@ -41,6 +41,7 @@
             hidePet,
             showPet,
             playAction,
+            placePanel,
           }
         }
       }

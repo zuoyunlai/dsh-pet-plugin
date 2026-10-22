@@ -375,6 +375,7 @@ window.__ModuleLoader__.load({
           hair: ["pet-crimson-hair1.webp", "pet-crimson-hair2.webp", "pet-crimson-hair3.webp"],
           walk: ["pet-crimson-walk1.webp", "pet-crimson-walk2.webp", "pet-crimson-walk3.webp"],
         },
+        clips: { dance: "pet-crimson-dance.webm" },
         voice: { pitch: 1.1, rate: 0.9 },
         temper: { idle: 3.4, walk: 1.6, dance: 2.2, shy: 1.2, angry: 1.6, sleep: 0.8, happy: 2.2 },
         lines: {
@@ -521,6 +522,7 @@ window.__ModuleLoader__.load({
           hair: ["pet-indigo-hair1.webp", "pet-indigo-hair2.webp", "pet-indigo-hair3.webp"],
           walk: ["pet-indigo-walk1.webp", "pet-indigo-walk2.webp", "pet-indigo-walk3.webp"],
         },
+        clips: { dance: "pet-indigo-dance.webm" },
         voice: { pitch: 1.12, rate: 0.86 },
         temper: { idle: 3.6, walk: 1.8, dance: 1.2, shy: 1.6, angry: 0.8, sleep: 1.8, happy: 1.4 },
         lines: {
@@ -657,6 +659,7 @@ window.__ModuleLoader__.load({
           hair: ["pet-silver-hair1.webp", "pet-silver-hair2.webp", "pet-silver-hair3.webp"],
           walk: ["pet-silver-walk1.webp", "pet-silver-walk2.webp", "pet-silver-walk3.webp"],
         },
+        clips: { dance: "pet-silver-dance.webm" },
         voice: { pitch: 1.06, rate: 0.84 },
         temper: { idle: 4.2, walk: 1.2, dance: 0.8, shy: 1.4, angry: 1.2, sleep: 2, happy: 1 },
         lines: {
@@ -893,7 +896,17 @@ window.__ModuleLoader__.load({
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
       const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
       const until = nowMs() + (o.ms || 2400)
-      runtime.action = { name, frames: frames || [], i: 0, step, until, persona: p.id, clip }
+      // moodDriven：这个动作是「心情」自动发起的（不是用户点的），心情变了可以收回
+      runtime.action = {
+        name,
+        frames: frames || [],
+        i: 0,
+        step,
+        until,
+        persona: p.id,
+        clip,
+        moodDriven: !!o.moodDriven,
+      }
       notify()
       const advance = () => {
         const act = runtime.action
@@ -1273,6 +1286,47 @@ window.__ModuleLoader__.load({
       notify()
     }
 
+    /**
+     * 设置面板摆哪儿：默认贴右下角会把她整个人盖住，所以按她的实际位置算。
+     * 上方空间够就放她上方（右对齐），不够就放她左侧（底对齐）。
+     * 面板定宽 196px，与 CSS 里 .dsh-pet-panel 的 width 保持一致。
+     */
+    const PANEL_W = 196
+    const PANEL_GAP = 8
+
+    function placePanel() {
+      try {
+        const el = (typeof document !== 'undefined' && document.querySelector('.dsh-pet-actor-wrap')) || runtime.rootEl
+        const r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null
+        const vw = window.innerWidth || 1280
+        const vh = window.innerHeight || 800
+        if (!r || !r.height) {
+          runtime.panelPos = null
+          return
+        }
+        const spaceAbove = r.top - 16
+        if (spaceAbove >= 300) {
+          // 上方放得下：右边缘对齐，底边贴着她头顶
+          runtime.panelPos = {
+            right: Math.max(8, vw - r.right) + 'px',
+            bottom: Math.max(8, vh - r.top + PANEL_GAP) + 'px',
+            maxHeight: Math.min(spaceAbove, 560) + 'px',
+            width: PANEL_W + 'px',
+          }
+        } else {
+          // 上方不够：放她左边，底边与她脚底对齐
+          runtime.panelPos = {
+            right: Math.max(8, vw - r.left + PANEL_GAP) + 'px',
+            bottom: Math.max(8, vh - r.bottom) + 'px',
+            maxHeight: Math.min(Math.max(r.height + 60, 260), 520) + 'px',
+            width: PANEL_W + 'px',
+          }
+        }
+      } catch (e) {
+        runtime.panelPos = null
+      }
+    }
+
     /* ================= 心情循环 ================= */
 
     let lastChatterAt = 0
@@ -1592,11 +1646,12 @@ window.__ModuleLoader__.load({
 .dsh-pet-actor-wrap:hover .dsh-pet-gear{opacity:1}
 /* —— 设置面板 —— */
 /* 面板独立悬浮在宠物上方，不进 flex 流：否则会被压扁并在内部滚动 */
-.dsh-pet-panelwrap{position:fixed;right:24px;bottom:170px;z-index:80;
+/* 设置面板：贴紧右边缘、更窄，并抬到宠物上方 —— 原先 right:24/bottom:170 会把她整个人盖住 */
+.dsh-pet-panelwrap{position:fixed;right:10px;bottom:262px;z-index:80;
   pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;
-  max-height:calc(100vh - 186px)}
+  max-height:calc(100vh - 278px)}
 
-.dsh-pet-panel{pointer-events:auto;width:230px;padding:9px 10px 10px;border-radius:12px;font-size:11.5px;line-height:1.35;
+.dsh-pet-panel{pointer-events:auto;width:196px;padding:8px 9px 9px;border-radius:11px;font-size:11px;line-height:1.32;
   background:var(--pet-bg);border:1px solid var(--pet-border);
   box-shadow:0 12px 34px rgba(0,0,0,.42);display:flex;flex-direction:column;gap:5px;
   max-height:100%;overflow-y:auto;overscroll-behavior:contain;
@@ -2654,9 +2709,11 @@ window.__ModuleLoader__.load({
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
-            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()) })
+            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()), moodDriven: true })
           }
-        } else if (runtime.action && runtime.action.name !== 'hair') {
+        } else if (runtime.action && runtime.action.moodDriven && runtime.action.name !== 'hair') {
+          // 只收回「心情自己发起」的动作；用户点“跳一段”发起的要让它跳完
+          // （否则一次工具报错把 mood 打成 angry，舞就断了）
           runtime.action = null
           notify()
         }
@@ -2812,7 +2869,7 @@ window.__ModuleLoader__.load({
           },
           h('style', null, CSS),
         runtime.panelOpen
-          ? h('div', { className: 'dsh-pet-panelwrap' }, h(SettingsPanel))
+          ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
         runtime.bubble
           ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
@@ -2910,6 +2967,8 @@ window.__ModuleLoader__.load({
               onClick: (e) => {
                 e.stopPropagation()
                 runtime.panelOpen = !runtime.panelOpen
+                // 面板按她的当前位置摆，别把她盖住
+                if (runtime.panelOpen) placePanel()
                 notify()
               },
             },
@@ -2986,6 +3045,7 @@ window.__ModuleLoader__.load({
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
             runtime.panelOpen = true
+            placePanel()
             notify()
           }),
         ),
@@ -3115,6 +3175,7 @@ window.__ModuleLoader__.load({
             hidePet,
             showPet,
             playAction,
+            placePanel,
           }
         }
       }

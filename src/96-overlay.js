@@ -14,9 +14,11 @@
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
-            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()) })
+            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()), moodDriven: true })
           }
-        } else if (runtime.action && runtime.action.name !== 'hair') {
+        } else if (runtime.action && runtime.action.moodDriven && runtime.action.name !== 'hair') {
+          // 只收回「心情自己发起」的动作；用户点“跳一段”发起的要让它跳完
+          // （否则一次工具报错把 mood 打成 angry，舞就断了）
           runtime.action = null
           notify()
         }
@@ -172,7 +174,7 @@
           },
           h('style', null, CSS),
         runtime.panelOpen
-          ? h('div', { className: 'dsh-pet-panelwrap' }, h(SettingsPanel))
+          ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
         runtime.bubble
           ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
@@ -270,6 +272,8 @@
               onClick: (e) => {
                 e.stopPropagation()
                 runtime.panelOpen = !runtime.panelOpen
+                // 面板按她的当前位置摆，别把她盖住
+                if (runtime.panelOpen) placePanel()
                 notify()
               },
             },
@@ -346,6 +350,7 @@
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
             runtime.panelOpen = true
+            placePanel()
             notify()
           }),
         ),

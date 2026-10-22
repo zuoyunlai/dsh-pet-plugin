@@ -1,10 +1,12 @@
 """批量绿幕抠像：把一个目录里的帧全部抠成带 alpha 的 PNG。
 
-和 tools/make-pet-image.py 同一套判定（角落法判绿幕 + 绿通道领先算 alpha + despill）。
-
-**关键**：所有帧必须用同一个裁切框、同一个缩放比例输出。
-逐帧按内容裁剪会让每帧尺寸不同，编码器会把它们强行缩放到第一帧的尺寸，
-手臂张开的那几帧就被横向压扁（1.16.0 的真实翻车点：帧宽 244~434，画布 254）。
+算法（v5，2026-10-22 定稿）：
+- alpha：绿通道相对红蓝的领先量 → 窄过渡带 → smoothstep（边缘顺、细结构不断）
+- despill：绿比红蓝都高时压回 max(r,b) —— 只做这一次；
+  **不要**去掉它、也**不要**用「绿底反预乘」代替：反预乘会把低 alpha 像素算亮，
+  指尖会泛黄绿（v3/v4 实测翻车）
+- 羽化：GaussianBlur(0.55)，**不用 MinFilter 腐蚀**——3×3 最小值会啃掉 1px 手指
+- 所有帧用同一个裁切框、同一个缩放比例（逐帧按内容裁剪会让编码器强行拉伸，见 1.16.1）
 
 用法：python batch-key.py <输入目录> <输出目录> [目标高度]
 """
@@ -48,20 +50,24 @@ def key_frame(path):
     g = arr[..., 1]
     mg = np.maximum(arr[..., 0], arr[..., 2])
     dom = g - mg
-    alpha = np.clip(1.0 - (dom - 0.02) / 0.12, 0.0, 1.0)
+
+    alpha = np.clip((0.14 - dom) / 0.14, 0.0, 1.0)
+    alpha = alpha * alpha * (3.0 - 2.0 * alpha)
+
     spill = g > mg + 0.01
     arr[..., 1] = np.where(spill, mg, g)
 
-    a = Image.fromarray((alpha * 255).astype(np.uint8), "L")
-    a = a.filter(ImageFilter.MinFilter(3)).filter(ImageFilter.GaussianBlur(0.8))
+    a_img = Image.fromarray((alpha * 255).astype(np.uint8), "L")
+    a_img = a_img.filter(ImageFilter.GaussianBlur(0.55))
+    alpha = np.asarray(a_img).astype(np.float32) / 255.0
 
     rgba = Image.fromarray((np.clip(arr, 0, 1) * 255).astype(np.uint8), "RGB")
-    rgba.putalpha(a)
+    rgba.putalpha(Image.fromarray((alpha * 255).astype(np.uint8), "L"))
     bbox = rgba.split()[-1].point(lambda v: 255 if v > 8 else 0).getbbox()
     return rgba, bbox
 
 
-# 第一遍：抠像 + 求全片内容并集，得到一个固定裁切框
+# 第一遍：抠像 + 求全片内容并集（同一裁切框，帧间相对位移才保得住）
 keyed = []
 union = None
 for f in files:
@@ -85,16 +91,12 @@ l = max(0, union[0] - pad)
 t = max(0, union[1] - pad)
 r = min(w0, union[2] + pad)
 b = min(h0, union[3] + pad)
-
-crop_w = r - l
-crop_h = b - t
-scale = target_h / crop_h
-out_w = max(1, int(round(crop_w * scale)))
+scale = target_h / (b - t)
+out_w = max(1, int(round((r - l) * scale)))
 
 for f, img in keyed:
-    canvas = img.crop((l, t, r, b))
-    canvas = canvas.resize((out_w, target_h), Image.LANCZOS)
-    canvas.save(os.path.join(out_dir, os.path.splitext(os.path.basename(f))[0] + ".png"))
+    c = img.crop((l, t, r, b)).resize((out_w, target_h), Image.LANCZOS)
+    c.save(os.path.join(out_dir, os.path.splitext(os.path.basename(f))[0] + ".png"))
 
-print("keyed %d frames -> %s" % (len(keyed), out_dir))
-print("裁切框 %dx%d @ (%d,%d) · 统一缩放 x%.3f -> 每帧 %dx%d" % (crop_w, crop_h, l, t, scale, out_w, target_h))
+print("keyed %d frames -> %dx%d（裁切框 %dx%d @ (%d,%d)）" % (
+    len(keyed), out_w, target_h, r - l, b - t, l, t))

@@ -90,11 +90,12 @@
 .dsh-pet-actor-wrap:hover .dsh-pet-gear{opacity:1}
 /* —— 设置面板 —— */
 /* 面板独立悬浮在宠物上方，不进 flex 流：否则会被压扁并在内部滚动 */
-.dsh-pet-panelwrap{position:fixed;right:24px;bottom:170px;z-index:80;
+/* 设置面板：贴紧右边缘、更窄，并抬到宠物上方 —— 原先 right:24/bottom:170 会把她整个人盖住 */
+.dsh-pet-panelwrap{position:fixed;right:10px;bottom:262px;z-index:80;
   pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;
-  max-height:calc(100vh - 186px)}
+  max-height:calc(100vh - 278px)}
 
-.dsh-pet-panel{pointer-events:auto;width:230px;padding:9px 10px 10px;border-radius:12px;font-size:11.5px;line-height:1.35;
+.dsh-pet-panel{pointer-events:auto;width:196px;padding:8px 9px 9px;border-radius:11px;font-size:11px;line-height:1.32;
   background:var(--pet-bg);border:1px solid var(--pet-border);
   box-shadow:0 12px 34px rgba(0,0,0,.42);display:flex;flex-direction:column;gap:5px;
   max-height:100%;overflow-y:auto;overscroll-behavior:contain;

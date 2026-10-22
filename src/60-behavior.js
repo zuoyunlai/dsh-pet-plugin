@@ -70,6 +70,47 @@
       notify()
     }
 
+    /**
+     * 设置面板摆哪儿：默认贴右下角会把她整个人盖住，所以按她的实际位置算。
+     * 上方空间够就放她上方（右对齐），不够就放她左侧（底对齐）。
+     * 面板定宽 196px，与 CSS 里 .dsh-pet-panel 的 width 保持一致。
+     */
+    const PANEL_W = 196
+    const PANEL_GAP = 8
+
+    function placePanel() {
+      try {
+        const el = (typeof document !== 'undefined' && document.querySelector('.dsh-pet-actor-wrap')) || runtime.rootEl
+        const r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null
+        const vw = window.innerWidth || 1280
+        const vh = window.innerHeight || 800
+        if (!r || !r.height) {
+          runtime.panelPos = null
+          return
+        }
+        const spaceAbove = r.top - 16
+        if (spaceAbove >= 300) {
+          // 上方放得下：右边缘对齐，底边贴着她头顶
+          runtime.panelPos = {
+            right: Math.max(8, vw - r.right) + 'px',
+            bottom: Math.max(8, vh - r.top + PANEL_GAP) + 'px',
+            maxHeight: Math.min(spaceAbove, 560) + 'px',
+            width: PANEL_W + 'px',
+          }
+        } else {
+          // 上方不够：放她左边，底边与她脚底对齐
+          runtime.panelPos = {
+            right: Math.max(8, vw - r.left + PANEL_GAP) + 'px',
+            bottom: Math.max(8, vh - r.bottom) + 'px',
+            maxHeight: Math.min(Math.max(r.height + 60, 260), 520) + 'px',
+            width: PANEL_W + 'px',
+          }
+        }
+      } catch (e) {
+        runtime.panelPos = null
+      }
+    }
+
     /* ================= 心情循环 ================= */
 
     let lastChatterAt = 0
