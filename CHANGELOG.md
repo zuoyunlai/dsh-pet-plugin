@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.18.0 — 2026-10-22
+
+审计 O7：`index.js` 拆分（935 → 608 行），行为不变。
+
+- **`lib/tts.js`**（303 行）：神经语音子系统——worker 生命周期、合成、缓存裁剪、
+  音色表与语言映射。它不碰 ctx / webServer，只依赖 Node 内置模块 + 一个 python 子进程，
+  因此可以脱离宿主独立导入与测试。
+- **`lib/prompt.js`**（56 行）：人设表与 system prompt 构造。纯函数，便于单独验证
+  提示词形状；人设表仍放在宿主侧（客户端只能传 personaId），注入面不变。
+- `index.js` 只留插件入口、路由、安全校验与 chat——职责单一，改动时更容易定位。
+- 搬迁是纯搬运：代码原样移动，只加 `export` 与导入。唯一实质修改是 worker 路径
+  `./tools/…` → `../tools/…`（文件从包根移到 lib/）。
+- `package.json` 的 `files` 增加 `lib/*.js`；`install.ps1` 的 `-Update` 保留清单增加 `lib`。
+- 验证：30 条宿主单测全过、冒烟全过、`check --strict` 13/13；`probeNeural()` 实测能
+  找到并运行 worker（本机未装 edge-tts，因此返回"未安装"而非路径错误）。
+
 ## 1.17.1 — 2026-10-22
 
 审计 O2–O5 / O9 / O12：工程配套补齐。

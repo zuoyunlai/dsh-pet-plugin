@@ -88,7 +88,7 @@ if ($Update) {
     if (-not (Test-Path -LiteralPath $dest)) { New-Item -ItemType Directory -Force -Path $dest | Out-Null }
     # only what the runtime needs: a file: install used to drag .git, old tarballs and
     # preview PNGs into the profile (9 MB+). Everything else stays in the source folder.
-    $keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
+    $keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'lib', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
     foreach ($item in Get-ChildItem -LiteralPath $src -Force) {
       if ($keep -notcontains $item.Name) { continue }
       Copy-Item -LiteralPath $item.FullName -Destination $dest -Recurse -Force
