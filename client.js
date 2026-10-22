@@ -1550,12 +1550,36 @@ window.__ModuleLoader__.load({
 .dsh-pet-figbox{position:relative;height:100%;display:flex;align-items:flex-end}
 .dsh-pet-img{height:100%;width:auto;display:block;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));user-select:none;-webkit-user-drag:none;pointer-events:none}
-.dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;
+  transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
 .dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
-.dsh-pet-img-cur{animation:dsh-pet-img-in .24s ease-out}
-.dsh-pet-img-prev{animation:dsh-pet-img-out .24s ease-out forwards}
-@keyframes dsh-pet-img-in{from{opacity:0}to{opacity:1}}
-@keyframes dsh-pet-img-out{from{opacity:1}to{opacity:0}}
+/* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
+.dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
+.dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
+@keyframes dsh-pet-img-in{
+  from{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
+    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(.994)}
+  to{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
+    transform:translateX(-50%) scale(1)}
+}
+@keyframes dsh-pet-img-out{
+  from{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
+    transform:translateX(-50%) scale(1)}
+  to{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
+    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(1.006)}
+}
+/* 常驻微动：呼吸 + 髋部左右摆，60fps 由合成器跑，CPU 零负担 */
+@keyframes dsh-pet-alive{
+  0%{transform:scale(1) rotate(-0.5deg)}
+  25%{transform:scale(1.006) rotate(0deg)}
+  50%{transform:scale(1.012) rotate(0.5deg)}
+  75%{transform:scale(1.006) rotate(0deg)}
+  100%{transform:scale(1) rotate(-0.5deg)}
+}
+@media (prefers-reduced-motion:reduce){
+  .dsh-pet-imgwrap{animation:none}
+  .dsh-pet-img-cur,.dsh-pet-img-prev{animation:none}
+}
 .dsh-pet-gear{position:absolute;right:-2px;top:-2px;pointer-events:auto;cursor:pointer;border:none;border-radius:999px;
   width:20px;height:20px;font-size:11px;line-height:1;opacity:0;transition:opacity .15s;
   background:var(--pet-bg);color:inherit;border:1px solid var(--pet-border)}
@@ -1885,22 +1909,26 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'dsh-pet-marks', 'aria-hidden': 'true' }, marks)
     }
 
-    /** 换表情时做一次交叉淡入淡出，硬切在照片上会很跳。 */
+    /** 换表情/换动作帧时做一次带方向的交叉淡入淡出，硬切在照片上会很跳。 */
     function CrossImage({ src, alt }) {
       const [cur, setCur] = useState(src)
       const [prev, setPrev] = useState(null)
+      const swap = useRef(0)
       if (src !== cur) {
         setPrev(cur)
         setCur(src)
       }
       useEffect(() => {
         if (!prev) return undefined
-        const t = setTimeout(() => setPrev(null), 280)
+        const t = setTimeout(() => setPrev(null), 220)
         return () => clearTimeout(t)
       }, [prev, cur])
+      // 方向左右交替：连续换帧时像真的在动，而不是原地淡
+      swap.current = (swap.current + 1) % 2
+      const dx = swap.current === 0 ? 3 : -3
       return h(
         'div',
-        { className: 'dsh-pet-imgwrap' },
+        { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
         prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev), alt: '', draggable: false }) : null,
         h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur), alt, draggable: false }),
       )

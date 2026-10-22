@@ -106,22 +106,26 @@
       return h('div', { className: 'dsh-pet-marks', 'aria-hidden': 'true' }, marks)
     }
 
-    /** 换表情时做一次交叉淡入淡出，硬切在照片上会很跳。 */
+    /** 换表情/换动作帧时做一次带方向的交叉淡入淡出，硬切在照片上会很跳。 */
     function CrossImage({ src, alt }) {
       const [cur, setCur] = useState(src)
       const [prev, setPrev] = useState(null)
+      const swap = useRef(0)
       if (src !== cur) {
         setPrev(cur)
         setCur(src)
       }
       useEffect(() => {
         if (!prev) return undefined
-        const t = setTimeout(() => setPrev(null), 280)
+        const t = setTimeout(() => setPrev(null), 220)
         return () => clearTimeout(t)
       }, [prev, cur])
+      // 方向左右交替：连续换帧时像真的在动，而不是原地淡
+      swap.current = (swap.current + 1) % 2
+      const dx = swap.current === 0 ? 3 : -3
       return h(
         'div',
-        { className: 'dsh-pet-imgwrap' },
+        { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
         prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev), alt: '', draggable: false }) : null,
         h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur), alt, draggable: false }),
       )

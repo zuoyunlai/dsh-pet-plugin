@@ -314,6 +314,31 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   console.log('OK  action frames: violet dance=6, step=' + (ok ? 230 : '?') + 'ms')
 }
 
+/* ---------- 1.15.0：带方向的交叉淡入 + 常驻微动 ---------- */
+{
+  // 渲染一棵树，找出立绘包装层，断言位移变量存在且是 ±3px（方向交替的载体）
+  const seen = []
+  const walk = (node, depth = 0) => {
+    if (!node || typeof node !== 'object' || depth > 40) return
+    if (typeof node.type === 'function') {
+      walk(node.type(node.props || {}), depth + 1)
+      return
+    }
+    if (node.props && node.props.className === 'dsh-pet-imgwrap') seen.push(node.props.style || {})
+    for (const c of node.children || []) walk(c, depth + 1)
+  }
+  petApi.runtime.settings.persona = 'violet'
+  petApi.runtime.mood = 'idle'
+  petApi.runtime.visible = true
+  walk(pet({ ...baseProps }))
+  assert.ok(seen.length >= 1, '应该渲染出 .dsh-pet-imgwrap')
+  assert.match(String(seen[0]['--pet-dx']), /^-?3px$/, '交叉淡入应带方向位移，实际 ' + seen[0]['--pet-dx'])
+  const css = petApi.CSS
+  assert.ok(css.includes('dsh-pet-alive'), 'CSS 里应有常驻微动 keyframes')
+  assert.ok(css.includes('var(--pet-dx'), '交叉淡入 keyframes 应使用位移变量')
+  console.log('OK  crossfade dx=' + seen[0]['--pet-dx'] + ' + alive micro-motion')
+}
+
 /* ---------- 结论 ---------- */
 console.log('OK  slots:', slots.join(', '))
 console.log('OK  personas:', Object.keys(petApi.PERSONAS).join(', '))
