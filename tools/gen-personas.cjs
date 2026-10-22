@@ -53,11 +53,15 @@ function fmt(value, indent) {
   return '{\n' + keys.map((k) => pad2 + k + ': ' + fmt(value[k], indent + 2)).join(',\n') + ',\n' + pad + '}'
 }
 
+/** 模板目录：有 pack.json 但不进构建（供用户复制起步用） */
+const TEMPLATE_IDS = new Set(['example'])
+
 function packIds() {
   const all = fs
     .readdirSync('pets', { withFileTypes: true })
     .filter((d) => d.isDirectory() && fs.existsSync(path.join('pets', d.name, 'pack.json')))
     .map((d) => d.name)
+    .filter((id) => !TEMPLATE_IDS.has(id))
   const preferred = PREFERRED.filter((id) => all.includes(id))
   const rest = all.filter((id) => !PREFERRED.includes(id)).sort()
   return preferred.concat(rest)

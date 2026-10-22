@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build (must be byte-reproducible)
+        run: |
+          node build.mjs
+          sha1=$(sha1sum client.js | cut -d' ' -f1)
+          node build.mjs > /dev/null 2>&1
+          sha2=$(sha1sum client.js | cut -d' ' -f1)
+          if [ "$sha1" != "$sha2" ]; then
+            echo "::error::build is not reproducible ($sha1 vs $sha2)"
+            exit 1
+          fi
+          echo "reproducible: $sha1"
+
+      - name: Persona generator in sync
+        run: node tools/gen-personas.cjs --check
+
+      - name: Host tests (30)
+        run: node --test tests/host.test.mjs
+
+      - name: Smoke (renders personas/moods/panel, asserts video element)
+        run: node tests/smoke.mjs
+
+      - name: Syntax check index.js
+        run: node --check index.js
+
+      - name: npm pack dry run
+        run: npm pack --dry-run 2>&1 | tee /dev/stderr | grep -q "package size" || exit 1

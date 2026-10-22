@@ -11,6 +11,10 @@
  * 用法：
  *   node tools/release.cjs              # 用 package.json 里的版本
  *   node tools/release.cjs --dry-run    # 只打印将要做什么
+ *   node tools/release.cjs --publish    # 发布到 npm（默认不在本机发，见下）
+ *
+ * 安全阀：--publish 会在按下回车前显示将要发布的版本号和上一次发布的
+ * 版本号，要求输入 "y" 确认。加 --yes 跳过（CI 或明确知道自己在做什么时用）。
  *
  * 要求：gh 已登录（repo scope）、npm 已登录（registry.npmjs.org）。
  */
@@ -159,6 +163,25 @@ else if (!shouldPublish) {
   console.log('skip npm publish (push the tag and let CI publish with --provenance;')
   console.log('pass --publish to publish from this machine instead)')
 } else {
+  // 安全阀：发布前确认一次版本号，防止"我以为还在暂停"就发出去了
+  if (!process.argv.includes('--yes')) {
+    let lastTag = ''
+    try {
+      lastTag = execSync('gh api repos/' + REPO + '/releases/latest --jq .tag_name', { encoding: 'utf8' }).trim()
+    } catch (e) {
+      lastTag = '(no prior release)'
+    }
+    console.log('')
+    console.log('  即将发布: ' + tag + '   (上次: ' + lastTag + ')')
+    process.stdout.write('  确认发布？输入 y 继续: ')
+    const buf = Buffer.alloc(8)
+    const n = require('node:fs').readSync(0, buf)
+    const answer = buf.slice(0, n).toString().trim().toLowerCase()
+    if (answer !== 'y') {
+      console.log('  已取消。加 --yes 跳过此确认。')
+      process.exit(1)
+    }
+  }
   // Windows: npm is npm.cmd; execFile cannot spawn it (ENOENT / EINVAL), so go through
   // a shell. The argument list is fixed, nothing user-supplied reaches the command line.
   execSync('npm publish --registry=https://registry.npmjs.org/', { stdio: 'inherit' })

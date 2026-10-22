@@ -118,14 +118,15 @@
           return () => window.removeEventListener('mousemove', onMove)
         })
 
-        // 事件联动 + 阶段机：轮询 /ping 拿宿主的工具活动与失败时间戳
+        // 事件联动 + 阶段机：轮询 /ping 拿宿主的工具活动与失败时间戳。
+        // 宠物不可见时暂停轮询（省 CPU 和网络）——她被藏起来时没人看，
+        // 阶段数据缓一拍没影响，showPet / 斜杠命令唤醒时会补拉。
         ctx.effect(() => {
           let stop = false
-          const poll = async () => {
-            if (stop) return
-            // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
-            const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
-            const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
+          const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+          const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          const doPoll = async () => {
             for (const url of urls) {
               if (!url) continue
               try {
@@ -151,11 +152,21 @@
               }
             }
           }
-          poll()
-          const t = setInterval(poll, 8000)
+          const schedule = () => {
+            if (stop) return
+            // 不可见时降频到 30s（省 CPU/网络），可见时 8s
+            const gap = runtime.visible || runtime.panelOpen ? 8000 : 30000
+            timer = setTimeout(async () => {
+              await doPoll()
+              schedule()
+            }, gap)
+          }
+          let timer = null
+          doPoll()
+          schedule()
           return () => {
             stop = true
-            clearInterval(t)
+            if (timer) clearTimeout(timer)
           }
         })
 

@@ -367,6 +367,25 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   petApi.runtime.action = null
 }
 
+/* ---------- i18n：五语键值完整且非空 ---------- */
+{
+  const langs = ['en', 'zh', 'es', 'pt', 'hi']
+  const here = dirname(fileURLToPath(import.meta.url))
+  const read = (l) => JSON.parse(readFileSync(join(here, '..', 'locale', l + '.json'), 'utf8'))
+  const en = read('en').pet
+  const enKeys = Object.keys(en)
+  for (const l of langs) {
+    const pet = read(l).pet
+    const keys = Object.keys(pet)
+    assert.equal(keys.length, enKeys.length, `${l} should have ${enKeys.length} keys (en baseline), got ${keys.length}`)
+    for (const k of enKeys) {
+      assert.ok(pet[k] !== undefined, `${l}.${k} missing`)
+      assert.ok(typeof pet[k] === 'string' && pet[k].trim().length > 0, `${l}.${k} is empty`)
+    }
+  }
+  console.log('OK  i18n: 5 langs × ' + enKeys.length + ' keys, all non-empty')
+}
+
 /* ---------- 结论 ---------- */
 console.log('OK  slots:', slots.join(', '))
 console.log('OK  personas:', Object.keys(petApi.PERSONAS).join(', '))

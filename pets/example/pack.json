@@ -1,0 +1,106 @@
+{
+  "id": "example",
+  "name": "示例",
+  "tag": "发色 · 一句话性格",
+  "tagEn": "Hair color — one-line personality in English",
+  "image": "pet-example.webp",
+  "voice": {
+    "pitch": 1.0,
+    "rate": 0.9
+  },
+  "temper": {
+    "idle": 3,
+    "walk": 1.5,
+    "dance": 1.5,
+    "shy": 1.5,
+    "angry": 1,
+    "sleep": 1.5,
+    "happy": 1.5
+  },
+  "images": {
+    "idle": "pet-example.webp",
+    "walk": "pet-example.webp",
+    "talk": "pet-example.webp",
+    "happy": "pet-example-happy.webp",
+    "shy": "pet-example-shy.webp",
+    "angry": "pet-example-angry.webp",
+    "sleep": "pet-example-sleep.webp",
+    "dance": "pet-example-happy.webp",
+    "poked": "pet-example-shy.webp"
+  },
+  "actions": {
+    "dance": [
+      "pet-example-dance1.webp",
+      "pet-example-dance2.webp",
+      "pet-example-dance3.webp"
+    ],
+    "hair": [
+      "pet-example-hair1.webp",
+      "pet-example-hair2.webp",
+      "pet-example-hair3.webp"
+    ],
+    "walk": [
+      "pet-example-walk1.webp",
+      "pet-example-walk2.webp",
+      "pet-example-walk3.webp"
+    ]
+  },
+  "lines": {
+    "appear": ["中文：出场时说的 3~4 句话"],
+    "idle": ["中文：发呆时的 4~5 句话"],
+    "dance": ["中文：跳舞时的 3 句话"],
+    "shy": ["中文：害羞时的 3 句话"],
+    "angry": ["中文：生气时的 3 句话"],
+    "sleep": ["中文：犯困时的 2 句话"],
+    "poked": ["中文：被戳时的 3 句话"],
+    "chatAck": ["中文：单聊收到消息时的 2 句话"],
+    "error": ["中文：出错了说不出话时的 2 句话"]
+  },
+  "linesEn": {
+    "appear": ["English lines for the appear mood"],
+    "idle": ["English idle lines"],
+    "dance": ["English dance lines"],
+    "shy": ["English shy lines"],
+    "angry": ["English angry lines"],
+    "sleep": ["English sleep lines"],
+    "poked": ["English poked lines"],
+    "chatAck": ["English chat ack lines"],
+    "error": ["English error lines"]
+  },
+  "linesEs": {
+    "appear": ["Líneas en español para la aparición"],
+    "idle": ["Líneas en español para el reposo"],
+    "dance": ["Líneas en español para el baile"],
+    "shy": ["Líneas en español para la timidez"],
+    "angry": ["Líneas en español para el enojo"],
+    "sleep": ["Líneas en español para el sueño"],
+    "poked": ["Líneas en español para el toque"],
+    "chatAck": ["Líneas en español para el chat"],
+    "error": ["Líneas en español para el error"]
+  },
+  "linesPt": {
+    "appear": ["Falas em português para a aparição"],
+    "idle": ["Falas em português para o repouso"],
+    "dance": ["Falas em português para a dança"],
+    "shy": ["Falas em português para a timidez"],
+    "angry": ["Falas em português para a raiva"],
+    "sleep": ["Falas em português para o sono"],
+    "poked": ["Falas em português para o toque"],
+    "chatAck": ["Falas em português para o chat"],
+    "error": ["Falas em português para o erro"]
+  },
+  "linesHi": {
+    "appear": ["Hindi lines for appear"],
+    "idle": ["Hindi idle lines"],
+    "dance": ["Hindi dance lines"],
+    "shy": ["Hindi shy lines"],
+    "angry": ["Hindi angry lines"],
+    "sleep": ["Hindi sleep lines"],
+    "poked": ["Hindi poked lines"],
+    "chatAck": ["Hindi chat ack lines"],
+    "error": ["Hindi error lines"]
+  },
+  "clips": {
+    "dance": "pet-example-dance.webm"
+  }
+}
