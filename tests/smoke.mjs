@@ -293,11 +293,12 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   console.log('OK  phase machine + right-click menu (' + items.length + ' items)')
 }
 
-/* ---------- 1.13.0：动作帧数（F2 试点） ---------- */
+/* ---------- 1.13/1.14：动作帧数（F2） ---------- */
 {
   const actions = petApi.PERSONAS.violet.actions
   assert.equal(actions.dance.length, 6, '薇的跳舞已扩到 6 帧')
-  for (const id of ['crimson', 'indigo', 'silver']) {
+  assert.equal(petApi.PERSONAS.crimson.actions.dance.length, 6, '绯的跳舞已扩到 6 帧')
+  for (const id of ['indigo', 'silver']) {
     assert.equal(petApi.PERSONAS[id].actions.dance.length, 3, id + ' 仍是 3 帧')
   }
   // 帧时长随帧数自适应：6 帧应该用更短的步长

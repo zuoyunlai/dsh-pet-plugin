@@ -23,15 +23,19 @@ arr = np.asarray(im).astype(np.float32) / 255.0
 
 # 先判背景类型：绿幕图不能跑「右下角水印」那一步——绿幕渲染的右下角常有投影，
 # 绿通道均值会低于阈值，于是被当成浅色底抹成一块白方块（实测踩过）。
-border = np.concatenate(
-    [
-        arr[:24].reshape(-1, 3),
-        arr[-24:].reshape(-1, 3),
-        arr[:, :24].reshape(-1, 3),
-        arr[:, -24:].reshape(-1, 3),
-    ]
-).mean(axis=0)
-is_green = border[1] > 0.55 and border[1] - max(border[0], border[2]) > 0.3
+# 判定看四个角落的小块：只要有一个角是「绿占多数」就当绿幕。长发/投影会盖住
+# 部分边框、把均值或边框比例拉低，但几乎不会同时盖住四个角（实测绯第 6 帧）。
+def patch_green(y, x, size=48):
+    p = arr[y : y + size, x : x + size].reshape(-1, 3)
+    return float(((p[:, 1] > 0.55) & (p[:, 1] - np.maximum(p[:, 0], p[:, 2]) > 0.3)).mean())
+
+corners = [
+    patch_green(0, 0),
+    patch_green(0, max(0, w - 48)),
+    patch_green(max(0, h - 48), 0),
+    patch_green(max(0, h - 48), max(0, w - 48)),
+]
+is_green = max(corners) > 0.6
 
 # 右下角水印：只对浅色渐变背景那批有意义
 if not is_green:

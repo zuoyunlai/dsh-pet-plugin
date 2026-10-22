@@ -196,7 +196,14 @@
           poked: "pet-crimson-shy.webp",
         },
         actions: {
-          dance: ["pet-crimson-dance1.webp", "pet-crimson-dance2.webp", "pet-crimson-dance3.webp"],
+          dance: [
+            "pet-crimson-dance1.webp",
+            "pet-crimson-dance2.webp",
+            "pet-crimson-dance3.webp",
+            "pet-crimson-dance4.webp",
+            "pet-crimson-dance5.webp",
+            "pet-crimson-dance6.webp",
+          ],
           hair: ["pet-crimson-hair1.webp", "pet-crimson-hair2.webp", "pet-crimson-hair3.webp"],
           walk: ["pet-crimson-walk1.webp", "pet-crimson-walk2.webp", "pet-crimson-walk3.webp"],
         },
