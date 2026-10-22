@@ -6,10 +6,26 @@ import test from 'node:test'
 import assert from 'node:assert'
 import { apply } from '../index.js'
 
-function makeCtx() {
+function makeCtx(opts = {}) {
   const routes = new Map()
+  const listeners = new Map()
+  const commands = opts.commands
+    ? {
+        registered: [],
+        register(def) {
+          this.registered.push(def)
+          return () => {}
+        },
+      }
+    : null
   return {
     routes,
+    commands,
+    listeners,
+    emit(name, payload) {
+      const fn = listeners.get(name)
+      if (fn) fn(payload)
+    },
     webServer: {
       register({ path, handler }) {
         routes.set(path, handler)
@@ -28,11 +44,13 @@ function makeCtx() {
         if (typeof dispose === 'function') dispose()
       }
     },
-    on() {
-      return () => {}
+    on(name, fn) {
+      listeners.set(name, fn)
+      return () => listeners.delete(name)
     },
-    // chat 会 ctx.get('llm')；这里故意返回 undefined（没有模型），走 503 分支
-    get() {
+    // chat 会 ctx.get('llm')；默认返回 undefined（没有模型），走 503 分支
+    get(name) {
+      if (name === 'commands') return commands
       return undefined
     },
   }
@@ -291,4 +309,66 @@ test('assets 畸形百分号不抛穿（400 而不是 500 崩溃）', async () =
   apply(ctx, {})
   const res = await call(ctx.routes.get('/dsh-pet/assets'), { url: '/dsh-pet/assets/%zz' })
   assert.equal(res.statusCode, 400)
+})
+
+/* ---------- 1.11.0：阶段机（F1）与斜杠命令（F3） ---------- */
+
+test('ping 暴露阶段机字段（初始为 0）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })
+  const j = JSON.parse(res.body())
+  assert.equal(j.lastToolAt, 0)
+  assert.equal(j.lastToolName, '')
+  assert.equal(j.commandSeq, 0)
+})
+
+test('tool/result 之后 ping 能拿到工具时间戳与名字', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  ctx.emit('tool/result', { toolName: 'pwsh', ok: true })
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.ok(j.lastToolAt > 0, 'lastToolAt 应该被写')
+  assert.equal(j.lastToolName, 'pwsh')
+})
+
+test('工具失败同时更新 lastErrorAt', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  ctx.emit('tool/result', { tool: 'bash', ok: false })
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.ok(j.lastErrorAt > 0)
+  assert.equal(j.lastToolName, 'bash')
+})
+
+test('有 commands 服务时注册 /dsh-pet，并且 commandSeq 递增', async () => {
+  const ctx = makeCtx({ commands: true })
+  apply(ctx, {})
+  assert.equal(ctx.commands.registered.length, 1)
+  const def = ctx.commands.registered[0]
+  assert.equal(def.name, 'dsh-pet')
+  assert.equal(def.handler({ rawInput: ' hide ' }).kind, 'success')
+  let j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.command, 'hide')
+  assert.equal(j.commandSeq, 1)
+  def.handler({ rawInput: '' })
+  j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.command, 'show')
+  assert.equal(j.commandSeq, 2)
+})
+
+test('未知参数返回 error 而不是执行', async () => {
+  const ctx = makeCtx({ commands: true })
+  apply(ctx, {})
+  const res = ctx.commands.registered[0].handler({ rawInput: 'dance' })
+  assert.equal(res.kind, 'error')
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.commandSeq, 0)
+})
+
+test('没有 commands 服务时不崩（软失败）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })
+  assert.equal(res.statusCode, 200)
 })

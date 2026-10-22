@@ -1,5 +1,34 @@
     /* ================= 说话气泡 ================= */
 
+    /**
+     * 阶段机：把「会话在跑 / 刚调过工具 / 刚出错 / 正在说话 / 刚结束」压成一个
+     * 字符串，界面只按它换表情与动作。全部来自已有信号，不新增宿主要求：
+     *   - running：客户端 useSession 拿到的布尔量
+     *   - lastToolAt / lastErrorAt：宿主 tool/result 事件的时间戳，经 /ping 回传
+     *   - speaking / doneUntil：本地状态
+     */
+    const TOOL_WINDOW = 5000 // 工具活动后保持「在调工具」的时长
+    const ERROR_WINDOW = 8000 // 出错后保持「生气/乌云」的时长
+    const DONE_WINDOW = 4000 // 一轮结束后「done」的时长
+
+    function computePhase() {
+      const now = nowMs()
+      if (runtime.speaking) return 'speak'
+      if (runtime.lastErrorAt && now - runtime.lastErrorAt < ERROR_WINDOW) return 'error'
+      if (runtime.lastToolAt && now - runtime.lastToolAt < TOOL_WINDOW) return 'tool'
+      if (runtime.running) return 'working'
+      if (runtime.doneUntil && now < runtime.doneUntil) return 'done'
+      return 'idle'
+    }
+
+    /** 重算并落库；有变化时返回新阶段，否则返回 '' */
+    function syncPhase() {
+      const next = computePhase()
+      if (next === runtime.phase) return ''
+      runtime.phase = next
+      return next
+    }
+
     function bubble(text, ttl) {
       if (!text) return
       const s = runtime.settings
@@ -32,7 +61,9 @@
       notify()
     }
 
-    function hidePet() {
+    /** 藏起来；传 snoozeMs 就是「藏这么久」（0 = 只藏到下次 tick） */
+    function hidePet(snoozeMs) {
+      if (snoozeMs) runtime.snoozeUntil = nowMs() + Number(snoozeMs)
       runtime.visible = false
       runtime.chatOpen = false
       stopVoice()
@@ -60,6 +91,23 @@
     function tick() {
       const now = nowMs()
       const s = runtime.settings
+
+      // 阶段机：先算阶段，再按阶段给一点情绪反馈
+      const prevPhase = runtime.phase
+      syncPhase()
+      if (runtime.phase !== prevPhase) {
+        if (runtime.phase === 'error') {
+          runtime.mood = 'angry'
+          runtime.moodUntil = now + 3000
+        } else if (runtime.phase === 'done' && runtime.settings.celebrate !== false) {
+          runtime.mood = 'happy'
+          runtime.moodUntil = now + 3500
+        } else if (runtime.phase === 'tool' && runtime.mood === 'idle' && runtime.visible) {
+          // 在调工具时轻轻踱两步，别一直僵着
+          runtime.mood = 'walk'
+          runtime.moodUntil = now + Math.min(TOOL_WINDOW, 3000)
+        }
+      }
 
       // 出现逻辑
       if (s.mode === 'always') {

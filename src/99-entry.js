@@ -35,6 +35,11 @@
             text: (key) => t(key),
             setLang,
             syncLangOverride,
+            // 阶段机（1.11.0）：读当前阶段 / 立即重算
+            phase: () => computePhase(),
+            syncPhase,
+            hidePet,
+            showPet,
           }
         }
       }
@@ -111,29 +116,41 @@
           return () => window.removeEventListener('mousemove', onMove)
         })
 
-        // 事件联动：宿主有工具失败就飘一朵乌云
+        // 事件联动 + 阶段机：轮询 /ping 拿宿主的工具活动与失败时间戳
         ctx.effect(() => {
-          let last = 0
           let stop = false
           const poll = async () => {
             if (stop) return
-            for (const url of ['/dsh-pet/ping', '/api/dsh-pet/ping']) {
+            // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
+            const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+            const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+            for (const url of urls) {
+              if (!url) continue
               try {
                 const res = await fetch(url, { credentials: 'include' })
                 const j = await res.json()
-                if (j && j.ok) {
-                  if (j.lastErrorAt && j.lastErrorAt > last) {
-                    last = j.lastErrorAt
-                    if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
-                  }
-                  return
+                if (!j || !j.ok) continue
+                if (j.lastErrorAt && j.lastErrorAt > (runtime.lastErrorAt || 0)) {
+                  runtime.lastErrorAt = j.lastErrorAt
+                  if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
                 }
+                if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
+                if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
+                // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
+                if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
+                  runtime.lastCommandSeq = j.commandSeq
+                  if (j.command === 'hide') hidePet(60 * 60 * 1000)
+                  else if (j.command === 'show') showPet()
+                }
+                if (syncPhase()) notify()
+                return
               } catch (err) {
-                /* 试下一个 */
+                /* 换下一个地址 */
               }
             }
           }
-          const t = setInterval(poll, 15000)
+          poll()
+          const t = setInterval(poll, 8000)
           return () => {
             stop = true
             clearInterval(t)

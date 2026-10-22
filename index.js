@@ -408,13 +408,24 @@ export function apply(ctx, config) {
     /* ignore */
   }
 
-  // 给「乌云」特效用的最近一次失败时间；没有事件面时保持 0，特效就不会触发。
+  // 阶段机数据源：工具活动时间与最近一次失败时间；没有事件面时都保持 0，
+  // 客户端就会退化成「只有 running / idle」两态。
   let lastErrorAt = 0
+  let lastToolAt = 0
+  let lastToolName = ''
+  // 斜杠命令 → /ping 下发 → 客户端消费（序号递增，避免重复执行）
+  let petCommand = ''
+  let petCommandSeq = 0
   try {
     if (typeof ctx.on === 'function') {
       ctx.on('tool/result', (payload) => {
         try {
-          if (payload && (payload.error || payload.ok === false)) lastErrorAt = Date.now()
+          const at = Date.now()
+          lastToolAt = at
+          const name =
+            (payload && (payload.toolName || payload.tool || payload.name)) || ''
+          if (name) lastToolName = String(name).slice(0, 40)
+          if (payload && (payload.error || payload.ok === false)) lastErrorAt = at
         } catch (e) {
           /* ignore */
         }
@@ -422,6 +433,39 @@ export function apply(ctx, config) {
     }
   } catch (e) {
     /* 事件面不可用就跳过 */
+  }
+
+  /**
+   * 斜杠命令：/dsh-pet 叫出来、/dsh-pet hide 藏起来。
+   * commands 是可选服务：老宿主没有就静默跳过（同 slot 的软失败写法）。
+   */
+  try {
+    const commands = typeof ctx.get === 'function' ? ctx.get('commands') : null
+    if (commands && typeof commands.register === 'function') {
+      ctx.effect(() =>
+        commands.register({
+          definitionId: 'dsh-pet.toggle',
+          name: 'dsh-pet',
+          description: '桌宠：叫出来 / hide 藏 1 小时',
+          handler: (invocation) => {
+            const arg = String((invocation && invocation.rawInput) || '').trim().toLowerCase()
+            if (arg === 'hide') {
+              petCommand = 'hide'
+              petCommandSeq++
+              return { kind: 'success', text: '桌宠藏起来了，1 小时后回来。' }
+            }
+            if (arg && arg !== 'show') {
+              return { kind: 'error', text: '用法：/dsh-pet [show|hide]' }
+            }
+            petCommand = 'show'
+            petCommandSeq++
+            return { kind: 'success', text: '桌宠叫出来了。' }
+          },
+        }),
+      )
+    }
+  } catch (e) {
+    /* 宿主没有 commands 服务 */
   }
 
   const reply = (res, code, payload) => {
@@ -534,6 +578,12 @@ export function apply(ctx, config) {
       provider: cfg.provider,
       model: cfg.model,
       lastErrorAt,
+      // 阶段机（F1）：客户端据此区分「在调工具」与「只是会话在跑」
+      lastToolAt,
+      lastToolName,
+      // 斜杠命令（F3）：序号递增，客户端按序号消费，重复轮询不会重放
+      command: petCommand,
+      commandSeq: petCommandSeq,
     })
   }
 

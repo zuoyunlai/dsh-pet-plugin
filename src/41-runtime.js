@@ -27,6 +27,14 @@
       neuralReason: '',
       petOffscreen: false, // 她是否被画到视口外（给 🐾 按钮提示用）
       resizeTick: 0,
+      // —— 阶段机（F1）：idle / working / tool / error / speak / done ——
+      phase: 'idle',
+      running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
+      doneUntil: 0, // 一轮刚结束的庆祝窗口
+      lastToolAt: 0, // 宿主最近一次 tool/result 的时间戳（来自 /ping）
+      lastToolName: '',
+      lastErrorAt: 0, // 宿主最近一次工具失败的时间戳（来自 /ping）
+      menu: null, // 右键菜单 { x, y }，null=关着
     }
 
     function notify() {

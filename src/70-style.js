@@ -272,4 +272,8 @@
 @media (prefers-reduced-motion:reduce){
   .dsh-pet-fx-ink i,.dsh-pet-fx-confetti i,.dsh-pet-fx-cloud,.fx-bomb,.fx-crack,.fx-flash{animation:none!important;opacity:.9}
 }
+.dsh-pet-menu-mask{position:fixed;inset:0;z-index:80;pointer-events:auto}
+.dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-bd);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
+.dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
+.dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
 `

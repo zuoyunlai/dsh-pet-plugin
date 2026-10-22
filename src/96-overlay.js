@@ -227,7 +227,22 @@
             {
               className: 'dsh-pet-actor mood-' + mood,
               onPointerDown: onPointerDown,
-              title: p.name + ' · ' + p.tag + '（可以拖走）',
+              // 右键菜单（F3）：比齿轮面板快得多，竞品都是这么做的
+              onContextMenu: (e) => {
+                try {
+                  e.preventDefault()
+                  e.stopPropagation()
+                } catch (err) {
+                  /* ignore */
+                }
+                const cx = e && e.clientX ? e.clientX : 0
+                const cy = e && e.clientY ? e.clientY : 0
+                runtime.menu = { x: cx, y: cy }
+                runtime.panelOpen = false
+                notify()
+              },
+              'data-phase': runtime.phase,
+              title: p.name + ' · ' + p.tag + '（可以拖走 / 右键有菜单）',
               style: {
                 // 用真实尺寸缩放而不是 transform：占位一起变大，
                 // 输入框会被顶上去，不会被她的头顶住
@@ -263,6 +278,77 @@
         ),
         ),
         h(FxLayer),
+        h(PetMenu),
+      )
+    }
+
+    /** 右键菜单：只做高频动作，设置还是走齿轮面板 */
+    function PetMenu() {
+      useRuntime()
+      const menu = runtime.menu
+      if (!menu) return null
+      const close = () => {
+        runtime.menu = null
+        notify()
+      }
+      const item = (label, onClick) =>
+        h(
+          'button',
+          {
+            className: 'dsh-pet-menu-item',
+            onClick: (e) => {
+              try {
+                e.stopPropagation()
+              } catch (err) {
+                /* ignore */
+              }
+              close()
+              try {
+                onClick()
+              } catch (err) {
+                /* ignore */
+              }
+            },
+          },
+          label,
+        )
+      // 跟随点击位置，但不许出界
+      let x = menu.x
+      let y = menu.y
+      try {
+        const vw = window.innerWidth || 1280
+        const vh = window.innerHeight || 800
+        x = Math.max(8, Math.min(x, vw - 150))
+        y = Math.max(8, Math.min(y, vh - 210))
+      } catch (e) {
+        /* ignore */
+      }
+      return h(
+        'div',
+        { className: 'dsh-pet-menu-mask', onPointerDown: close, onContextMenu: (e) => { try { e.preventDefault() } catch (err) {} close() } },
+        h(
+          'div',
+          {
+            className: 'dsh-pet-menu',
+            style: { left: x + 'px', top: y + 'px' },
+            role: 'menu',
+            onPointerDown: (e) => {
+              try {
+                e.stopPropagation()
+              } catch (err) {
+                /* ignore */
+              }
+            },
+          },
+          item(t('panel.dance'), () => runToCenterAndDance()),
+          item(t('panel.hair'), () => playAction('hair', { ms: 2400 })),
+          item(t('panel.summon'), () => showPet()),
+          item(t('panel.hide'), () => hidePet(3600 * 1000)),
+          item(t('panel.settings'), () => {
+            runtime.panelOpen = true
+            notify()
+          }),
+        ),
       )
     }
 
@@ -279,6 +365,9 @@
         if (running && !prev) runtime.turnStartedAt = nowMs()
         if (!running && prev && runtime.turnStartedAt) {
           const dur = nowMs() - runtime.turnStartedAt
+          // 阶段机：刚结束给一个 done 窗口（会换成开心/庆祝的表情）
+          runtime.doneUntil = nowMs() + 4000
+          if (syncPhase()) notify()
           if (dur > 4000 && runtime.settings.celebrate !== false) {
             let focused = true
             try {
@@ -303,6 +392,9 @@
         }
         if (!running) runtime.turnStartedAt = 0
         runtime.lastRunning = running
+        // 阶段机需要知道「会话是否在跑」；写在 render 里，tick/轮询共用
+        runtime.running = running
+        if (syncPhase()) notify()
       }, [running])
 
       return h(

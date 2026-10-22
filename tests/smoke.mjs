@@ -53,6 +53,9 @@ const ctx = createContext({
   requestAnimationFrame: (fn) => fn(),
   setInterval: () => 0,
   clearInterval: () => {},
+  // 阶段机（1.11.0）在 tick 里排动作时会用到这两个
+  setTimeout: () => 0,
+  clearTimeout: () => {},
   addEventListener: () => {},
   removeEventListener: () => {},
 })
@@ -242,12 +245,52 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   petApi.runtime.settings.voiceOn = true
   petApi.bubble('神经语音测试', 3000)
   await new Promise((r) => setTimeout(r, 60))
-  const call = neuralTts.calls[neuralTts.calls.length - 1]
+  // 1.11 起挂载时会先轮询 /ping，所以要挑出打到 /tts 的那次，而不是取最后一次
+  const ttsCalls = neuralTts.calls.filter((c) => String(c.url).endsWith('/dsh-pet/tts'))
+  const call = ttsCalls[ttsCalls.length - 1]
   assert.ok(call, '应该发起了一次 tts 请求')
   assert.equal(call.method, 'POST', 'tts 必须走 POST（GET 端点已取消）')
   assert.ok(String(call.url).endsWith('/dsh-pet/tts'), '请求应打到 /dsh-pet/tts')
   assert.ok(neuralTts.played.some((u) => String(u).startsWith('blob:')), '播放的应是 blob URL')
   console.log('OK  neural tts: POST + blob', call.url)
+}
+
+/* ---------- 1.11.0：阶段机与右键菜单 ---------- */
+{
+  // 阶段机：直接改 runtime 的输入，断言 computePhase 的六态映射
+  assert.equal(typeof petApi.phase, 'function', '调试出口应暴露 phase()')
+  petApi.runtime.speaking = true
+  assert.equal(petApi.phase(), 'speak')
+  petApi.runtime.speaking = false
+  petApi.runtime.lastErrorAt = Date.now()
+  assert.equal(petApi.phase(), 'error')
+  petApi.runtime.lastErrorAt = 0
+  petApi.runtime.lastToolAt = Date.now()
+  assert.equal(petApi.phase(), 'tool')
+  petApi.runtime.lastToolAt = 0
+  petApi.runtime.running = true
+  assert.equal(petApi.phase(), 'working')
+  petApi.runtime.running = false
+  petApi.runtime.doneUntil = Date.now() + 3000
+  assert.equal(petApi.phase(), 'done')
+  petApi.runtime.doneUntil = 0
+  assert.equal(petApi.phase(), 'idle')
+
+  // 右键菜单：设置 runtime.menu 后整棵树渲染出菜单项
+  petApi.runtime.visible = true
+  petApi.runtime.menu = { x: 200, y: 200 }
+  const tree = pet({ ...baseProps })
+  const collect = (node, out) => {
+    if (node == null || typeof node !== 'object') return out
+    if (typeof node.type === 'function') return collect(node.type(node.props || {}), out)
+    if (node.props && node.props.className === 'dsh-pet-menu-item') out.push(node.children.join(''))
+    for (const c of node.children || []) collect(c, out)
+    return out
+  }
+  const items = collect(tree, [])
+  assert.ok(items.length >= 5, '右键菜单至少 5 项，实际 ' + items.length)
+  petApi.runtime.menu = null
+  console.log('OK  phase machine + right-click menu (' + items.length + ' items)')
 }
 
 /* ---------- 结论 ---------- */
