@@ -372,3 +372,21 @@ test('没有 commands 服务时不崩（软失败）', async () => {
   const res = await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })
   assert.equal(res.statusCode, 200)
 })
+
+/* ---------- 1.16.0：动作视频片段 ---------- */
+
+test('webm 片段能取到，且 content-type 是 video/webm', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/assets'), { url: '/dsh-pet/assets/pet-violet-dance.webm' })
+  assert.equal(res.statusCode, 200)
+  assert.match(String(res.headers['content-type']), /video\/webm/)
+  assert.ok(res.body().length > 1000, '应该真的返回了字节')
+})
+
+test('非白名单扩展名仍然 404（放开视频不影响准入）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/assets'), { url: '/dsh-pet/assets/evil.js' })
+  assert.equal(res.statusCode, 404)
+})

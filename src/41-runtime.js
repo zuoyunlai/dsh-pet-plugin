@@ -70,13 +70,15 @@
     /** 播放一段动作序列（逐帧交叉淡入，像翻页动画）。 */
     function playAction(name, opts) {
       const p = persona()
+      const clip = p.clips && p.clips[name] ? p.clips[name] : null
       const frames = (p.actions && p.actions[name]) || null
-      if (!frames || !frames.length) return false
+      // 有视频片段的动作：帧序列可以缺席（视频自己会动），但要维持 action 存活到 until
+      if ((!frames || !frames.length) && !clip) return false
       const o = opts || {}
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
-      const step = o.step || (frames.length >= 6 ? 230 : 340)
+      const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
       const until = nowMs() + (o.ms || 2400)
-      runtime.action = { name, frames, i: 0, step, until, persona: p.id }
+      runtime.action = { name, frames: frames || [], i: 0, step, until, persona: p.id, clip }
       notify()
       const advance = () => {
         const act = runtime.action

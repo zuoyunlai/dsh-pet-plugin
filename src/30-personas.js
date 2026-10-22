@@ -30,6 +30,7 @@
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
+        clips: { dance: "pet-violet-dance.webm" },
         voice: { pitch: 1.18, rate: 0.88 },
         temper: { idle: 4, walk: 1.4, dance: 1.6, shy: 1.8, angry: 1, sleep: 1.4, happy: 1.8 },
         lines: {

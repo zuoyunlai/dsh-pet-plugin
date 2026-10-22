@@ -54,6 +54,9 @@
 .dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;
   transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
 .dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+/* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
+.dsh-pet-video{height:100%;width:auto;display:block;object-fit:contain;
+  filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}

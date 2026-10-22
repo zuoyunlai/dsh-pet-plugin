@@ -137,14 +137,27 @@
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null
         const act = runtime.action
-        const actFrame = act && act.frames[act.i]
+        // 1.16：这个动作有视频片段（VP9 + alpha）就播视频，帧序列只作兜底
+        const clip = act && p.clips && p.clips[act.name] ? p.clips[act.name] : null
+        const actFrame = act && act.frames && act.frames[act.i]
         return h(
           'div',
           { className: 'dsh-pet-body dsh-pet-figure' },
           h(
             'div',
             { className: 'dsh-pet-figbox' },
-            h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
+            clip
+              ? h('video', {
+                  className: 'dsh-pet-video',
+                  src: assetUrl(clip),
+                  autoPlay: true,
+                  muted: true,
+                  loop: true,
+                  playsInline: true,
+                  preload: 'auto',
+                  'aria-label': p.name,
+                })
+              : h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )

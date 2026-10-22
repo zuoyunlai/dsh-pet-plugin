@@ -339,6 +339,34 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   console.log('OK  crossfade dx=' + seen[0]['--pet-dx'] + ' + alive micro-motion')
 }
 
+/* ---------- 1.16.0：动作视频片段 ---------- */
+{
+  // 薇的 dance 有 clips，播放这个动作时应该渲染 <video> 而不是翻帧
+  petApi.runtime.settings.persona = 'violet'
+  petApi.runtime.mood = 'idle'
+  petApi.runtime.visible = true
+  petApi.runtime.action = null
+  assert.ok(petApi.PERSONAS.violet.clips && petApi.PERSONAS.violet.clips.dance, '薇的 dance 应有 clips')
+  petApi.playAction('dance', { ms: 1200 })
+  const found = []
+  const walk = (node, depth = 0) => {
+    if (!node || typeof node !== 'object' || depth > 40) return
+    if (typeof node.type === 'function') {
+      walk(node.type(node.props || {}), depth + 1)
+      return
+    }
+    if (node.props && node.props.className === 'dsh-pet-video') found.push(node.props)
+    for (const c of node.children || []) walk(c, depth + 1)
+  }
+  walk(pet({ ...baseProps }))
+  assert.equal(found.length, 1, '应该渲染一个 .dsh-pet-video')
+  assert.ok(String(found[0].src).endsWith('.webm'), '视频源应是 .webm，实际 ' + found[0].src)
+  assert.equal(found[0].muted, true, '必须静音，否则浏览器不给自动播放')
+  assert.equal(found[0].autoPlay, true)
+  console.log('OK  action clip: ' + found[0].src.split('/').pop())
+  petApi.runtime.action = null
+}
+
 /* ---------- 结论 ---------- */
 console.log('OK  slots:', slots.join(', '))
 console.log('OK  personas:', Object.keys(petApi.PERSONAS).join(', '))

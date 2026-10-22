@@ -197,6 +197,7 @@ window.__ModuleLoader__.load({
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
+        clips: { dance: "pet-violet-dance.webm" },
         voice: { pitch: 1.18, rate: 0.88 },
         temper: { idle: 4, walk: 1.4, dance: 1.6, shy: 1.8, angry: 1, sleep: 1.4, happy: 1.8 },
         lines: {
@@ -884,13 +885,15 @@ window.__ModuleLoader__.load({
     /** 播放一段动作序列（逐帧交叉淡入，像翻页动画）。 */
     function playAction(name, opts) {
       const p = persona()
+      const clip = p.clips && p.clips[name] ? p.clips[name] : null
       const frames = (p.actions && p.actions[name]) || null
-      if (!frames || !frames.length) return false
+      // 有视频片段的动作：帧序列可以缺席（视频自己会动），但要维持 action 存活到 until
+      if ((!frames || !frames.length) && !clip) return false
       const o = opts || {}
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
-      const step = o.step || (frames.length >= 6 ? 230 : 340)
+      const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
       const until = nowMs() + (o.ms || 2400)
-      runtime.action = { name, frames, i: 0, step, until, persona: p.id }
+      runtime.action = { name, frames: frames || [], i: 0, step, until, persona: p.id, clip }
       notify()
       const advance = () => {
         const act = runtime.action
@@ -1553,6 +1556,9 @@ window.__ModuleLoader__.load({
 .dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;
   transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
 .dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+/* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
+.dsh-pet-video{height:100%;width:auto;display:block;object-fit:contain;
+  filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
@@ -1940,14 +1946,27 @@ window.__ModuleLoader__.load({
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null
         const act = runtime.action
-        const actFrame = act && act.frames[act.i]
+        // 1.16：这个动作有视频片段（VP9 + alpha）就播视频，帧序列只作兜底
+        const clip = act && p.clips && p.clips[act.name] ? p.clips[act.name] : null
+        const actFrame = act && act.frames && act.frames[act.i]
         return h(
           'div',
           { className: 'dsh-pet-body dsh-pet-figure' },
           h(
             'div',
             { className: 'dsh-pet-figbox' },
-            h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
+            clip
+              ? h('video', {
+                  className: 'dsh-pet-video',
+                  src: assetUrl(clip),
+                  autoPlay: true,
+                  muted: true,
+                  loop: true,
+                  playsInline: true,
+                  preload: 'auto',
+                  'aria-label': p.name,
+                })
+              : h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )

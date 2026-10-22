@@ -20,6 +20,7 @@ const ORDER = [
   'image',
   'images',
   'actions',
+  'clips',
   'voice',
   'temper',
   'lines',

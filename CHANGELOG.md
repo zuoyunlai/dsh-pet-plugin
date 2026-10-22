@@ -1,5 +1,23 @@
 # Changelog
 
+## 1.16.0 — 2026-10-22
+
+真视频级动作：薇的跳舞改成 24fps 的 alpha 视频片段。
+
+- **资产**：用立绘当首帧，经 MiniMax 图生视频（H3 / 5s / 768P）生成绿幕舞蹈，
+  再逐帧抠像（`tools/batch-key.py`，124 帧一个进程跑完），最后编码成
+  `assets/pet-violet-dance.webm`：254×640、24fps、124 帧、5.167s、0.74 MB、VP9 + alpha。
+- **渲染**：pack 新增 `clips: { dance: "…" }`；该动作播放时渲染循环 `<video muted loop
+  playsinline>` 而不是翻帧。真 Chromium 实测：readyState=4、currentTime 0.8s 内推进 0.801s
+  （实时播放）、254×640、透明背景无绿边。
+- **宿主**：`/dsh-pet/assets/` 放行 `.webm`（content-type `video/webm`），其余扩展名仍 404。
+- 帧序列仍是兜底：没有 clips 的动作照旧用 webp 翻帧 + 1.15 的交叉淡入。
+
+这一条把「视频级流畅」从路线图落成了实现：不是把帧数堆到 30，而是让浏览器直接播真视频。
+
+工具：新增 `tools/batch-key.py`（批量绿幕抠像）与 `tools/probe-video.mjs`
+（无头 Chrome 验证 `<video>` 是否真的在播、是否带 alpha）。
+
 ## 1.15.0 — 2026-10-22
 
 观感优化三件套（不需要新素材）：把「看得出是翻页」压到「基本不跳」。

@@ -101,6 +101,9 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   truth. New language: run `node tools/gen-locales.cjs` for a skeleton, then translate.
 - **Moods and animations**: add keyframes in `src/70-style.js` and map the class by `mood`
   in `src/96-overlay.js`.
+- **Action clips**: a pack may carry `clips: { dance: "pet-x-dance.webm" }` — a VP9 WebM with an
+  alpha channel. When that action plays the pet renders a looping `<video>` instead of
+  flipping through still frames, which is the only way to get true 24 fps motion.
 - **Artwork**: drop transparent WebPs into `assets/` and reference them from
   `pets/<id>/pack.json`, then `node build.mjs` (it regenerates `src/30-personas.js`).
   The `/dsh-pet/assets/` route only serves image extensions.

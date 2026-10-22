@@ -21,7 +21,14 @@ export const name = 'dsh-pet-plugin'
 export const inject = ['webServer']
 
 const ASSET_DIR = fileURLToPath(new URL('./assets/', import.meta.url))
-const ASSET_TYPES = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' }
+const ASSET_TYPES = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  // 1.16：动作片段（VP9 + alpha），<video> 直接播
+  '.webm': 'video/webm',
+}
 
 // —— 神经语音（edge-tts）——
 const TTS_WORKER = fileURLToPath(new URL('./tools/tts_worker.py', import.meta.url))
