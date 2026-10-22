@@ -16,6 +16,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install peer dependency (schemastery)
+        run: npm install --no-save @deepseek-ai/schemastery
+
       - name: Build (must be byte-reproducible)
         run: |
           node build.mjs
