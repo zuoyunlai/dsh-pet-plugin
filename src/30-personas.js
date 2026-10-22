@@ -30,7 +30,7 @@
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
-        clips: { dance: "pet-violet-dance.webm" },
+        clips: { dance: "pet-violet-dance.webm", walk: "pet-violet-walk.webm", hair: "pet-violet-hair.webm" },
         voice: { pitch: 1.18, rate: 0.88 },
         temper: { idle: 4, walk: 1.4, dance: 1.6, shy: 1.8, angry: 1, sleep: 1.4, happy: 1.8 },
         lines: {
@@ -208,7 +208,7 @@
           hair: ["pet-crimson-hair1.webp", "pet-crimson-hair2.webp", "pet-crimson-hair3.webp"],
           walk: ["pet-crimson-walk1.webp", "pet-crimson-walk2.webp", "pet-crimson-walk3.webp"],
         },
-        clips: { dance: "pet-crimson-dance.webm" },
+        clips: { dance: "pet-crimson-dance.webm", walk: "pet-crimson-walk.webm" },
         voice: { pitch: 1.1, rate: 0.9 },
         temper: { idle: 3.4, walk: 1.6, dance: 2.2, shy: 1.2, angry: 1.6, sleep: 0.8, happy: 2.2 },
         lines: {

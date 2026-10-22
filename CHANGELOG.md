@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.19.0 — 2026-10-22
+
+审计 O6 第一批：走路 / 撩发也开始用视频片段。
+
+- **新增 3 条片段**（同一条管线：宽构图绿幕首帧 → MiniMax H3 5s/768P →
+  `batch-key.py` v5 抠像 → libvpx-vp9 `yuva420p` crf34）：
+  · `pet-violet-walk.webm` 196×520 · 620 KB
+  · `pet-violet-hair.webm` 232×520 · 398 KB
+  · `pet-crimson-walk.webm` 276×520 · 751 KB
+- `clips` 现在按动作分键（`dance` / `walk` / `hair`）：有片段的动作播视频，
+  没片段的照旧回退到 3 帧翻页——所以这一批可以逐条增量上线。
+- `tools/build-clip.sh <jobId> <persona> <action>`：一条命令完成抽帧 → 抠像 → 编码，
+  下一批素材只用改两个参数。
+- `tools/probe.mjs --scenario=clips` 扩展为逐动作验证（dance/walk/hair），
+  无片段的动作明确标记 skipped 而不是报错。
+
+实测：薇的 dance/walk/hair 与绯的 dance/walk 全部 readyState=4、实时播放（0.45s 内推进 0.45s）。
+绯的 hair 与靛/雪的 walk、hair 仍走帧动画，等下一批素材。
+
 ## 1.18.1 — 2026-10-22
 
 审计 O8 + O10：探测工具合并、资产回归基线。

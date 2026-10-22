@@ -106,31 +106,41 @@ const SCENARIOS = {
     if (!api) return { error: 'no __dshPet handle' }
     api.runtime.visible = true
     const rows = []
+    const ACTIONS = ['dance', 'walk', 'hair']
     for (const id of Object.keys(api.PERSONAS)) {
-      api.runtime.settings.persona = id
-      api.runtime.action = null
-      api.runtime.lastErrorAt = 0
-      api.runtime.mood = 'dance'
-      api.runtime.moodUntil = Date.now() + 6000
-      api.notify()
-      await new Promise((r) => setTimeout(r, 350))
-      api.playAction('dance', { ms: 3000 })
-      await new Promise((r) => setTimeout(r, 900))
-      const v = document.querySelector('.dsh-pet-video')
-      if (!v) {
-        rows.push({ id, video: false, mood: api.runtime.mood })
-        continue
+      const has = api.PERSONAS[id].clips || {}
+      for (const act of ACTIONS) {
+        // 没有片段的动作走帧动画，这里只验"有片段的动作确实播了视频"
+        if (!has[act]) {
+          rows.push({ id, act, clip: null, skipped: 'no clip (frame animation)' })
+          continue
+        }
+        api.runtime.settings.persona = id
+        api.runtime.action = null
+        api.runtime.lastErrorAt = 0
+        api.runtime.mood = act
+        api.runtime.moodUntil = Date.now() + 6000
+        api.notify()
+        await new Promise((r) => setTimeout(r, 320))
+        api.playAction(act, { ms: 3000 })
+        await new Promise((r) => setTimeout(r, 800))
+        const v = document.querySelector('.dsh-pet-video')
+        if (!v) {
+          rows.push({ id, act, clip: has[act], video: false, mood: api.runtime.mood })
+          continue
+        }
+        const t0 = v.currentTime
+        await new Promise((r) => setTimeout(r, 450))
+        rows.push({
+          id,
+          act,
+          src: String(v.currentSrc || v.src).split('/').pop(),
+          readyState: v.readyState,
+          playing: !v.paused,
+          size: v.videoWidth + 'x' + v.videoHeight,
+          advanced: Math.round((v.currentTime - t0) * 1000) / 1000,
+        })
       }
-      const t0 = v.currentTime
-      await new Promise((r) => setTimeout(r, 500))
-      rows.push({
-        id,
-        src: String(v.currentSrc || v.src).split('/').pop(),
-        readyState: v.readyState,
-        playing: !v.paused,
-        size: v.videoWidth + 'x' + v.videoHeight,
-        advanced: Math.round((v.currentTime - t0) * 1000) / 1000,
-      })
     }
     return rows
   })()`,

@@ -1,6 +1,6 @@
 {
   "generatedAt": "baseline",
-  "count": 66,
+  "count": 69,
   "files": {
     "pet-crimson-angry.webp": {
       "bytes": 31082,
@@ -57,6 +57,10 @@
     "pet-crimson-sleep.webp": {
       "bytes": 31094,
       "sha256": "d6abca36b36a1593fe5c504829d66314df1c9a98b90ebdbe2429a29e34e49c44"
+    },
+    "pet-crimson-walk.webm": {
+      "bytes": 769507,
+      "sha256": "e437a8b7b2419823fbf87af1f1b52499ce8739b756612b87adb54c97a0145e11"
     },
     "pet-crimson-walk1.webp": {
       "bytes": 35438,
@@ -226,6 +230,10 @@
       "bytes": 24898,
       "sha256": "768339465bfb72ffa11647990ee299f37992b769befb29cbea39aa1c7790cee4"
     },
+    "pet-violet-hair.webm": {
+      "bytes": 407707,
+      "sha256": "63104c410dce876fe8f59a371f63dc12ba68bf4a972d403f1405f76a0d0105d3"
+    },
     "pet-violet-hair1.webp": {
       "bytes": 26022,
       "sha256": "542ceee24f014609fc9cd2715c853bc67fb19bd2cd284d09da5cb678a1d31bad"
@@ -249,6 +257,10 @@
     "pet-violet-sleep.webp": {
       "bytes": 27030,
       "sha256": "c76593faa470c93791192b89fda1dc8f3349c05b662d82d14e726d7c81f55bac"
+    },
+    "pet-violet-walk.webm": {
+      "bytes": 634461,
+      "sha256": "2090b0303adf51ed0663d66e3f9b4e5ef5a75cfde895803121661161d8ed34b5"
     },
     "pet-violet-walk1.webp": {
       "bytes": 29448,

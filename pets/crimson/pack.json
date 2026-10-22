@@ -284,6 +284,7 @@
     ]
   },
   "clips": {
-    "dance": "pet-crimson-dance.webm"
+    "dance": "pet-crimson-dance.webm",
+    "walk": "pet-crimson-walk.webm"
   }
 }
