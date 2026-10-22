@@ -1,14 +1,14 @@
 {
   "generatedAt": "baseline",
-  "count": 69,
+  "count": 74,
   "files": {
     "pet-crimson-angry.webp": {
       "bytes": 31082,
       "sha256": "23c62f7b24cf09e81fe081887046788dbc8a953e054d42e1fbadc9d5caf432cc"
     },
     "pet-crimson-dance.webm": {
-      "bytes": 899909,
-      "sha256": "1b4a3b862dc24ed93616b18546c0dc99ef913873f8809cf9a8bc4ef3c9b29360"
+      "bytes": 584148,
+      "sha256": "544cbbbd58d1f96edc48748c5f035b46e9fb7411d4fa989136d57063bd5ad5ef"
     },
     "pet-crimson-dance1.webp": {
       "bytes": 34762,
@@ -33,6 +33,10 @@
     "pet-crimson-dance6.webp": {
       "bytes": 38408,
       "sha256": "67569e9c82d5e1b87f125d24a1feba23734b612ad7354729d60ee3e7a354e1c4"
+    },
+    "pet-crimson-hair.webm": {
+      "bytes": 462965,
+      "sha256": "479559f31011107cfb47a81fe478b63ac8f89b5d2fe546b5c47add1a46e2d1b8"
     },
     "pet-crimson-hair1.webp": {
       "bytes": 37306,
@@ -59,8 +63,8 @@
       "sha256": "d6abca36b36a1593fe5c504829d66314df1c9a98b90ebdbe2429a29e34e49c44"
     },
     "pet-crimson-walk.webm": {
-      "bytes": 769507,
-      "sha256": "e437a8b7b2419823fbf87af1f1b52499ce8739b756612b87adb54c97a0145e11"
+      "bytes": 467585,
+      "sha256": "b74dfc73fd625f10abf038ce4bc8f384b4bffa17339f069e4cca7992e0fc6d09"
     },
     "pet-crimson-walk1.webp": {
       "bytes": 35438,
@@ -83,8 +87,8 @@
       "sha256": "3d3760c41467fb8f581c759910ea42d50e31c14d4f9e23ecc9354370bec0baf3"
     },
     "pet-indigo-dance.webm": {
-      "bytes": 846124,
-      "sha256": "22d95efd0ac1bf0f8a595dea1ccbdb1586cee3fb66eb9057897b6ab15df86fb9"
+      "bytes": 560645,
+      "sha256": "e46fab786ac0d043766f5bfa41216d6c4e6cc6a3c782a5d88a4e2e9ea84ef076"
     },
     "pet-indigo-dance1.webp": {
       "bytes": 33052,
@@ -97,6 +101,10 @@
     "pet-indigo-dance3.webp": {
       "bytes": 33910,
       "sha256": "77023b03f4aecf62f7d763171e47da03b4470dc69d1463a220a45f4092c06587"
+    },
+    "pet-indigo-hair.webm": {
+      "bytes": 301969,
+      "sha256": "ef0db989e70e92b7f12060fcfc0950f3332c93080c064a6507d6cb76897c0c5a"
     },
     "pet-indigo-hair1.webp": {
       "bytes": 33116,
@@ -122,6 +130,10 @@
       "bytes": 33846,
       "sha256": "e4093fb31b5e628292ad943c79a38d02ecc3f961241cb7d722e7ebca70b4f4b1"
     },
+    "pet-indigo-walk.webm": {
+      "bytes": 438107,
+      "sha256": "4489cacfde0e72b49e742a09661b5d02538a120621a8073d4028bafb950b150d"
+    },
     "pet-indigo-walk1.webp": {
       "bytes": 33364,
       "sha256": "85511a509d321b3c4cec3ba99b9aee41c4106716cccd0bd89a92b306b67a0eaa"
@@ -143,8 +155,8 @@
       "sha256": "6fbf1f22d09558afd6c4eda1b7ed6a0d6446e6a53a1a4ad7b3931244389631d7"
     },
     "pet-silver-dance.webm": {
-      "bytes": 642042,
-      "sha256": "9e8306dbce5f0a8e851c8abc6a9f89808a32e4942c09751f981594d0d2f73eb0"
+      "bytes": 417725,
+      "sha256": "45c0f809b765a7d7d78e9e009857ecfada8148bf5cbeed3283d0b5ca140c8239"
     },
     "pet-silver-dance1.webp": {
       "bytes": 24476,
@@ -157,6 +169,10 @@
     "pet-silver-dance3.webp": {
       "bytes": 22518,
       "sha256": "4381ab130a795689c39c6b4cfa9def6084a8e29333b49e104d1b55ca226c01c6"
+    },
+    "pet-silver-hair.webm": {
+      "bytes": 283109,
+      "sha256": "bb064ab84b67c1bfbdd3139a94a6937f6462b2d9f26ce6948c3ad243ddd5c835"
     },
     "pet-silver-hair1.webp": {
       "bytes": 26976,
@@ -182,6 +198,10 @@
       "bytes": 26404,
       "sha256": "79cc7b192e61e3ec67352982982cde0a8b4175c7ba1eacf0eb6327867c511f43"
     },
+    "pet-silver-walk.webm": {
+      "bytes": 376626,
+      "sha256": "73f86ce977ecd4eb2350162bf1ec1b72590fd5313b5739eb4d2ba5f040ba404c"
+    },
     "pet-silver-walk1.webp": {
       "bytes": 25000,
       "sha256": "e4df92784fd3471aa004f97a52be583cd5b04a4632e5df9886895aa2e3da6828"
@@ -203,8 +223,8 @@
       "sha256": "ba4c7bb0bd38400393f6bdde8ecfa551923a7bec72b603c50d373c91a660392c"
     },
     "pet-violet-dance.webm": {
-      "bytes": 676832,
-      "sha256": "f633da250d655bbd075eec2fd599698b05bfc577fd0f6168536440d1d454e2e6"
+      "bytes": 440788,
+      "sha256": "c660f80b9c37f807ed66f9809268ac1b57757463c6bfff6e0c7c9fa695d6480d"
     },
     "pet-violet-dance1.webp": {
       "bytes": 26666,
@@ -231,8 +251,8 @@
       "sha256": "768339465bfb72ffa11647990ee299f37992b769befb29cbea39aa1c7790cee4"
     },
     "pet-violet-hair.webm": {
-      "bytes": 407707,
-      "sha256": "63104c410dce876fe8f59a371f63dc12ba68bf4a972d403f1405f76a0d0105d3"
+      "bytes": 250411,
+      "sha256": "49ffe906d8bdf6f27aa940ae6348a55334a261ca934ed9039e970fc9f78eb871"
     },
     "pet-violet-hair1.webp": {
       "bytes": 26022,
@@ -259,8 +279,8 @@
       "sha256": "c76593faa470c93791192b89fda1dc8f3349c05b662d82d14e726d7c81f55bac"
     },
     "pet-violet-walk.webm": {
-      "bytes": 634461,
-      "sha256": "2090b0303adf51ed0663d66e3f9b4e5ef5a75cfde895803121661161d8ed34b5"
+      "bytes": 385843,
+      "sha256": "4cc61b38050174dd1b752b80e9e7f3f0d039bdfd957ea15a6a2a2d14598746e6"
     },
     "pet-violet-walk1.webp": {
       "bytes": 29448,

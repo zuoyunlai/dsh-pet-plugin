@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.19.1 — 2026-10-22
+
+审计 O6 完成：四只形象 × 三个动作，全部 12 条动作片段上线。
+
+- 新增 9 条（补完绯的 hair 与靛/雪的 walk、hair），全部 400 高 / crf38：
+  · `pet-crimson-dance.webm` 570 KB
+  · `pet-crimson-hair.webm` 452 KB
+  · `pet-crimson-walk.webm` 457 KB
+  · `pet-indigo-dance.webm` 548 KB
+  · `pet-indigo-hair.webm` 295 KB
+  · `pet-indigo-walk.webm` 428 KB
+  · `pet-silver-dance.webm` 408 KB
+  · `pet-silver-hair.webm` 276 KB
+  · `pet-silver-walk.webm` 368 KB
+  · `pet-violet-dance.webm` 430 KB
+  · `pet-violet-hair.webm` 245 KB
+  · `pet-violet-walk.webm` 377 KB
+- 12 条合计 4853 KB；整包从 9.9 MB 降到 **7.0 MB**（400 高在 200px 显示尺寸下
+  仍是 2 倍过采样，与 520 高并排看无肉眼差异，但体积少一半）。
+- `tools/rebuild-all-clips.sh` 记录 job → 角色/动作 的映射，一条命令重编全部片段。
+- **修一个真 bug**：`build-clip.sh` 里的 ffmpeg 默认读 stdin，被放在 `while read`
+  循环里调用时会吃掉循环输入，导致后续参数错位、生成 `pet-let-walk.webm` 这类
+  截断文件名。已加 `-nostdin` 与 `</dev/null`。
+
+实测：12 条全部 readyState=4、实时播放（0.45s 内推进 0.45s），尺寸 150×400 ~ 273×400。
+
 ## 1.19.0 — 2026-10-22
 
 审计 O6 第一批：走路 / 撩发也开始用视频片段。

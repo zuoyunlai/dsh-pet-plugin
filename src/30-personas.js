@@ -208,7 +208,11 @@
           hair: ["pet-crimson-hair1.webp", "pet-crimson-hair2.webp", "pet-crimson-hair3.webp"],
           walk: ["pet-crimson-walk1.webp", "pet-crimson-walk2.webp", "pet-crimson-walk3.webp"],
         },
-        clips: { dance: "pet-crimson-dance.webm", walk: "pet-crimson-walk.webm" },
+        clips: {
+          dance: "pet-crimson-dance.webm",
+          walk: "pet-crimson-walk.webm",
+          hair: "pet-crimson-hair.webm",
+        },
         voice: { pitch: 1.1, rate: 0.9 },
         temper: { idle: 3.4, walk: 1.6, dance: 2.2, shy: 1.2, angry: 1.6, sleep: 0.8, happy: 2.2 },
         lines: {
@@ -355,7 +359,7 @@
           hair: ["pet-indigo-hair1.webp", "pet-indigo-hair2.webp", "pet-indigo-hair3.webp"],
           walk: ["pet-indigo-walk1.webp", "pet-indigo-walk2.webp", "pet-indigo-walk3.webp"],
         },
-        clips: { dance: "pet-indigo-dance.webm" },
+        clips: { dance: "pet-indigo-dance.webm", walk: "pet-indigo-walk.webm", hair: "pet-indigo-hair.webm" },
         voice: { pitch: 1.12, rate: 0.86 },
         temper: { idle: 3.6, walk: 1.8, dance: 1.2, shy: 1.6, angry: 0.8, sleep: 1.8, happy: 1.4 },
         lines: {
@@ -492,7 +496,7 @@
           hair: ["pet-silver-hair1.webp", "pet-silver-hair2.webp", "pet-silver-hair3.webp"],
           walk: ["pet-silver-walk1.webp", "pet-silver-walk2.webp", "pet-silver-walk3.webp"],
         },
-        clips: { dance: "pet-silver-dance.webm" },
+        clips: { dance: "pet-silver-dance.webm", walk: "pet-silver-walk.webm", hair: "pet-silver-hair.webm" },
         voice: { pitch: 1.06, rate: 0.84 },
         temper: { idle: 4.2, walk: 1.2, dance: 0.8, shy: 1.4, angry: 1.2, sleep: 2, happy: 1 },
         lines: {

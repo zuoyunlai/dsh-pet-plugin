@@ -281,6 +281,8 @@
     ]
   },
   "clips": {
-    "dance": "pet-indigo-dance.webm"
+    "dance": "pet-indigo-dance.webm",
+    "walk": "pet-indigo-walk.webm",
+    "hair": "pet-indigo-hair.webm"
   }
 }
