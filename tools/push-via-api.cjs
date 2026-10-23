@@ -141,9 +141,12 @@ for (const a of adds) {
   // 上传「git 会存的那份内容」，而不是工作树的原始字节：
   // 上面比较用的是 hash-object（按 .gitattributes 归一化后）的 sha，两者必须同源，
   // 否则工作树里 CRLF 的文件会被判成「每次都变了」并且永远推不干净（真实推送时实测到）。
-  const content = read('git', ['cat-file', 'blob', a.sha])
+  //
+  // 必须**按二进制读**：execFileSync 默认 utf8 解码会把非 UTF-8 字节换成 U+FFFD，
+  // 传上去的 webm 会大 80% 且无法解码（v1.19.4 首次踩到，CI 的 sha256 基线抓出来的）。
+  const content = execFileSync('git', ['cat-file', 'blob', a.sha], { maxBuffer: 64 * 1024 * 1024 })
   const blob = api('POST', `repos/${REPO}/git/blobs`, {
-    content: Buffer.from(content, 'utf8').toString('base64'),
+    content: content.toString('base64'),
     encoding: 'base64',
   })
   tree.push({ path: a.path, mode: '100644', type: 'blob', sha: blob.sha })
