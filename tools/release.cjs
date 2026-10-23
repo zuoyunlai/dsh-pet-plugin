@@ -270,11 +270,11 @@ console.log('remote head:', head)
 // 若 registry 已经能查到该版本，就跳过 publish（幂等）。
 let published = false
 if (shouldPublish) {
+  // Windows 上 npm 是 npm.cmd，execFileSync 起不来（会一直判 false），必须走 shell
   const onNpm = () => {
     try {
-      execFileSync('npm', ['view', pkg.name + '@' + version, 'version', '--registry=https://registry.npmjs.org/'], {
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
+      execSync('npm view ' + pkg.name + '@' + version + ' version --registry=https://registry.npmjs.org/', {
+        stdio: 'ignore',
       })
       return true
     } catch (e) {
