@@ -60,7 +60,7 @@
 .dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
 .dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
   height:100%;width:auto;display:block;object-fit:contain;opacity:0;
-  filter:url(#dsh-pet-unsharp) drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
+  filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
    舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
 .dsh-pet-video.is-ready{opacity:1}
