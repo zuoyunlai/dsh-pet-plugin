@@ -576,6 +576,18 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
   经验：**发布后重建 tag 会顺手把 Release 打回 draft**，要显式再发布。
 - 校验：远端 12 条 webm 字节数与本地逐条一致；npm latest、tag、Release、资产四处对齐。
 
+### 发版记录（1.19.5，2026-10-23）
+
+- 用户要求「全部 12 条都上 640」：walk/hair 8 条从各自母版重抠重编到 640，
+  参数与 dance 一致（crf38/cpu-used 0/aq-mode 2/sharpness 3 + unsharp），构图不变。
+- 体积：片段 6.3→**8.3MB**，整包 8.6→**10.7MB**。这就是"全 640"的代价；
+  若以后要压回去，优先把 walk/hair 降回 400（约 −2.5MB）。
+- npm `dsh-pet-plugin@1.19.5` = latest；tag `v1.19.5`；Release（公开，资产
+  `dsh-pet-plugin-1.19.5.tgz` 10,680,077 B），tag CI **34s 绿**，远端 12 条 webm
+  字节数与本地逐条一致。
+- 这次 release.cjs 的「先发 npm、等 registry 可查、再打 tag」一次走通；二进制上传与
+  draft 两个坑都没有再出现（上一个版本修的两处回归在生产链路上验证通过）。
+
 ### 仍未闭环（下一轮再看）
 
 1. **真机验收 —— 已闭环（2026-10-23，重启后实测）**：
