@@ -605,6 +605,29 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
 - 过程中一个性能坑：PIL 的 `floodfill` 是逐像素 Python 循环，1MP × 1488 帧要跑几小时；
   改到 1/4 分辨率后 0.2s/帧（洞是成片的，缩放不丢精度）。
 
+### 发版记录（1.19.7，2026-10-23）
+
+- **现象**：用户报「人物图像间隙有紫色填充，四个都有」，并附了真机截图。
+- **排查**（逐项排除，都有据）：
+  - 素材层面：解码 12 条片段，透明区 `alpha=0`、RGB≈0.001（黑）；同一帧叠到
+    白/品红/绿三种底色，间隙**跟着底色变** ⇒ 素材里没有紫色填充；
+  - 静帧层面：`pet-*.webp` 透明区 RGB 约 10–17（近黑）⇒ 不是静帧的问题；
+  - 抠像层面：`tools/batch-key.py` v7 的内部洞填充实测只填了 **16 px/帧**（0.00%）⇒
+    不是填充造成的；
+  - 滤镜层面：把 1.19.4 加的 3×3 反锐化按「预乘 alpha + preserveAlpha」模拟卷积，
+    半透明像素平均亮度只变 −0.003、色相偏移 −0.0025，但**边缘外侧局部亮度上冲 +0.21** ——
+    正是截图里「人物轮廓一圈发白偏紫」的亮边光晕。
+- **结论**：不是抠像，是 1.19.4 那层显示侧锐化在预乘 alpha 上做卷积产生的**亮边光晕**；
+  叠在浅色 UI 上看起来像「间隙被填了紫色」，四个角色都套了同一个滤镜，所以「四个都有」。
+- **处置**：整段移除（CSS 的 `url(#dsh-pet-unsharp)` 与 overlay 里的 `<svg><defs>`），
+  素材/抠像/体积都不动。npm `1.19.7` = latest；tag `v1.19.7`；Release 公开
+  （资产 `dsh-pet-plugin-1.19.7.tgz` 10,297,093 B）；tag CI **26s 绿**；
+  desktop / web 两个 profile 都已刷新到 1.19.7。
+- 顺手把 **web profile 也装上了**（此前只有 desktop 有）：`pnpm add` 装了插件与 peer
+  `@deepseek-ai/schemastery@3.18.5`，并把 `dsh-pet-plugin` 登记进 `dsh.profile.bundles`
+  （不加这一项，装了也不会加载）。注意 `file:` 依赖内容变了要 `rm -rf node_modules/dsh-pet-plugin
+  && pnpm install`，否则 pnpm 认为「Already up to date」。
+
 ### 仍未闭环（下一轮再看）
 
 1. **真机验收 —— 已闭环（2026-10-23，重启后实测）**：
