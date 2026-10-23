@@ -542,6 +542,23 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
    不要手写扩展名；「committed sha256 baseline」这类测试的价值就体现在这次——
    它在我自己改坏素材的 3 秒内抓住了，而不是等发版后用户看到黑屏。
 
+### 发版记录（1.19.3，2026-10-23）
+
+- **npm**：`dsh-pet-plugin@1.19.3` 已是 `latest`，本机发布（账号 `zhuoerbufan`，**无 provenance**）。
+  仓库没有配置 `NPM_TOKEN`，CI 的 publish 步骤一直是 skip——v1.19.2 也是这样发的。
+- **tag**：`v1.19.3` → `19c1cf2`；Release 公开：
+  https://github.com/zuoyunlai/dsh-pet-plugin/releases/tag/v1.19.3
+  资产 `dsh-pet-plugin-1.19.3.tgz`（7,054,676 B），sha1 `ee165c90…` 与 npm `dist.shasum` 逐字一致。
+- **CI 事故（tag 那次红）**：`release.yml` 少装 peer 依赖 `@deepseek-ai/schemastery`
+  （`test.yml` 里有），`host.test.mjs` import `index.js` 直接 `ERR_MODULE_NOT_FOUND`，
+  tag run 红在 Checks。已在 main 修（`2b1fe2d`）并验证 main 的 Test 绿；**tag 树不改**
+  （发布后不改写 tag），该 run 保持红，tarball 改为从 npm 取同一份手工挂上。
+- **发布脚本自己踩的两脚**（都修进了 1.19.3 之后的提交）：npm 索引延迟——publish 退出码 0
+  之后约 2 分钟才可查（原来的 60s 校验会误判失败）；Windows 上 `npm view` 必须走 shell
+  （`npm` 是 `.cmd`，`execFileSync` 永远失败，导致"已经发布了却查不到"）。
+- **一处已知瑕疵**：npm tarball 里的 CHANGELOG 仍写着「尚未发版」（发布前那句），因为修文案时
+  tarball 已生成；main 已更正，没有为一行文案重发 1.19.4。
+
 ### 仍未闭环（下一轮再看）
 
 1. **真机验收 —— 已闭环（2026-10-23，重启后实测）**：
