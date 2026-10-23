@@ -981,14 +981,35 @@ window.__ModuleLoader__.load({
       return true
     }
 
-    /** 结束当前动作；只有「当前这一代」有权结束它（旧链的回调到此为止）。 */
+    /**
+     * 结束当前动作；只有「当前这一代」有权结束它（旧链的回调到此为止）。
+     *
+     * 片段动作不再直接卸载：先标记 exiting，让 video 用 220ms 淡回立绘，再真正移除。
+     * 旧写法是「until 到点 → 立刻 action=null」，画面从片段最后一帧硬切到静止立绘
+     * （跳舞结尾切笑脸尤其明显）。
+     */
+    const CLIP_EXIT_MS = 220
+
     function endAction(gen) {
       const act = runtime.action
-      if (!act || act.gen !== gen) return
-      runtime.action = null
-      runtime.clipPlaying = ''
+      if (!act || act.gen !== gen || act.exiting) return
       clearActionTimer()
+      if (!act.clip) {
+        runtime.action = null
+        runtime.clipPlaying = ''
+        notify()
+        return
+      }
+      act.exiting = true
+      runtime.clipPlaying = '' // 不再算「正在播」：静帧垫上来，video 淡出
       notify()
+      later(() => {
+        const cur = runtime.action
+        if (cur && cur.gen === gen && cur.exiting) {
+          runtime.action = null
+          notify()
+        }
+      }, CLIP_EXIT_MS)
     }
 
     /** 主动收回动作（心情变化/隐藏/换人设），同时作废在途调度链。 */
@@ -1708,10 +1729,12 @@ window.__ModuleLoader__.load({
 .dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
 .dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
   height:100%;width:auto;display:block;object-fit:contain;opacity:0;
-  filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
+  filter:url(#dsh-pet-unsharp) drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
    舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
 .dsh-pet-video.is-ready{opacity:1}
+/* 动作结束时淡回立绘（R02 后续）：硬切在跳舞结尾切笑脸时最明显 */
+.dsh-pet-video.is-leaving{opacity:0;transition:opacity .22s ease-out}
 /* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
@@ -2105,7 +2128,7 @@ window.__ModuleLoader__.load({
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen }) {
+    function ClipLayer({ clip, poster, alt, gen, exiting }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -2115,14 +2138,20 @@ window.__ModuleLoader__.load({
         return () => clearTimeout(t)
       }, [failed, giveUp, ready])
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
-      if (failed || giveUp) return h(CrossImage, { src: poster, alt })
+      const still = h(CrossImage, { src: poster, alt })
+      if (failed || giveUp) return still
+      // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
+      const showStill = !ready || exiting
       return h(
         'div',
         { className: 'dsh-pet-clipbox' },
-        ready ? null : h(CrossImage, { src: poster, alt }),
+        showStill ? still : null,
         h('video', {
           key: clip,
-          className: 'dsh-pet-video' + (ready ? ' is-ready' : ''),
+          className:
+            'dsh-pet-video' +
+            (ready && !exiting ? ' is-ready' : '') +
+            (exiting ? ' is-leaving' : ''),
           src: assetUrl(clip),
           autoPlay: true,
           muted: true,
@@ -2166,7 +2195,7 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen })
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting })
               : h(CrossImage, { src: stillSrc, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),
@@ -3156,6 +3185,24 @@ window.__ModuleLoader__.load({
             '⚙',
           ),
         ),
+        ),
+        // 显示侧锐化（0 字节）：3x3 反锐化掩膜，系数和为 1；preserveAlpha 避免透明边缘出白边
+        h(
+          'svg',
+          { width: 0, height: 0, 'aria-hidden': 'true', style: { position: 'absolute', width: 0, height: 0 } },
+          h(
+            'defs',
+            null,
+            h(
+              'filter',
+              { id: 'dsh-pet-unsharp', x: '0', y: '0', width: '100%', height: '100%', colorInterpolationFilters: 'sRGB' },
+              h('feConvolveMatrix', {
+                order: '3',
+                preserveAlpha: 'true',
+                kernelMatrix: '0 -0.18 0  -0.18 1.72 -0.18  0 -0.18 0',
+              }),
+            ),
+          ),
         ),
         h(FxLayer),
         h(PetMenu),

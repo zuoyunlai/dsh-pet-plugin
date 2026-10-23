@@ -143,7 +143,7 @@
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen }) {
+    function ClipLayer({ clip, poster, alt, gen, exiting }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -153,14 +153,20 @@
         return () => clearTimeout(t)
       }, [failed, giveUp, ready])
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
-      if (failed || giveUp) return h(CrossImage, { src: poster, alt })
+      const still = h(CrossImage, { src: poster, alt })
+      if (failed || giveUp) return still
+      // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
+      const showStill = !ready || exiting
       return h(
         'div',
         { className: 'dsh-pet-clipbox' },
-        ready ? null : h(CrossImage, { src: poster, alt }),
+        showStill ? still : null,
         h('video', {
           key: clip,
-          className: 'dsh-pet-video' + (ready ? ' is-ready' : ''),
+          className:
+            'dsh-pet-video' +
+            (ready && !exiting ? ' is-ready' : '') +
+            (exiting ? ' is-leaving' : ''),
           src: assetUrl(clip),
           autoPlay: true,
           muted: true,
@@ -204,7 +210,7 @@
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen })
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting })
               : h(CrossImage, { src: stillSrc, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),

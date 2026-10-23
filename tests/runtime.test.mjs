@@ -32,8 +32,10 @@ test('R03 连点 20 次片段动作：只留一个收尾 timer、不再空转', 
   const v0 = R.version
   env.advance(340)
   assert.equal(R.version, v0, '视频模式不该每 340ms 空转 notify（旧实现 8 次/步）')
-  env.advance(5167)
-  assert.equal(R.action, null, '到片长就收尾')
+  env.advance(R.action.until - env.now())
+  assert.ok(R.action && R.action.exiting, '到片长先进入 220ms 淡出，不是立刻卸载')
+  env.advance(300)
+  assert.equal(R.action, null, '淡出结束才收尾')
 })
 
 test('R03 帧序列动作（无片段）连点 8 次也只推进一帧', () => {
@@ -267,4 +269,27 @@ test('F1 阶段机：lastToolAt / lastErrorAt 驱动 tool 与 error 两态', () 
   assert.equal(env.api.phase(), 'working')
   R.running = false
   assert.equal(env.api.phase(), 'idle')
+})
+
+test('片段结束时有淡出窗口：静帧垫在下面，video 走 is-leaving', () => {
+  const env = makeEnv()
+  const R = env.api.runtime
+  const persona = env.api.PERSONAS.violet
+  env.api.playAction('dance', { explicit: true })
+  const gen = R.action.gen
+  R.clipPlaying = persona.clips.dance
+  // 播到片长：进入 exiting
+  env.advance(R.action.until - env.now())
+  assert.ok(R.action && R.action.exiting, '应当先进入淡出')
+  assert.equal(R.clipPlaying, '', '淡出期间不再算正在播放')
+  const tree = env.api.PetArt({ persona, mood: 'dance' })
+  const imgs = findAll(tree, 'img')
+  const videos = findAll(tree, 'video')
+  assert.ok(imgs.length >= 1, '淡出期间静帧必须在下面（否则就是硬切）')
+  assert.equal(videos.length, 1)
+  assert.ok(/is-leaving/.test(videos[0].props.className), 'video 应带 is-leaving 淡出类')
+  // 淡出结束后只剩静帧
+  env.advance(220)
+  assert.equal(R.action, null)
+  assert.equal(findAll(env.api.PetArt({ persona, mood: 'dance' }), 'video').length, 0)
 })

@@ -233,14 +233,18 @@ export function makeEnv(opts = {}) {
         const due = timers.filter((t) => t.at <= target).sort((a, b) => a.at - b.at || a.seq - b.seq)
         if (!due.length) break
         const t = due[0]
+        // 先按「触发时刻」推进时钟，再重新排 interval ——
+        // 旧顺序会先 t.at = clock + every 再 clock = t.at，把时钟一次跳到下一次触发，
+        // 导致同一轮里后面的 timer 都在错误的时刻执行（退出淡出那 220ms 就被吞掉）。
+        const firedAt = t.at
+        clock = Math.max(clock, firedAt)
         if (t.kind === 'interval') {
-          t.at = clock + t.every
+          t.at = firedAt + t.every
           t.seq = ++seq
         } else {
           const i = timers.indexOf(t)
           if (i >= 0) timers.splice(i, 1)
         }
-        clock = Math.max(clock, t.at)
         try {
           t.fn()
         } catch (e) {

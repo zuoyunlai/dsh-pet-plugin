@@ -150,14 +150,35 @@
       return true
     }
 
-    /** 结束当前动作；只有「当前这一代」有权结束它（旧链的回调到此为止）。 */
+    /**
+     * 结束当前动作；只有「当前这一代」有权结束它（旧链的回调到此为止）。
+     *
+     * 片段动作不再直接卸载：先标记 exiting，让 video 用 220ms 淡回立绘，再真正移除。
+     * 旧写法是「until 到点 → 立刻 action=null」，画面从片段最后一帧硬切到静止立绘
+     * （跳舞结尾切笑脸尤其明显）。
+     */
+    const CLIP_EXIT_MS = 220
+
     function endAction(gen) {
       const act = runtime.action
-      if (!act || act.gen !== gen) return
-      runtime.action = null
-      runtime.clipPlaying = ''
+      if (!act || act.gen !== gen || act.exiting) return
       clearActionTimer()
+      if (!act.clip) {
+        runtime.action = null
+        runtime.clipPlaying = ''
+        notify()
+        return
+      }
+      act.exiting = true
+      runtime.clipPlaying = '' // 不再算「正在播」：静帧垫上来，video 淡出
       notify()
+      later(() => {
+        const cur = runtime.action
+        if (cur && cur.gen === gen && cur.exiting) {
+          runtime.action = null
+          notify()
+        }
+      }, CLIP_EXIT_MS)
     }
 
     /** 主动收回动作（心情变化/隐藏/换人设），同时作废在途调度链。 */

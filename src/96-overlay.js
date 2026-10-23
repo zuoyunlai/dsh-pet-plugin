@@ -292,6 +292,24 @@
           ),
         ),
         ),
+        // 显示侧锐化（0 字节）：3x3 反锐化掩膜，系数和为 1；preserveAlpha 避免透明边缘出白边
+        h(
+          'svg',
+          { width: 0, height: 0, 'aria-hidden': 'true', style: { position: 'absolute', width: 0, height: 0 } },
+          h(
+            'defs',
+            null,
+            h(
+              'filter',
+              { id: 'dsh-pet-unsharp', x: '0', y: '0', width: '100%', height: '100%', colorInterpolationFilters: 'sRGB' },
+              h('feConvolveMatrix', {
+                order: '3',
+                preserveAlpha: 'true',
+                kernelMatrix: '0 -0.18 0  -0.18 1.72 -0.18  0 -0.18 0',
+              }),
+            ),
+          ),
+        ),
         h(FxLayer),
         h(PetMenu),
       )
