@@ -559,6 +559,23 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
 - **一处已知瑕疵**：npm tarball 里的 CHANGELOG 仍写着「尚未发版」（发布前那句），因为修文案时
   tarball 已生成；main 已更正，没有为一行文案重发 1.19.4。
 
+### 发版记录（1.19.4，2026-10-23）
+
+- **素材**：dance 4 条重编到 640 高（母版 768×1344，按长宽比核对：薇用
+  `violet-dance-wide` 0.675，不是 `-video` 0.595）；walk/hair 8 条保持 400 只升级参数。
+  片段 4.8→6.3MB，整包 **8.6MB**。显示侧加 3×3 反锐化（SVG，0 字节）。
+- **npm**：`dsh-pet-plugin@1.19.4` = latest（本机发布，仍无 provenance）；Release：
+  https://github.com/zuoyunlai/dsh-pet-plugin/releases/tag/v1.19.4
+  资产 `dsh-pet-plugin-1.19.4.tgz`（8,571,481 B），CI 26s 绿。
+- **事故 1（我引入的回归，CI 抓到）**：`push-via-api` 读 blob 用了 `execFileSync(...,{encoding:'utf8'})`，
+  非 UTF-8 字节被换成 U+FFFD，12 条 webm 上传后从 770,738 变成 1,397,195 字节（+81%），
+  tag 树的 sha256 与基线全不一致 → release run 红。改为按 Buffer 读、直接 base64 上传，
+  新增「二进制逐字节往返」用例（含 0xFF/0xFE/0x80）。本地素材与 npm 包一直是好的。
+- **事故 2**：修复后用 Data API 推 main 并**重建 tag**（旧 tag 指向坏树）。删 tag 会让 GitHub
+  把对应 Release 变成 draft，于是重新发布了一次（`gh release edit --draft=false --latest`）。
+  经验：**发布后重建 tag 会顺手把 Release 打回 draft**，要显式再发布。
+- 校验：远端 12 条 webm 字节数与本地逐条一致；npm latest、tag、Release、资产四处对齐。
+
 ### 仍未闭环（下一轮再看）
 
 1. **真机验收 —— 已闭环（2026-10-23，重启后实测）**：
