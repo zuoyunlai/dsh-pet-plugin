@@ -264,33 +264,48 @@ const head = dry ? 'HEAD' : api('GET', 'repos/' + REPO + '/git/ref/heads/' + BRA
 console.log('remote head:', head)
 
 // npm 先发、**确认 registry 真的能取到**之后才打 tag。
-// 踩过的坑：npm publish 可能落成 staged/202 等 2FA，退出码仍是 0；那时若已经推了 tag，
-// 版本号就被占住、CI/重跑都会 E409。所以顺序是 publish → verify → tag。
+// 踩过的坑：npm publish 退出码 0 不代表立刻可查（npm 会「processing, may take a few
+// minutes」，本机实测约 2 分钟）；也可能落成 staged/202 等 2FA。这两种情况下都不能先推
+// tag，否则版本号被占住、重跑会 E409。顺序固定为 publish → verify → tag，且可重跑：
+// 若 registry 已经能查到该版本，就跳过 publish（幂等）。
 let published = false
 if (shouldPublish) {
-  // Windows: npm is npm.cmd，execFile 起不来，走 shell；参数固定，无用户输入。
-  execSync('npm publish --registry=https://registry.npmjs.org/', { stdio: 'inherit' })
-  let seen = false
-  for (let i = 0; i < 12; i++) {
+  const onNpm = () => {
     try {
       execFileSync('npm', ['view', pkg.name + '@' + version, 'version', '--registry=https://registry.npmjs.org/'], {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'ignore'],
       })
-      seen = true
-      break
+      return true
     } catch (e) {
-      sleepSync(5000)
+      return false
     }
   }
-  if (!seen) {
-    throw new Error(
-      'npm 上还查不到 ' + pkg.name + '@' + version + '：不打 tag、不建 Release（可能落成 staged 等 2FA）。' +
-        ' 先 npm view 确认能取到，再重跑本脚本。',
-    )
+  if (onNpm()) {
+    console.log('npm 上已有 ' + pkg.name + '@' + version + '，跳过 publish（重跑安全）')
+    published = true
+  } else {
+    // Windows: npm is npm.cmd，execFile 起不来，走 shell；参数固定，无用户输入。
+    execSync('npm publish --registry=https://registry.npmjs.org/', { stdio: 'inherit' })
+    // npm 的索引有延迟：最多等 10 分钟（30 × 20s），期间每 20s 查一次
+    let seen = false
+    for (let i = 0; i < 30; i++) {
+      if (onNpm()) {
+        seen = true
+        break
+      }
+      process.stdout.write('.')
+      sleepSync(20000)
+    }
+    if (!seen) {
+      throw new Error(
+        'npm 上还查不到 ' + pkg.name + '@' + version + '：不打 tag、不建 Release（可能落成 staged 等 2FA，' +
+          '或索引还没刷新）。npm view 能取到后**重跑本脚本**即可——publish 会因版本已存在而跳过。',
+      )
+    }
+    console.log('\npublished to npm: ' + pkg.name + '@' + version)
+    published = true
   }
-  console.log('published to npm: ' + pkg.name + '@' + version)
-  published = true
 }
 
 // tag：npm 成功后才推（--publish），或交给 CI 发 npm（默认）
