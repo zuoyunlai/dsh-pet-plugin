@@ -127,6 +127,24 @@ function releaseBody() {
   ].join('\n')
 }
 
+// --print-body：打印 Release 正文（与建 Release 时同源），用于事后 gh release edit
+if (argv.includes('--print-body')) {
+  // releaseBody() 会往 stdout 打一行 "notes: …"，喂给 gh --notes-file 时要滤掉
+  // releaseBody() 会直接 console.log 一行 "notes: …"，这里临时静音，
+  // 免得它混进 gh --notes-file
+  const SEP = String.fromCharCode(10)
+  const savedLog = console.log
+  console.log = () => {}
+  const raw = releaseBody()
+  console.log = savedLog
+  const text = raw
+    .split(SEP)
+    .filter((l) => l.indexOf('notes: ') !== 0)
+    .join(SEP)
+  console.log(text)
+  process.exit(0)
+}
+
 if (printIdx >= 0) {
   const v = argv[printIdx + 1] || version
   console.log('--- notes for ' + v + ' ---')

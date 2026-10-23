@@ -21,8 +21,12 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org/
 
-      # The bundle is plain ES modules and the smoke test stubs React itself, so there is
-      # nothing to install.
+      # index.js 有 peerDependency @deepseek-ai/schemastery，host 测试会 import 它；
+      # test.yml 里装了，release.yml 之前漏了 —— v1.19.3 的 tag 跑就红在 Checks。
+      - name: Install peer dependency (schemastery)
+        run: npm install --no-save @deepseek-ai/schemastery
+
+      # The bundle is plain ES modules and the smoke test stubs React itself.
       - name: Checks
         run: |
           node --check client.js
