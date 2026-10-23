@@ -5,6 +5,15 @@
     const pick = (arr) => (arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : '')
     const nowMs = () => Date.now()
 
+    /** 系统是否要求减弱动效（读不到就当没有要求）。 */
+    function prefersReduced() {
+      try {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      } catch (e) {
+        return false
+      }
+    }
+
     function weighted(table) {
       const keys = Object.keys(table)
       let total = 0

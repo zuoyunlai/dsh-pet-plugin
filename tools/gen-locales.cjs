@@ -195,6 +195,14 @@ const hi = {
   'placeholder.chat': '{name} se kuchh kahein…',
 }
 
+// 可访问名（R18）：界面文案走 i18n，读屏名称也必须走，不能写死中文
+const A11Y = {
+  zh: { 'a11y.talkTo': '对 {name} 说话', 'a11y.send': '发送', 'a11y.start': '活跃开始', 'a11y.end': '活跃结束' },
+  es: { 'a11y.talkTo': 'Habla con {name}', 'a11y.send': 'Enviar', 'a11y.start': 'Activo desde', 'a11y.end': 'Activo hasta' },
+  pt: { 'a11y.talkTo': 'Fale com {name}', 'a11y.send': 'Enviar', 'a11y.start': 'Ativo das', 'a11y.end': 'Ativo até' },
+  hi: { 'a11y.talkTo': '{name} se baat karein', 'a11y.send': 'Bhejein', 'a11y.start': 'Active kab se', 'a11y.end': 'Active kab tak' },
+}
+
 function build(lang, over) {
   const out = { meta: { ...en.meta }, pet: {} }
   for (const [k, v] of Object.entries(en.pet)) out.pet[k] = v
@@ -203,6 +211,7 @@ function build(lang, over) {
     else out.pet[k] = v
   }
   // meta.title 跟随语言（英文名保留品牌）
+  Object.assign(out.pet, A11Y[lang] || {})
   if (lang === 'zh') out.meta.title = '桌宠'
   else if (lang === 'es') out.meta.title = 'Mascota de escritorio'
   else if (lang === 'pt') out.meta.title = 'Mascote de mesa'

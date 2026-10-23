@@ -6,8 +6,8 @@
   "pet": {
     "panel.title": "桌宠",
     "panel.look": "形象",
-    "panel.lang": "语言",
-    "panel.langAuto": "跟随 DSH",
+    "panel.lang": "Language",
+    "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "声音",
     "panel.display": "显示",
     "panel.actions": "动作",
@@ -19,7 +19,7 @@
     "panel.active": "活跃",
     "panel.voiceOn": "说话",
     "panel.neural": "神经音色",
-    "voice.auto": "自动（按语言）",
+    "voice.auto": "Auto (by language)",
     "panel.voiceName": "音色",
     "panel.volume": "音量",
     "panel.pitch": "音高",
@@ -33,7 +33,7 @@
     "panel.hair": "撩头发",
     "panel.summon": "叫出来",
     "panel.hide": "藏 1h",
-    "panel.settings": "设置",
+    "panel.settings": "Settings",
     "panel.ink": "泼墨",
     "panel.confetti": "撒花",
     "panel.cloud": "乌云",
@@ -48,7 +48,11 @@
     "pet.toggle": "桌宠",
     "pet.toggleOff": "她在屏幕外，点一下拉回来",
     "hint.neuralOff": "神经音色不可用，改用系统语音",
-    "hint.privacy": "神经音色会把朗读的文本发往微软服务器。不想外发就关掉它，改用系统语音。",
-    "placeholder.chat": "跟{name}说句话…"
+    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
+    "placeholder.chat": "跟{name}说句话…",
+    "a11y.talkTo": "对 {name} 说话",
+    "a11y.send": "发送",
+    "a11y.start": "活跃开始",
+    "a11y.end": "活跃结束"
   }
 }

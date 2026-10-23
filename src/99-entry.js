@@ -54,6 +54,32 @@
     return {
       inject: ['slots'],
       apply(ctx) {
+        // 减弱动效（R10）：读一次，随后跟随系统设置变化
+        runtime.reduced = prefersReduced()
+        ctx.effect(() => {
+          let mq = null
+          const onChange = () => {
+            const next = prefersReduced()
+            if (next === runtime.reduced) return
+            runtime.reduced = next
+            if (next) clearAction()
+            notify()
+          }
+          // DSH 的 Electron/Chromium 版本都支持 MediaQueryList.addEventListener
+          try {
+            mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null
+            if (mq && mq.addEventListener) mq.addEventListener('change', onChange)
+          } catch (e) {
+            mq = null
+          }
+          return () => {
+            try {
+              if (mq) mq.removeEventListener('change', onChange)
+            } catch (e) {
+              /* ignore */
+            }
+          }
+        })
         ctx.effect(() => {
           runtime.timer = setInterval(() => {
             try {
@@ -77,6 +103,8 @@
             clearTimeout(resizeTimer)
             resizeTimer = setTimeout(() => {
               runtime.resizeTick++
+              // 面板是 fixed 定位的：窗口变了必须重新夹取，否则会留在视口外（R11）
+              if (runtime.panelOpen) placePanel()
               notify()
             }, 250)
           }
@@ -126,30 +154,53 @@
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
           const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
           const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
+          // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
+          const POLL_TIMEOUT = 8000
+          let ctrl = null
           const doPoll = async () => {
-            for (const url of urls) {
-              if (!url) continue
+            if (stop) return
+            ctrl =
+              typeof AbortController === 'function'
+                ? new AbortController()
+                : null
+            const guard = setTimeout(() => {
               try {
-                const res = await fetch(url, { credentials: 'include' })
-                const j = await res.json()
-                if (!j || !j.ok) continue
-                if (j.lastErrorAt && j.lastErrorAt > (runtime.lastErrorAt || 0)) {
-                  runtime.lastErrorAt = j.lastErrorAt
-                  if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
-                }
-                if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
-                if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
-                // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
-                if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
-                  runtime.lastCommandSeq = j.commandSeq
-                  if (j.command === 'hide') hidePet(60 * 60 * 1000)
-                  else if (j.command === 'show') showPet()
-                }
-                if (syncPhase()) notify()
-                return
-              } catch (err) {
-                /* 换下一个地址 */
+                if (ctrl) ctrl.abort()
+              } catch (e) {
+                /* ignore */
               }
+            }, POLL_TIMEOUT)
+            try {
+              for (const url of urls) {
+                if (!url || stop) continue
+                try {
+                  const res = await fetch(url, { credentials: 'include', signal: ctrl ? ctrl.signal : undefined })
+                  const j = await res.json()
+                  // 卸载/超时后拿到的响应一律不写状态（R08b）
+                  if (stop || !j || !j.ok) continue
+                  if (j.lastErrorAt && j.lastErrorAt > (runtime.lastErrorAt || 0)) {
+                    runtime.lastErrorAt = j.lastErrorAt
+                    if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
+                  }
+                  if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
+                  if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
+                  if (j.toolEvents) runtime.toolEvents = j.toolEvents
+                  // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
+                  if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
+                    runtime.lastCommandSeq = j.commandSeq
+                    if (j.command === 'hide') hidePet(60 * 60 * 1000)
+                    else if (j.command === 'show') showPet()
+                  }
+                  if (syncPhase()) notify()
+                  return
+                } catch (err) {
+                  /* 换下一个地址（含超时中止） */
+                }
+              }
+            } finally {
+              clearTimeout(guard)
+              ctrl = null
             }
           }
           const schedule = () => {
@@ -157,16 +208,25 @@
             // 不可见时降频到 30s（省 CPU/网络），可见时 8s
             const gap = runtime.visible || runtime.panelOpen ? 8000 : 30000
             timer = setTimeout(async () => {
-              await doPoll()
+              try {
+                await doPoll()
+              } catch (e) {
+                /* ignore */
+              }
               schedule()
             }, gap)
           }
           let timer = null
-          doPoll()
+          doPoll().catch(() => {})
           schedule()
           return () => {
             stop = true
             if (timer) clearTimeout(timer)
+            try {
+              if (ctrl) ctrl.abort()
+            } catch (e) {
+              /* ignore */
+            }
           }
         })
 

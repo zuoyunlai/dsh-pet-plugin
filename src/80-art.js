@@ -112,6 +112,9 @@
       const [prev, setPrev] = useState(null)
       const swap = useRef(0)
       if (src !== cur) {
+        // 方向只跟着「真的换了图」翻转（1.19.3 R17）。旧写法在渲染体里无条件
+        // 自增，任何一次无关重渲染都会把方向翻过去。
+        swap.current = (swap.current + 1) % 2
         setPrev(cur)
         setCur(src)
       }
@@ -120,8 +123,6 @@
         const t = setTimeout(() => setPrev(null), 220)
         return () => clearTimeout(t)
       }, [prev, cur])
-      // 方向左右交替：连续换帧时像真的在动，而不是原地淡
-      swap.current = (swap.current + 1) % 2
       const dx = swap.current === 0 ? 3 : -3
       return h(
         'div',
@@ -131,15 +132,71 @@
       )
     }
 
+    /**
+     * 动作片段层（1.19.3 R01）：视频没起来之前用静帧顶着；**一旦开始播放就把静帧撤掉**。
+     *
+     * 为什么要撤：这些是 VP9 + alpha 的透明视频，人物背景是空的。静帧如果一直垫在下面，
+     * 视频里姿态一变（跳舞时手臂抬起、身体转动），没被视频覆盖到的部分就会透出底下那张
+     * 静止立绘——看起来就是「两个人物重叠」。所以静帧只是 poster，不是背景板。
+     *
+     * - onError / 3s 没起来 → 隐藏 video，退回静帧（人物始终可见）；
+     * - 加载失败按文件记忆，同一片段不再反复等 3s；
+     * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
+     */
+    function ClipLayer({ clip, poster, alt, gen }) {
+      const failed = !!runtime.clipFailed[clip]
+      const ready = runtime.clipPlaying === clip
+      const [giveUp, setGiveUp] = useState(false)
+      useEffect(() => {
+        if (failed || giveUp || ready) return undefined
+        const t = setTimeout(() => setGiveUp(true), 3000)
+        return () => clearTimeout(t)
+      }, [failed, giveUp, ready])
+      // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
+      if (failed || giveUp) return h(CrossImage, { src: poster, alt })
+      return h(
+        'div',
+        { className: 'dsh-pet-clipbox' },
+        ready ? null : h(CrossImage, { src: poster, alt }),
+        h('video', {
+          key: clip,
+          className: 'dsh-pet-video' + (ready ? ' is-ready' : ''),
+          src: assetUrl(clip),
+          autoPlay: true,
+          muted: true,
+          loop: false,
+          playsInline: true,
+          preload: 'auto',
+          'aria-label': alt,
+          onPlaying: () => {
+            runtime.clipPlaying = clip
+            notify()
+          },
+          // 自然播完就收尾：不要等到墙钟（片段 5167ms，action 默认也是 5167ms，
+          // 两边谁先到都行；这里让「播完」这件事由媒体事件说了算）
+          onEnded: () => endAction(gen),
+          onError: () => {
+            runtime.clipFailed[clip] = true
+            runtime.clipPlaying = null
+            runtime.lastClipError = clip
+            setGiveUp(true)
+            notify()
+            petLog('clip failed', clip)
+          },
+        }),
+      )
+    }
+
     function PetArt({ persona: p, mood }) {
       const c = p.colors
       // 有贴图的形象直接用立绘；表情靠整体动作 + 贴纸
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null
         const act = runtime.action
-        // 1.16：这个动作有视频片段（VP9 + alpha）就播视频，帧序列只作兜底
+        // 有视频片段（VP9 + alpha）就播片段：静帧在下、video 在上淡入（R01）
         const clip = act && p.clips && p.clips[act.name] ? p.clips[act.name] : null
         const actFrame = act && act.frames && act.frames[act.i]
+        const stillSrc = actFrame || variant || p.image
         return h(
           'div',
           { className: 'dsh-pet-body dsh-pet-figure' },
@@ -147,17 +204,8 @@
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h('video', {
-                  className: 'dsh-pet-video',
-                  src: assetUrl(clip),
-                  autoPlay: true,
-                  muted: true,
-                  loop: true,
-                  playsInline: true,
-                  preload: 'auto',
-                  'aria-label': p.name,
-                })
-              : h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen })
+              : h(CrossImage, { src: stillSrc, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )

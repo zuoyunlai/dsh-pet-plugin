@@ -52,7 +52,7 @@ pip install edge-tts    # optional: neural voice, host kaa koi bhi python
 ```bash
 node --check client.js
 node tests/smoke.mjs
-cd <profile>/node_modules/@local/dsh-pet && node --test tests/host.test.mjs
+cd <profile>/node_modules/dsh-pet-plugin && node --test tests/host.test.mjs
 node <dsh-plugin-guide>/bin/dsh-plugin-dev.js check --cwd . --strict
 node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 ```

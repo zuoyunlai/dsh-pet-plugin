@@ -6,8 +6,8 @@
   "pet": {
     "panel.title": "Mascote",
     "panel.look": "Aparência",
-    "panel.lang": "Idioma",
-    "panel.langAuto": "Automático (DSH)",
+    "panel.lang": "Language",
+    "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "Voz",
     "panel.display": "Exibição",
     "panel.actions": "Ações",
@@ -19,7 +19,7 @@
     "panel.active": "Horário",
     "panel.voiceOn": "Falar",
     "panel.neural": "Neural",
-    "voice.auto": "Automático (por idioma)",
+    "voice.auto": "Auto (by language)",
     "panel.voiceName": "Timbre",
     "panel.volume": "Volume",
     "panel.pitch": "Tom",
@@ -33,7 +33,7 @@
     "panel.hair": "Mexer cabelo",
     "panel.summon": "Chamar",
     "panel.hide": "Ocultar 1h",
-    "panel.settings": "Configurações",
+    "panel.settings": "Settings",
     "panel.ink": "Tinta",
     "panel.confetti": "Confete",
     "panel.cloud": "Nuvem",
@@ -48,7 +48,11 @@
     "pet.toggle": "Mascote",
     "pet.toggleOff": "Ela está fora da tela, clique para trazê-la",
     "hint.neuralOff": "Voz neural indisponível, usando a do sistema",
-    "hint.privacy": "A voz neural envia o texto lido para a Microsoft. Desative para manter tudo nesta máquina.",
-    "placeholder.chat": "Diga algo para {name}…"
+    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
+    "placeholder.chat": "Diga algo para {name}…",
+    "a11y.talkTo": "Fale com {name}",
+    "a11y.send": "Enviar",
+    "a11y.start": "Ativo das",
+    "a11y.end": "Ativo até"
   }
 }

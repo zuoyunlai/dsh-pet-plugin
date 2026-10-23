@@ -37,6 +37,12 @@ jobs:
       - name: Asset baseline (sha256 manifest)
         run: node tools/assets-manifest.cjs
 
+      # PowerShell 5.1 把无 BOM 的 UTF-8 当 ANSI 解码，中文注释会让脚本直接解析失败
+      - name: install.ps1 must be UTF-8 with BOM
+        run: |
+          head -c 3 install.ps1 | od -An -tx1 | grep -q "ef bb bf" || {
+            echo "::error::install.ps1 lost its UTF-8 BOM (PowerShell 5.1 will misparse it)"; exit 1; }
+
       - name: Host tests
         run: node --test tests/host.test.mjs
 
@@ -45,6 +51,11 @@ jobs:
 
       - name: Smoke (renders personas/moods/panel, asserts video element + i18n)
         run: node tests/smoke.mjs
+
+      # 1.19.3：可控定时器/虚拟时钟的台架。smoke 只能证明"能渲染"，
+      # 动作链、失败回退、面板夹取、轮询超时这类行为要靠这一层。
+      - name: Behavior regression (timers, clip fallback, layout, polling)
+        run: node --test tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs
 
       - name: Syntax check index.js and lib
         run: node --check index.js && node --check lib/tts.js && node --check lib/prompt.js

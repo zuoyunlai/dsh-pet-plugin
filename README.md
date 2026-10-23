@@ -68,7 +68,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1    # or double
 ```
 
 Quit DSH first (the profile's `package.json` is HMR-watched). The script adds
-`"@local/dsh-pet": "file:<this dir>"` to the profile, registers the bundle, runs
+`"dsh-pet-plugin": "file:<this dir>"` to the profile, registers the bundle, runs
 `pnpm install`, then reads back all four facts. `update.cmd` only refreshes files and is
 safe while DSH is running. For the sweeter neural voice:
 
@@ -83,7 +83,7 @@ export DSH_PET_PYTHON=/path/to/python    # only if auto-discovery misses it
 node --check client.js
 node tests/smoke.mjs                     # fake window + React stub, renders every persona/mood
 # host routes need the harness packages, so run them from the installed copy:
-cd <profile>/node_modules/@local/dsh-pet && node --test tests/host.test.mjs
+cd <profile>/node_modules/dsh-pet-plugin && node --test tests/host.test.mjs
 node <dsh-plugin-guide>/bin/dsh-plugin-dev.js check --cwd . --strict
 node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 ```

@@ -1,4 +1,4 @@
-# =============================================================================
+﻿# =============================================================================
 #  dsh-pet installer  (DeepSeek Harness local bundle)
 #
 #  Normal use: double-click install.cmd next to this file.
@@ -9,8 +9,8 @@
 #     ... -Uninstall   remove the plugin
 #
 #  What it does:
-#    1. adds "@local/dsh-pet": "file:<this folder>" to the profile dependencies
-#    2. adds "@local/dsh-pet" to dsh.profile.bundles
+#    1. adds "dsh-pet-plugin": "file:<this folder>" to the profile dependencies
+#    2. adds "dsh-pet-plugin" to dsh.profile.bundles (migrates the old @local row)
 #    3. runs pnpm install in the profile so node_modules really owns the package
 #
 #  Step 1+3 matter: the desktop host reconciles the profile with pnpm, and a
@@ -49,6 +49,9 @@ $destDir = Split-Path -Parent $dest
 # legacy install dir (before the rename): migrated on install
 $legacyDir  = Join-Path $profileDir 'node_modules\@local\dsh-pet'
 $legacyPkg  = '@local/dsh-pet'
+# 安装/更新/test 模式共用的文件清单（只带运行时需要的东西）
+$keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'lib', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
+
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $fileSpec  = 'file:' + ($src -replace '\\', '/')
 
@@ -88,7 +91,6 @@ if ($Update) {
     if (-not (Test-Path -LiteralPath $dest)) { New-Item -ItemType Directory -Force -Path $dest | Out-Null }
     # only what the runtime needs: a file: install used to drag .git, old tarballs and
     # preview PNGs into the profile (9 MB+). Everything else stays in the source folder.
-    $keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'lib', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
     foreach ($item in Get-ChildItem -LiteralPath $src -Force) {
       if ($keep -notcontains $item.Name) { continue }
       Copy-Item -LiteralPath $item.FullName -Destination $dest -Recurse -Force
@@ -154,6 +156,8 @@ if ($Uninstall) {
   $next = $raw -replace ('\s*' + [regex]::Escape('"' + $pkg + '"') + '\s*:\s*"file:[^"]*"\s*,?'), ''
   $next = $next -replace ([regex]::Escape('"' + $pkg + '",') + '\s*'), ''
   $next = $next -replace (',\s*' + [regex]::Escape('"' + $pkg + '"')), ''
+  # 单元素数组（R20 的空容器插入会产生这种形状）：没有逗号可依附，删元素本身
+  $next = $next -replace ('\s*' + [regex]::Escape('"' + $pkg + '"') + '(\s*\])'), '$1'
   if (-not (Test-Json $next)) {
     throw 'Refusing to write: the edited package.json would not parse. Nothing changed.'
   }
@@ -191,15 +195,26 @@ if ($next -notmatch '"bundles"\s*:\s*\[') {
   throw 'No "bundles" array in the profile package.json. Add this line by hand: ' + $pkg
 }
 if ($next -notmatch [regex]::Escape('"' + $pkg + '"')) {
-  $next = $next -replace '("bundles"\s*:\s*\[)', ('$1' + "`r`n        `"$pkg`",")
+  # 空数组不能带尾逗号（[] + "x", 会拼出 [x,] 这种非法 JSON）
+  if ($next -match '"bundles"\s*:\s*\[\s*\]') {
+    $next = $next -replace '("bundles"\s*:\s*\[)\s*\]', ('$1' + "`r`n        `"$pkg`"`r`n    ]")
+  } else {
+    $next = $next -replace '("bundles"\s*:\s*\[)', ('$1' + "`r`n        `"$pkg`",")
+  }
   Write-Host "[ok] added $pkg to dsh.profile.bundles"
 }
 if ($next -notmatch [regex]::Escape($fileSpec)) {
   if ($next -notmatch '"dependencies"\s*:\s*\{') {
     throw 'No "dependencies" object in the profile package.json.'
   }
-  $dep = '$1' + "`r`n    `"$pkg`": `"$fileSpec`","
-  $next = $next -replace '("dependencies"\s*:\s*\{)', $dep
+  # 空对象同理：{} 里塞带尾逗号的成员同样非法
+  if ($next -match '"dependencies"\s*:\s*\{\s*\}') {
+    $dep = '$1' + "`r`n    `"$pkg`": `"$fileSpec`"`r`n}"
+    $next = $next -replace '("dependencies"\s*:\s*\{)\s*\}', $dep
+  } else {
+    $dep = '$1' + "`r`n    `"$pkg`": `"$fileSpec`","
+    $next = $next -replace '("dependencies"\s*:\s*\{)', $dep
+  }
   Write-Host "[ok] declared dependency: $pkg -> $fileSpec"
 }
 if (-not (Test-Json $next)) {
@@ -221,10 +236,15 @@ if (-not $isTest) {
     throw 'pnpm install failed; profile package.json restored. Nothing else was changed.'
   }
 } else {
-  # test mode: no dependency graph to resolve, just place the files
+  # test mode: no dependency graph to resolve, just place the files.
+  # 注意：Copy-Item -Destination $destDir 会把「源目录名」(dsh-pet) 复制进去，
+  # 于是 post-check 找 dsh-pet-plugin 就必然失败（审计 R12）。这里改成复制内容。
   if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
-  New-Item -ItemType Directory -Force -Path $destDir | Out-Null
-  Copy-Item -LiteralPath $src -Destination $destDir -Recurse -Force
+  New-Item -ItemType Directory -Force -Path $dest | Out-Null
+  foreach ($item in Get-ChildItem -LiteralPath $src -Force) {
+    if ($keep -notcontains $item.Name) { continue }
+    Copy-Item -LiteralPath $item.FullName -Destination $dest -Recurse -Force
+  }
   Write-Host "[ok] test mode: copied plugin to $dest"
 }
 

@@ -89,8 +89,8 @@ export DSH_PET_PYTHON=/path/to/python   # 不会自动找时显式指定
 
 脚本会：
 1. 在 profile `package.json` 的 `dependencies` 里加
-   `"@local/dsh-pet": "file:E:/Documents/deepseek-harness/default-workspace/dsh-pet"`
-2. 在 `dsh.profile.bundles` 里加一行 `@local/dsh-pet`
+   `"dsh-pet-plugin": "file:E:/Documents/deepseek-harness/default-workspace/dsh-pet"`
+2. 在 `dsh.profile.bundles` 里加一行 `dsh-pet-plugin`
 3. 在 profile 里跑 `pnpm install`，让 node_modules 真的拥有这个包
 4. 回读核对四件事（文件、bundles 行、依赖行、JSON 合法），任何一步不对就回滚
 
@@ -113,7 +113,7 @@ node "%USERPROFILE%\.dsh\profiles\desktop\node_modules\dsh-plugin-guide\bin\dsh-
 ```
 
 > `host.test.mjs` 需要 `@deepseek-ai/schemastery`，所以请在**已安装目录**里跑：
-> `cd ~/.dsh/profiles/desktop/node_modules/@local/dsh-pet && node --test tests/host.test.mjs`
+> `cd ~/.dsh/profiles/desktop/node_modules/dsh-pet-plugin && node --test tests/host.test.mjs`
 
 预览（不用装进 DSH 也能先看长什么样）：
 

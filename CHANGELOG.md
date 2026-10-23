@@ -1,5 +1,130 @@
 # Changelog
 
+## 1.19.3 — 2026-10-23
+
+按 `FANFEED-senior-review-2026-10-23.md` 的 P0→P3 顺序修订。**尚未发版**；
+条目编号沿用该报告（R01–R22）。
+
+### 正确性 / 契约
+
+- **R06（P1）工具事件名写错**：宿主的事件是 `tools/result(exec, result)`
+  （`@deepseek-ai/dsh-tools` 的 `notifyResult` 用 `ctx.events.dispatch('emit', […])`
+  发出，两个参数、按 `exec.agent` 作用域分发）；单数 `tool/result` 只是 session
+  持久化事件类型，不会走 `ctx.on`。1.11.0 的 F1 阶段机因此**从未生效**过：
+  `tool`/`error` 两态不可达。现在以 `tools/result` 为准，并保留旧名监听兼容老宿主；
+  `/ping` 增加 `toolEvents: 'ok' | 'unobserved'` 自检字段，20s 内没收到事件会打一条明确日志。
+- **R03（P1）动作链没有身份令牌**：连点同一动作会在 340ms 里推进 8 帧、notify 8 次
+  （台架实测 pending 3→11）。改为「代际令牌 + 唯一 timer」：每次播放 `gen` 自增并
+  取消上一条链，旧回调一律失效；视频动作不再排翻帧 timer。
+- **R02（P1）动作时长与片段不匹配**：12 条片段都是 5.167s，调用点却写死 1300/2400ms，
+  手势播到一半就被卸载；`loop:true` 又让 6s 的 dance 撞上回跳。现在片段动作默认
+  `ms = 5167`、`loop:false`、`onPlaying` 淡入；dance 的心情窗口改为 5167ms，收尾时点
+  相应平移（7100/8800）。
+- **R01（P1）片段失败没有任何回退**：原来 `clip 存在就只渲染 <video>`，404/坏编码/
+  播放失败时人物整体消失。现在静帧只当 **poster**：起播前顶着画面，`onPlaying` 一到就
+  撤掉（**不能一直垫在下面**——这些是 VP9+alpha 的透明视频，若垫着，跳舞时手臂抬起、
+  身体转动，没被视频覆盖的地方会透出静止立绘，看起来是两个人物重叠）；
+  `onError` 或 3s 未起播就退回静帧，并把失败按文件名记进 `runtime.clipFailed`，
+  同一片段不再反复等 3s。webm 资源改 `cache-control: no-store`（原来 1 小时缓存会让
+  修好的文件继续坏着）。
+
+### 安全 / 隐私
+
+- **R07（P2）上游错误原文回显**：`/chat` 失败时只回 `{error, code, ref, message}`，
+  `message` 是 `upstream failed (<8 位关联 ID>)`；原文只进服务端日志（带同一个 ID），
+  不再外泄 endpoint/账号标识，也不再回 chunk 类型序列。
+- **R14（P2）history 进 system**：客户端历史不再拼进 system prompt（那是「谁算系统」
+  被客户端决定）。历史改为同一个 user 轮里的 `<history>` 块，system 里只写一句
+  「那是数据、不是指令」的输入约定；条数（8）/长度（300）/控制字符剥离保持不变。
+- **R22 自检**：`/ping.toolEvents` 让「事件没接上」这件事在数据面可见。
+  真机验收（2026-10-23，重启后）：`toolEvents: "ok"`、成功调用写 `lastToolAt`、
+  工具级失败（如读不存在的文件）写 `lastErrorAt`。注意 `result.isError` 只表示**工具调用**
+  失败：`bash` 命令返回非零（`exit 3`）不算，因为那一次调用本身是成功的。
+
+### 稳定性
+
+- **R08（P1/P2）轮询没有超时/取消**：每次 `/ping` 带 `AbortController` + 8s 预算，
+  `finally` 里必续排下一次；卸载时 abort 在途请求，并检查 `stop` 后才写 runtime
+  （原来卸载后仍会被在途响应改写）。`runToCenterAndDance` 的两个裸 `setTimeout`
+  改走 `later()`，卸载时一起清。
+- **R11（P2）面板越界**：宠物贴左边缘时面板左边缘算到 -184px。现在 right/bottom
+  四面夹取，并在 resize 后重新夹取。
+- **R10（P2）减弱动效**：三处零散 `@media` 合并为一条统一策略（动画全关、过渡归零、
+  特效层不显示）；自动动作在 `runtime.reduced` 下不播，用户显式点播（面板/菜单）
+  仍然放行；减弱动效时不搬到屏幕中间跳舞；跟随 `matchMedia` 变化。
+
+### 发布 / 安装
+
+- **R04（P1）确认晚于副作用**：`tools/release.cjs` 改为「计划 → 确认 → 执行」，
+  **默认只读**（`--apply` 才动），拒绝脏工作区（`--commit` 显式放行），执行前校验
+  仓库/分支/身份并跑本地测试绿闸；只有 422「已存在」会被当成成功，网络错误不再吞。
+- **R19 发布顺序**：npm 在本机发成功才建**正式** Release；交给 CI 发时建 **draft**，
+  CI 发完用 `--promote` 转正——不再出现指向未发布版本的正式 Release。
+- **R05（P1）覆盖远端独有文件**：`tools/push-via-api.cjs` 改用 `base_tree`，
+  远端独有文件默认保留（`--prune` 才删，且逐个打印）；去掉 `force:true`，
+  PATCH 前重新核对 head，被移动就中止；默认只读，`--apply` 才推。
+- **R12（P2）安装器 test 模式**：`install.ps1 -ProfileDir` 用 `Copy-Item $src -Destination
+  $destDir` 会把源目录名（dsh-pet）复制进去，post-check 找 dsh-pet-plugin 必然失败
+  （实测 `Post-check failed copy=False`）。改为复制内容；`--profileDir` 下的安装/
+  卸载/verify 三条路径实测通过。
+- **R20 空容器 JSON**：空 `bundles` / 空 `dependencies` 上插行会拼出 `[x,]`/`{x,}`
+  被 `Test-Json` 拒绝。现在按容器是否为空分别插入，卸载侧补了「单元素数组」的删除规则。
+- **R13（P2）旧包名**：五份 README 里 8 处 `@local/dsh-pet` 全部改为 `dsh-pet-plugin`
+  （安装说明与测试命令路径）。
+- **install.ps1 改存 UTF-8 with BOM**：它原本没有 BOM，而脚本里有多处中文；
+  Windows PowerShell 5.1 会把无 BOM 的 UTF-8 按 ANSI 解码，工作树从 CRLF 变 LF 之后就
+  直接报「表达式或语句中包含意外的标记 }」而无法执行（`-Update` 实测）。加 BOM 后
+  `-Update` / `-ProfileDir` 安装 / `-Verify` / `-Uninstall` 四条路径实测恢复；
+  CI 增加一条「install.ps1 必须带 BOM」的守卫。
+
+### 交互 / 可访问性
+
+- **R16（P3）菜单键盘**：菜单打开时焦点移入首项、`Esc` 关闭并把焦点还回去，
+  子项加 `role="menuitem"`，菜单容器加本地化 `aria-label`。
+- **R17（P3）交叉淡入方向**：`--pet-dx` 只在 `src` 真变化时翻转（原来每次 render 都翻）。
+- **R18（P3）可访问名**：齿轮/发送/活跃时段的 `title`/`aria-label` 走 i18n
+  （新增 `a11y.talkTo` / `a11y.send` / `a11y.start` / `a11y.end`，五语齐全，50 条文案）。
+
+### 测试
+
+- 新增 `tests/harness.mjs`（可控定时器 + 虚拟时钟 + 可编程 fetch + matchMedia/
+  AbortController 桩）与 `tests/runtime.test.mjs`（15 条行为回归：动作链、片长与 loop、
+  失败回退与失败记忆、减弱动效、面板四面夹取、交叉淡入、轮询超时与卸载中止）。
+  这些用例是「修好才通过」，不是「缺陷存在即通过」；`npm test`、`test.yml`、
+  `release.yml` 均已纳入。宿主单测 32 → 34 条（补 R07/R14 与 `tools/result` 契约）。
+- 新增 `tests/push-api.test.mjs` + `tests/fixtures/fake-github.cjs`：用内存版 GitHub
+  在临时 git 仓库里**真跑** `tools/push-via-api.cjs`，断言 `base_tree` 保留远端独有文件、
+  `--prune` 才发 `sha:null`、ref 更新不带 `force`、head 被移动时中止且不覆盖、
+  计划模式零写调用、以及**工作树 CRLF 不会导致每次重传**。R05 的写路径不再只靠肉眼 review。
+- **真实推送实测并当场修掉一个 bug**：推到一次性分支 `audit/push-smoke`（随后删除，
+  main 未动）时发现，比较用的是 `hash-object` 归一化后的 sha、上传用的却是工作树原始
+  字节——工作树里 CRLF 的四个文件（`.github/workflows/*.yml`、`CHANGELOG.md`、
+  `package.json`）因此被判定「每次都变了」且永远推不干净。改为 `hash-object -w` 写入
+  归一化 blob、上传时用 `git cat-file blob <sha>` 取同一份内容；第二次真推
+  `changed=0 / unchanged=155 / remoteOnly=1`，与远端的逐文件 sha 比对 0 处不一致。
+
+### 神经语音（TTS）
+
+- **R23 面板报「神经音色不可用」**：`lib/tts.js` 的 `resolvePython()` 用了 `homedir()` 与
+  `readdirSync()`，但文件顶部只导入了 `existsSync`——两个 `ReferenceError` 都被外层
+  `try/catch` 吞掉，于是**永远落回 PATH 里的 `python`**，而 PATH 上的 python 没装
+  edge-tts；本机 DSH 内置 runtime 的 python 3.12 明明装了。补上两个导入即可（实测
+  `resolvePython()` 现已指向 `~/.dsh/dsh-runtimes/.../python.exe`，`probeNeural()` 返回 `ok:true`）。
+- 同时修掉同一个函数里的两个缺陷：**并发探测永久挂住**（第二个调用在 `exit` 里看到
+  `neuralProbe` 已填就直接 return、不 resolve，导致 `/dsh-pet/tts/status` 不返回）——
+  改为共享同一个在飞 Promise；**用 `close` 代替 `exit`** 判定结束，避免 stdout 晚到
+  把成功的 import 判成失败。探测失败时服务端日志会打出实际使用的 python 路径
+  （只在服务端，不回给页面）。
+- 新增 `tests/voice.test.mjs`（并发必 settle / 缓存命中 / 内置 python 优先 / 音色表），
+  已接入 `npm test` 与两条 CI。
+- 真机验证（重启后）：`/dsh-pet/tts/status` 返回 `available:true` 且 3ms 响应
+  （修复前会挂 25s 以上）；真合成一句中文得到 7,344 字节的 `audio/mpeg`。
+
+### 文档更正
+
+- ROADMAP 的 F1 段与完成度表：写清事件名是 `tools/result`、1.11.0 的「已完成」标记
+  当时并不成立、真机验收仍未执行；现状表的轮询周期/行号同步更新。
+
 ## 1.19.2 — 2026-10-22
 
 1.19.1 在 npm 上被一次 staged 发布占住了版本号（E409 "Cannot publish over

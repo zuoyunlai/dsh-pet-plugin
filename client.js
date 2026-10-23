@@ -25,6 +25,15 @@ window.__ModuleLoader__.load({
     const pick = (arr) => (arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : '')
     const nowMs = () => Date.now()
 
+    /** 系统是否要求减弱动效（读不到就当没有要求）。 */
+    function prefersReduced() {
+      try {
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      } catch (e) {
+        return false
+      }
+    }
+
     function weighted(table) {
       const keys = Object.keys(table)
       let total = 0
@@ -59,7 +68,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"语言","panel.langAuto":"跟随 DSH","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"自动（按语言）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.hide":"藏 1h","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经音色会把朗读的文本发往微软服务器。不想外发就关掉它，改用系统语音。","placeholder.chat":"跟{name}说句话…"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Automático (DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Automático (por idioma)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.hide":"Ocultar 1h","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto leído a Microsoft. Desactívala para que todo quede en este equipo.","placeholder.chat":"Dile algo a {name}…"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Automático (DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Automático (por idioma)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.hide":"Ocultar 1h","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto lido para a Microsoft. Desative para manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Bhasha","panel.langAuto":"Auto (DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Auto (bhasha se)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice padhe jaane wale text ko Microsoft bhejti hai. Sab kuchh is machine par rakhne ke liye ise band karein.","placeholder.chat":"{name} se kuchh kahein…"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"Auto (by language)","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -853,10 +862,31 @@ window.__ModuleLoader__.load({
       phase: 'idle',
       running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
       doneUntil: 0, // 一轮刚结束的庆祝窗口
-      lastToolAt: 0, // 宿主最近一次 tool/result 的时间戳（来自 /ping）
+      lastToolAt: 0, // 宿主最近一次 tools/result 的时间戳（来自 /ping）
       lastToolName: '',
       lastErrorAt: 0, // 宿主最近一次工具失败的时间戳（来自 /ping）
       menu: null, // 右键菜单 { x, y }，null=关着
+      reduced: false, // 系统是否要求减弱动效（apply 时读一次，随后跟随 matchMedia）
+      clipFailed: {}, // 片段加载失败记忆 { src: true }：同一个文件不再反复尝试
+      clipPlaying: '', // 当前正在播放的片段名（'' = 还没起来）：决定静帧 poster 是否撤掉
+      lastClipError: '', // 最近一次片段加载失败的文件名（诊断用）
+    }
+
+    // 12 条动作片段（VP9 + alpha，400 高）都是同一批参数生成的 5.167s。
+    // 动作存活时间默认取它——1.19.x 在调用点手写 1300/2400ms，会让 video 在手势
+    // 半途被卸载；dance 的 6000ms 又会撞上 loop 回跳。改此处即可统一口径。
+    const CLIP_DURATION_MS = 5167
+
+    // 动作代际与唯一调度：同名动作连续触发时，旧链必须失效（R03）。
+    let actionGen = 0
+    let actionTimer = null
+
+    function clearActionTimer() {
+      if (actionTimer) {
+        clearTimeout(actionTimer)
+        runtime.timers.delete(actionTimer)
+        actionTimer = null
+      }
     }
 
     function notify() {
@@ -889,7 +919,7 @@ window.__ModuleLoader__.load({
       runtime.timers.clear()
     }
 
-    /** 播放一段动作序列（逐帧交叉淡入，像翻页动画）。 */
+    /** 播放一段动作（帧序列逐帧交叉淡入；有视频片段时由片段自己动）。 */
     function playAction(name, opts) {
       const p = persona()
       const clip = p.clips && p.clips[name] ? p.clips[name] : null
@@ -897,10 +927,18 @@ window.__ModuleLoader__.load({
       // 有视频片段的动作：帧序列可以缺席（视频自己会动），但要维持 action 存活到 until
       if ((!frames || !frames.length) && !clip) return false
       const o = opts || {}
+      // 减弱动效（1.19.3 R10）：自动发起的动作不播；用户显式点播仍然放行
+      if (runtime.reduced && !o.explicit) return false
+      const gen = ++actionGen
+      // 覆盖旧动作：旧调度链立刻失效，任何时刻只有一条（1.19.3 R03）
+      clearActionTimer()
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
       const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
-      const until = nowMs() + (o.ms || 2400)
+      // 存活时间默认跟着媒体走：有片段就取片长，没片段才用旧的 2400ms。
+      // （1.19.x 在调用点手写 1300/2400ms，会在手势半途卸载 video。）
+      const until = nowMs() + (o.ms || (clip ? CLIP_DURATION_MS : 2400))
       // moodDriven：这个动作是「心情」自动发起的（不是用户点的），心情变了可以收回
+      runtime.clipPlaying = ''
       runtime.action = {
         name,
         frames: frames || [],
@@ -909,23 +947,59 @@ window.__ModuleLoader__.load({
         until,
         persona: p.id,
         clip,
+        gen,
         moodDriven: !!o.moodDriven,
+        explicit: !!o.explicit,
       }
       notify()
+      if (clip) {
+        // 视频自己会动：不排翻帧 timer（旧写法每 230/340ms 空转并 notify），
+        // 只留一个到点收尾的 timeout。
+        actionTimer = later(
+          () => endAction(gen),
+          Math.max(0, until - nowMs()),
+        )
+        return true
+      }
       const advance = () => {
         const act = runtime.action
-        if (!act || act.name !== name || act.persona !== persona().id) return
+        if (!act || act.gen !== gen) return
         if (nowMs() > act.until) {
-          runtime.action = null
-          notify()
+          endAction(gen)
+          return
+        }
+        // 空帧数组不取模（无片段又无帧的动作上面已经拦掉，这里兜底）
+        if (!act.frames || !act.frames.length) {
+          endAction(gen)
           return
         }
         act.i = (act.i + 1) % act.frames.length
         notify()
-        later(advance, step)
+        actionTimer = later(advance, act.step)
       }
-      later(advance, step)
+      actionTimer = later(advance, step)
       return true
+    }
+
+    /** 结束当前动作；只有「当前这一代」有权结束它（旧链的回调到此为止）。 */
+    function endAction(gen) {
+      const act = runtime.action
+      if (!act || act.gen !== gen) return
+      runtime.action = null
+      runtime.clipPlaying = ''
+      clearActionTimer()
+      notify()
+    }
+
+    /** 主动收回动作（心情变化/隐藏/换人设），同时作废在途调度链。 */
+    function clearAction() {
+      actionGen++
+      clearActionTimer()
+      runtime.clipPlaying = ''
+      if (runtime.action) {
+        runtime.action = null
+        notify()
+      }
     }
 
     function persona() {
@@ -1286,6 +1360,8 @@ window.__ModuleLoader__.load({
       if (snoozeMs) runtime.snoozeUntil = nowMs() + Number(snoozeMs)
       runtime.visible = false
       runtime.chatOpen = false
+      // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
+      clearAction()
       stopVoice()
       notify()
     }
@@ -1294,9 +1370,13 @@ window.__ModuleLoader__.load({
      * 设置面板摆哪儿：默认贴右下角会把她整个人盖住，所以按她的实际位置算。
      * 上方空间够就放她上方（右对齐），不够就放她左侧（底对齐）。
      * 面板定宽 196px，与 CSS 里 .dsh-pet-panel 的 width 保持一致。
+     *
+     * 1.19.3（R11）：算出位置之后必须**四面夹取**。旧写法只夹了 right/bottom 的
+     * 下界，宠物贴左边缘时会得到 right≈vw，面板整个跑到屏幕左侧（实测 left=-184px）。
      */
     const PANEL_W = 196
     const PANEL_GAP = 8
+    const VIEW_MARGIN = 8
 
     function placePanel() {
       try {
@@ -1309,22 +1389,30 @@ window.__ModuleLoader__.load({
           return
         }
         const spaceAbove = r.top - 16
+        let right
+        let bottom
+        let maxHeight
         if (spaceAbove >= 300) {
           // 上方放得下：右边缘对齐，底边贴着她头顶
-          runtime.panelPos = {
-            right: Math.max(8, vw - r.right) + 'px',
-            bottom: Math.max(8, vh - r.top + PANEL_GAP) + 'px',
-            maxHeight: Math.min(spaceAbove, 560) + 'px',
-            width: PANEL_W + 'px',
-          }
+          right = Math.max(VIEW_MARGIN, vw - r.right)
+          bottom = Math.max(VIEW_MARGIN, vh - r.top + PANEL_GAP)
+          maxHeight = Math.min(spaceAbove, 560)
         } else {
           // 上方不够：放她左边，底边与她脚底对齐
-          runtime.panelPos = {
-            right: Math.max(8, vw - r.left + PANEL_GAP) + 'px',
-            bottom: Math.max(8, vh - r.bottom) + 'px',
-            maxHeight: Math.min(Math.max(r.height + 60, 260), 520) + 'px',
-            width: PANEL_W + 'px',
-          }
+          right = Math.max(VIEW_MARGIN, vw - r.left + PANEL_GAP)
+          bottom = Math.max(VIEW_MARGIN, vh - r.bottom)
+          maxHeight = Math.min(Math.max(r.height + 60, 260), 520)
+        }
+        // 夹取：right ∈ [8, vw-W-8] 保证左右都在视口内；
+        // bottom 的上界由 maxHeight 反推（面板真实高度 ≤ maxHeight），保证顶部不越界。
+        const maxH = Math.max(160, Math.min(maxHeight, vh - VIEW_MARGIN * 2))
+        const rightMax = Math.max(VIEW_MARGIN, vw - PANEL_W - VIEW_MARGIN)
+        const bottomMax = Math.max(VIEW_MARGIN, vh - maxH - VIEW_MARGIN)
+        runtime.panelPos = {
+          right: clamp(right, VIEW_MARGIN, rightMax) + 'px',
+          bottom: clamp(bottom, VIEW_MARGIN, bottomMax) + 'px',
+          maxHeight: maxH + 'px',
+          width: PANEL_W + 'px',
         }
       } catch (e) {
         runtime.panelPos = null
@@ -1417,7 +1505,7 @@ window.__ModuleLoader__.load({
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
-      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair', { ms: 1300 })
+      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
 
       // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次
       if (s.chaos !== false && runtime.visible && !runtime.fx.length) {
@@ -1615,8 +1703,15 @@ window.__ModuleLoader__.load({
   transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
 .dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
 /* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
-.dsh-pet-video{height:100%;width:auto;display:block;object-fit:contain;
+/* 1.19.3（R01）：静帧画在下面，video 只在真的开始播放后淡入（onPlaying 加 is-ready） */
+.dsh-pet-clipbox{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
+.dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  height:100%;width:auto;display:block;object-fit:contain;opacity:0;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
+/* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
+   舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
+.dsh-pet-video.is-ready{opacity:1}
 /* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
@@ -1639,10 +1734,6 @@ window.__ModuleLoader__.load({
   50%{transform:scale(1.012) rotate(0.5deg)}
   75%{transform:scale(1.006) rotate(0deg)}
   100%{transform:scale(1) rotate(-0.5deg)}
-}
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-imgwrap{animation:none}
-  .dsh-pet-img-cur,.dsh-pet-img-prev{animation:none}
 }
 .dsh-pet-gear{position:absolute;right:-2px;top:-2px;pointer-events:auto;cursor:pointer;border:none;border-radius:999px;
   width:20px;height:20px;font-size:11px;line-height:1;opacity:0;transition:opacity .15s;
@@ -1781,9 +1872,6 @@ window.__ModuleLoader__.load({
 @keyframes mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
 @keyframes mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
   30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.1)}}
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-body,.dsh-pet-eye,.dsh-pet-mouth,.dsh-pet-tail{animation:none!important}
-}
 
 /* —— 视线跟随 —— */
 .dsh-pet-pupils{transform:translate(var(--gx,0px),var(--gy,0px));transition:transform .1s linear}
@@ -1857,13 +1945,19 @@ window.__ModuleLoader__.load({
   58%{opacity:.45;transform:scale(1.7)}
   70%,100%{opacity:0;transform:scale(2.1)}
 }
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-fx-ink i,.dsh-pet-fx-confetti i,.dsh-pet-fx-cloud,.fx-bomb,.fx-crack,.fx-flash{animation:none!important;opacity:.9}
-}
 .dsh-pet-menu-mask{position:fixed;inset:0;z-index:80;pointer-events:auto}
 .dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-bd);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
+/* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
+   旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
+   rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：
+   动画全部取消、过渡时长归零、特效层不显示。视频的自动播放由 JS 侧
+   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。 */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .dsh-pet-fx{display:none!important}
+}
 `
 
     /* ================= 形象（SVG） ================= */
@@ -1980,6 +2074,9 @@ window.__ModuleLoader__.load({
       const [prev, setPrev] = useState(null)
       const swap = useRef(0)
       if (src !== cur) {
+        // 方向只跟着「真的换了图」翻转（1.19.3 R17）。旧写法在渲染体里无条件
+        // 自增，任何一次无关重渲染都会把方向翻过去。
+        swap.current = (swap.current + 1) % 2
         setPrev(cur)
         setCur(src)
       }
@@ -1988,8 +2085,6 @@ window.__ModuleLoader__.load({
         const t = setTimeout(() => setPrev(null), 220)
         return () => clearTimeout(t)
       }, [prev, cur])
-      // 方向左右交替：连续换帧时像真的在动，而不是原地淡
-      swap.current = (swap.current + 1) % 2
       const dx = swap.current === 0 ? 3 : -3
       return h(
         'div',
@@ -1999,15 +2094,71 @@ window.__ModuleLoader__.load({
       )
     }
 
+    /**
+     * 动作片段层（1.19.3 R01）：视频没起来之前用静帧顶着；**一旦开始播放就把静帧撤掉**。
+     *
+     * 为什么要撤：这些是 VP9 + alpha 的透明视频，人物背景是空的。静帧如果一直垫在下面，
+     * 视频里姿态一变（跳舞时手臂抬起、身体转动），没被视频覆盖到的部分就会透出底下那张
+     * 静止立绘——看起来就是「两个人物重叠」。所以静帧只是 poster，不是背景板。
+     *
+     * - onError / 3s 没起来 → 隐藏 video，退回静帧（人物始终可见）；
+     * - 加载失败按文件记忆，同一片段不再反复等 3s；
+     * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
+     */
+    function ClipLayer({ clip, poster, alt, gen }) {
+      const failed = !!runtime.clipFailed[clip]
+      const ready = runtime.clipPlaying === clip
+      const [giveUp, setGiveUp] = useState(false)
+      useEffect(() => {
+        if (failed || giveUp || ready) return undefined
+        const t = setTimeout(() => setGiveUp(true), 3000)
+        return () => clearTimeout(t)
+      }, [failed, giveUp, ready])
+      // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
+      if (failed || giveUp) return h(CrossImage, { src: poster, alt })
+      return h(
+        'div',
+        { className: 'dsh-pet-clipbox' },
+        ready ? null : h(CrossImage, { src: poster, alt }),
+        h('video', {
+          key: clip,
+          className: 'dsh-pet-video' + (ready ? ' is-ready' : ''),
+          src: assetUrl(clip),
+          autoPlay: true,
+          muted: true,
+          loop: false,
+          playsInline: true,
+          preload: 'auto',
+          'aria-label': alt,
+          onPlaying: () => {
+            runtime.clipPlaying = clip
+            notify()
+          },
+          // 自然播完就收尾：不要等到墙钟（片段 5167ms，action 默认也是 5167ms，
+          // 两边谁先到都行；这里让「播完」这件事由媒体事件说了算）
+          onEnded: () => endAction(gen),
+          onError: () => {
+            runtime.clipFailed[clip] = true
+            runtime.clipPlaying = null
+            runtime.lastClipError = clip
+            setGiveUp(true)
+            notify()
+            petLog('clip failed', clip)
+          },
+        }),
+      )
+    }
+
     function PetArt({ persona: p, mood }) {
       const c = p.colors
       // 有贴图的形象直接用立绘；表情靠整体动作 + 贴纸
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null
         const act = runtime.action
-        // 1.16：这个动作有视频片段（VP9 + alpha）就播视频，帧序列只作兜底
+        // 有视频片段（VP9 + alpha）就播片段：静帧在下、video 在上淡入（R01）
         const clip = act && p.clips && p.clips[act.name] ? p.clips[act.name] : null
         const actFrame = act && act.frames && act.frames[act.i]
+        const stillSrc = actFrame || variant || p.image
         return h(
           'div',
           { className: 'dsh-pet-body dsh-pet-figure' },
@@ -2015,17 +2166,8 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h('video', {
-                  className: 'dsh-pet-video',
-                  src: assetUrl(clip),
-                  autoPlay: true,
-                  muted: true,
-                  loop: true,
-                  playsInline: true,
-                  preload: 'auto',
-                  'aria-label': p.name,
-                })
-              : h(CrossImage, { src: actFrame || variant || p.image, alt: p.name }),
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen })
+              : h(CrossImage, { src: stillSrc, alt: p.name }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )
@@ -2127,7 +2269,10 @@ window.__ModuleLoader__.load({
       const s = runtime.settings
       const p = persona()
       const update = (patch) => {
+        const prevPersona = runtime.settings.persona
         Object.assign(runtime.settings, patch)
+        // 换形象：旧动作（以及它的片段/调度链）属于上一个人设，立刻收回
+        if (patch.persona && patch.persona !== prevPersona) clearAction()
         saveSettings()
         notify()
         if (patch.persona || patch.ttsVoice || patch.voicePitch != null || patch.voiceRate != null) {
@@ -2197,9 +2342,19 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'dsh-pet-field' },
           h('span', { className: 'lb' }, t('panel.active')),
-          h('input', { type: 'time', value: s.activeStart, onChange: (e) => update({ activeStart: e.target.value }) }),
+          h('input', {
+            type: 'time',
+            value: s.activeStart,
+            'aria-label': t('a11y.start'),
+            onChange: (e) => update({ activeStart: e.target.value }),
+          }),
           h('span', { className: 'val' }, '→'),
-          h('input', { type: 'time', value: s.activeEnd, onChange: (e) => update({ activeEnd: e.target.value }) }),
+          h('input', {
+            type: 'time',
+            value: s.activeEnd,
+            'aria-label': t('a11y.end'),
+            onChange: (e) => update({ activeEnd: e.target.value }),
+          }),
         ),
         sep(),
         sec(t('panel.voice')),
@@ -2234,7 +2389,7 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.panelOpen = false; runToCenterAndDance() } }, t('panel.dance')),
-          h('button', { onClick: () => playAction('hair', { ms: 1300 }) }, t('panel.hair')),
+          h('button', { onClick: () => playAction('hair', { explicit: true }) }, t('panel.hair')),
           h('button', { onClick: () => showPet('dance') }, t('panel.summon')),
           h('button', { onClick: () => { runtime.snoozeUntil = nowMs() + 3600 * 1000; hidePet(); runtime.panelOpen = false; notify() } }, t('panel.hide')),
         ),
@@ -2659,6 +2814,14 @@ window.__ModuleLoader__.load({
      *  只挪「她」这一块（actor），输入框和气泡留在原地；跳舞时放大 1.8 倍。 */
     function runToCenterAndDance() {
       try {
+        // 减弱动效（R10）：不搬到屏幕中间、不撒花，只在原地放一次舞。
+        // 这是用户显式点播（面板「跳一段」/庆祝），所以动作本身仍然放行。
+        if (runtime.reduced) {
+          playAction('dance', { explicit: true })
+          bubble(randomLine('dance'), 3200)
+          notify()
+          return
+        }
         const el = runtime.rootEl
         if (!el) return
         if (runtime.stage) return
@@ -2673,25 +2836,28 @@ window.__ModuleLoader__.load({
         runtime.moodUntil = nowMs() + 1700
         bubble(randomLine('idle'), 2400)
         notify()
+        // 舞蹈窗口与片段对齐（R02）：6000ms 会让 5.167s 的片段在 loop 处跳回；
+        // 后续两个收尾时点按「舞 stop 之后 250ms / 1950ms」平移。
         later(() => {
           runtime.mood = 'dance'
-          runtime.moodUntil = nowMs() + 6000
+          runtime.moodUntil = nowMs() + 5167
           playFx('confetti', { ttl: 4200 })
           bubble(randomLine('dance'), 3200)
           notify()
         }, 1650)
-        setTimeout(() => {
+        // 裸 setTimeout 不受 clearLater 管辖（R08）：统一走 later，卸载时一起清
+        later(() => {
           runtime.stage = { tx: 0, ty: 0, zoom: 1 }
           runtime.mood = 'walk'
           runtime.moodUntil = nowMs() + 1700
           notify()
-        }, 7900)
-        setTimeout(() => {
+        }, 7100)
+        later(() => {
           runtime.stage = null
           runtime.mood = 'idle'
           runtime.moodUntil = nowMs() + 3000
           notify()
-        }, 9600)
+        }, 8800)
       } catch (e) {
         petLog('dance failed', String((e && e.message) || e))
       }
@@ -2713,13 +2879,13 @@ window.__ModuleLoader__.load({
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
-            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()), moodDriven: true })
+            // 时长交给片段本身（R02）：心情先变就由下面的 clearAction 收回
+            playAction(name, { moodDriven: true })
           }
         } else if (runtime.action && runtime.action.moodDriven && runtime.action.name !== 'hair') {
           // 只收回「心情自己发起」的动作；用户点“跳一段”发起的要让它跳完
           // （否则一次工具报错把 mood 打成 angry，舞就断了）
-          runtime.action = null
-          notify()
+          clearAction()
         }
       }, [runtime.mood])
       const mood = runtime.mood
@@ -2913,11 +3079,21 @@ window.__ModuleLoader__.load({
                   }
                   if (e.key === 'Escape') e.currentTarget.blur()
                 },
-                'aria-label': '对 ' + p.name + ' 说话',
+                'aria-label': t('a11y.talkTo', { name: p.name }),
               })
             : null,
           s.showInput
-            ? h('button', { className: 'dsh-pet-send', onClick: onSend, disabled: !text.trim(), title: '发送' }, '↑')
+            ? h(
+                'button',
+                {
+                  className: 'dsh-pet-send',
+                  onClick: onSend,
+                  disabled: !text.trim(),
+                  title: t('a11y.send'),
+                  'aria-label': t('a11y.send'),
+                },
+                '↑',
+              )
             : null,
         ),
         h(
@@ -2967,7 +3143,8 @@ window.__ModuleLoader__.load({
             'button',
             {
               className: 'dsh-pet-gear',
-              title: '桌宠设置',
+              title: t('panel.settings'),
+              'aria-label': t('panel.settings'),
               onClick: (e) => {
                 e.stopPropagation()
                 runtime.panelOpen = !runtime.panelOpen
@@ -2989,6 +3166,52 @@ window.__ModuleLoader__.load({
     function PetMenu() {
       useRuntime()
       const menu = runtime.menu
+      const boxRef = useRef(null)
+      // 键盘可达（R16）：打开时把焦点移进菜单，Esc 关闭并把焦点还回去。
+      // （全屏遮罩是模态菜单的常见做法，本身不算漏洞；缺的是键盘出口。）
+      useEffect(() => {
+        if (!menu) return undefined
+        let prevFocus = null
+        try {
+          prevFocus = document.activeElement
+        } catch (e) {
+          prevFocus = null
+        }
+        const onKey = (e) => {
+          if (!e || e.key !== 'Escape') return
+          try {
+            e.preventDefault()
+            e.stopPropagation()
+          } catch (err) {
+            /* ignore */
+          }
+          runtime.menu = null
+          notify()
+        }
+        try {
+          document.addEventListener('keydown', onKey, true)
+        } catch (e) {
+          /* ignore */
+        }
+        try {
+          const first = boxRef.current && boxRef.current.querySelector('button')
+          if (first && first.focus) first.focus()
+        } catch (e) {
+          /* ignore */
+        }
+        return () => {
+          try {
+            document.removeEventListener('keydown', onKey, true)
+          } catch (e) {
+            /* ignore */
+          }
+          try {
+            if (prevFocus && prevFocus.focus) prevFocus.focus()
+          } catch (e) {
+            /* ignore */
+          }
+        }
+      }, [menu ? menu.x + ':' + menu.y : ''])
       if (!menu) return null
       const close = () => {
         runtime.menu = null
@@ -2999,6 +3222,7 @@ window.__ModuleLoader__.load({
           'button',
           {
             className: 'dsh-pet-menu-item',
+            role: 'menuitem',
             onClick: (e) => {
               try {
                 e.stopPropagation()
@@ -3033,8 +3257,10 @@ window.__ModuleLoader__.load({
           'div',
           {
             className: 'dsh-pet-menu',
+            ref: boxRef,
             style: { left: x + 'px', top: y + 'px' },
             role: 'menu',
+            'aria-label': t('panel.actions'),
             onPointerDown: (e) => {
               try {
                 e.stopPropagation()
@@ -3044,7 +3270,7 @@ window.__ModuleLoader__.load({
             },
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
-          item(t('panel.hair'), () => playAction('hair', { ms: 2400 })),
+          item(t('panel.hair'), () => playAction('hair', { explicit: true })),
           item(t('panel.summon'), () => showPet()),
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
@@ -3080,6 +3306,7 @@ window.__ModuleLoader__.load({
               focused = true
             }
             const canDance =
+              !runtime.reduced && // 减弱动效时不搬到中间跳舞（R10）
               dur > 20000 &&
               focused &&
               runtime.visible &&
@@ -3192,6 +3419,32 @@ window.__ModuleLoader__.load({
     return {
       inject: ['slots'],
       apply(ctx) {
+        // 减弱动效（R10）：读一次，随后跟随系统设置变化
+        runtime.reduced = prefersReduced()
+        ctx.effect(() => {
+          let mq = null
+          const onChange = () => {
+            const next = prefersReduced()
+            if (next === runtime.reduced) return
+            runtime.reduced = next
+            if (next) clearAction()
+            notify()
+          }
+          // DSH 的 Electron/Chromium 版本都支持 MediaQueryList.addEventListener
+          try {
+            mq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null
+            if (mq && mq.addEventListener) mq.addEventListener('change', onChange)
+          } catch (e) {
+            mq = null
+          }
+          return () => {
+            try {
+              if (mq) mq.removeEventListener('change', onChange)
+            } catch (e) {
+              /* ignore */
+            }
+          }
+        })
         ctx.effect(() => {
           runtime.timer = setInterval(() => {
             try {
@@ -3215,6 +3468,8 @@ window.__ModuleLoader__.load({
             clearTimeout(resizeTimer)
             resizeTimer = setTimeout(() => {
               runtime.resizeTick++
+              // 面板是 fixed 定位的：窗口变了必须重新夹取，否则会留在视口外（R11）
+              if (runtime.panelOpen) placePanel()
               notify()
             }, 250)
           }
@@ -3264,30 +3519,53 @@ window.__ModuleLoader__.load({
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
           const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
           const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
+          // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
+          const POLL_TIMEOUT = 8000
+          let ctrl = null
           const doPoll = async () => {
-            for (const url of urls) {
-              if (!url) continue
+            if (stop) return
+            ctrl =
+              typeof AbortController === 'function'
+                ? new AbortController()
+                : null
+            const guard = setTimeout(() => {
               try {
-                const res = await fetch(url, { credentials: 'include' })
-                const j = await res.json()
-                if (!j || !j.ok) continue
-                if (j.lastErrorAt && j.lastErrorAt > (runtime.lastErrorAt || 0)) {
-                  runtime.lastErrorAt = j.lastErrorAt
-                  if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
-                }
-                if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
-                if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
-                // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
-                if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
-                  runtime.lastCommandSeq = j.commandSeq
-                  if (j.command === 'hide') hidePet(60 * 60 * 1000)
-                  else if (j.command === 'show') showPet()
-                }
-                if (syncPhase()) notify()
-                return
-              } catch (err) {
-                /* 换下一个地址 */
+                if (ctrl) ctrl.abort()
+              } catch (e) {
+                /* ignore */
               }
+            }, POLL_TIMEOUT)
+            try {
+              for (const url of urls) {
+                if (!url || stop) continue
+                try {
+                  const res = await fetch(url, { credentials: 'include', signal: ctrl ? ctrl.signal : undefined })
+                  const j = await res.json()
+                  // 卸载/超时后拿到的响应一律不写状态（R08b）
+                  if (stop || !j || !j.ok) continue
+                  if (j.lastErrorAt && j.lastErrorAt > (runtime.lastErrorAt || 0)) {
+                    runtime.lastErrorAt = j.lastErrorAt
+                    if (runtime.settings.chaos !== false) playFx('cloud', { ttl: 4200 })
+                  }
+                  if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
+                  if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
+                  if (j.toolEvents) runtime.toolEvents = j.toolEvents
+                  // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
+                  if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
+                    runtime.lastCommandSeq = j.commandSeq
+                    if (j.command === 'hide') hidePet(60 * 60 * 1000)
+                    else if (j.command === 'show') showPet()
+                  }
+                  if (syncPhase()) notify()
+                  return
+                } catch (err) {
+                  /* 换下一个地址（含超时中止） */
+                }
+              }
+            } finally {
+              clearTimeout(guard)
+              ctrl = null
             }
           }
           const schedule = () => {
@@ -3295,16 +3573,25 @@ window.__ModuleLoader__.load({
             // 不可见时降频到 30s（省 CPU/网络），可见时 8s
             const gap = runtime.visible || runtime.panelOpen ? 8000 : 30000
             timer = setTimeout(async () => {
-              await doPoll()
+              try {
+                await doPoll()
+              } catch (e) {
+                /* ignore */
+              }
               schedule()
             }, gap)
           }
           let timer = null
-          doPoll()
+          doPoll().catch(() => {})
           schedule()
           return () => {
             stop = true
             if (timer) clearTimeout(timer)
+            try {
+              if (ctrl) ctrl.abort()
+            } catch (e) {
+              /* ignore */
+            }
           }
         })
 

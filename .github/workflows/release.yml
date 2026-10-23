@@ -28,6 +28,7 @@ jobs:
           node --check client.js
           node --check index.js
           node tests/smoke.mjs
+          node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs
 
       # Safe by default: skips when the token is missing, skips when the version is already
       # on npm (so a manual `node tools/release.cjs` run is never fought over).

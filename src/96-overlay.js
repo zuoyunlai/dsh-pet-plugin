@@ -14,13 +14,13 @@
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
-            playAction(name, { ms: Math.max(1400, runtime.moodUntil - nowMs()), moodDriven: true })
+            // 时长交给片段本身（R02）：心情先变就由下面的 clearAction 收回
+            playAction(name, { moodDriven: true })
           }
         } else if (runtime.action && runtime.action.moodDriven && runtime.action.name !== 'hair') {
           // 只收回「心情自己发起」的动作；用户点“跳一段”发起的要让它跳完
           // （否则一次工具报错把 mood 打成 angry，舞就断了）
-          runtime.action = null
-          notify()
+          clearAction()
         }
       }, [runtime.mood])
       const mood = runtime.mood
@@ -214,11 +214,21 @@
                   }
                   if (e.key === 'Escape') e.currentTarget.blur()
                 },
-                'aria-label': '对 ' + p.name + ' 说话',
+                'aria-label': t('a11y.talkTo', { name: p.name }),
               })
             : null,
           s.showInput
-            ? h('button', { className: 'dsh-pet-send', onClick: onSend, disabled: !text.trim(), title: '发送' }, '↑')
+            ? h(
+                'button',
+                {
+                  className: 'dsh-pet-send',
+                  onClick: onSend,
+                  disabled: !text.trim(),
+                  title: t('a11y.send'),
+                  'aria-label': t('a11y.send'),
+                },
+                '↑',
+              )
             : null,
         ),
         h(
@@ -268,7 +278,8 @@
             'button',
             {
               className: 'dsh-pet-gear',
-              title: '桌宠设置',
+              title: t('panel.settings'),
+              'aria-label': t('panel.settings'),
               onClick: (e) => {
                 e.stopPropagation()
                 runtime.panelOpen = !runtime.panelOpen
@@ -290,6 +301,52 @@
     function PetMenu() {
       useRuntime()
       const menu = runtime.menu
+      const boxRef = useRef(null)
+      // 键盘可达（R16）：打开时把焦点移进菜单，Esc 关闭并把焦点还回去。
+      // （全屏遮罩是模态菜单的常见做法，本身不算漏洞；缺的是键盘出口。）
+      useEffect(() => {
+        if (!menu) return undefined
+        let prevFocus = null
+        try {
+          prevFocus = document.activeElement
+        } catch (e) {
+          prevFocus = null
+        }
+        const onKey = (e) => {
+          if (!e || e.key !== 'Escape') return
+          try {
+            e.preventDefault()
+            e.stopPropagation()
+          } catch (err) {
+            /* ignore */
+          }
+          runtime.menu = null
+          notify()
+        }
+        try {
+          document.addEventListener('keydown', onKey, true)
+        } catch (e) {
+          /* ignore */
+        }
+        try {
+          const first = boxRef.current && boxRef.current.querySelector('button')
+          if (first && first.focus) first.focus()
+        } catch (e) {
+          /* ignore */
+        }
+        return () => {
+          try {
+            document.removeEventListener('keydown', onKey, true)
+          } catch (e) {
+            /* ignore */
+          }
+          try {
+            if (prevFocus && prevFocus.focus) prevFocus.focus()
+          } catch (e) {
+            /* ignore */
+          }
+        }
+      }, [menu ? menu.x + ':' + menu.y : ''])
       if (!menu) return null
       const close = () => {
         runtime.menu = null
@@ -300,6 +357,7 @@
           'button',
           {
             className: 'dsh-pet-menu-item',
+            role: 'menuitem',
             onClick: (e) => {
               try {
                 e.stopPropagation()
@@ -334,8 +392,10 @@
           'div',
           {
             className: 'dsh-pet-menu',
+            ref: boxRef,
             style: { left: x + 'px', top: y + 'px' },
             role: 'menu',
+            'aria-label': t('panel.actions'),
             onPointerDown: (e) => {
               try {
                 e.stopPropagation()
@@ -345,7 +405,7 @@
             },
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
-          item(t('panel.hair'), () => playAction('hair', { ms: 2400 })),
+          item(t('panel.hair'), () => playAction('hair', { explicit: true })),
           item(t('panel.summon'), () => showPet()),
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
@@ -381,6 +441,7 @@
               focused = true
             }
             const canDance =
+              !runtime.reduced && // 减弱动效时不搬到中间跳舞（R10）
               dur > 20000 &&
               focused &&
               runtime.visible &&

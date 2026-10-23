@@ -66,6 +66,8 @@
       if (snoozeMs) runtime.snoozeUntil = nowMs() + Number(snoozeMs)
       runtime.visible = false
       runtime.chatOpen = false
+      // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
+      clearAction()
       stopVoice()
       notify()
     }
@@ -74,9 +76,13 @@
      * 设置面板摆哪儿：默认贴右下角会把她整个人盖住，所以按她的实际位置算。
      * 上方空间够就放她上方（右对齐），不够就放她左侧（底对齐）。
      * 面板定宽 196px，与 CSS 里 .dsh-pet-panel 的 width 保持一致。
+     *
+     * 1.19.3（R11）：算出位置之后必须**四面夹取**。旧写法只夹了 right/bottom 的
+     * 下界，宠物贴左边缘时会得到 right≈vw，面板整个跑到屏幕左侧（实测 left=-184px）。
      */
     const PANEL_W = 196
     const PANEL_GAP = 8
+    const VIEW_MARGIN = 8
 
     function placePanel() {
       try {
@@ -89,22 +95,30 @@
           return
         }
         const spaceAbove = r.top - 16
+        let right
+        let bottom
+        let maxHeight
         if (spaceAbove >= 300) {
           // 上方放得下：右边缘对齐，底边贴着她头顶
-          runtime.panelPos = {
-            right: Math.max(8, vw - r.right) + 'px',
-            bottom: Math.max(8, vh - r.top + PANEL_GAP) + 'px',
-            maxHeight: Math.min(spaceAbove, 560) + 'px',
-            width: PANEL_W + 'px',
-          }
+          right = Math.max(VIEW_MARGIN, vw - r.right)
+          bottom = Math.max(VIEW_MARGIN, vh - r.top + PANEL_GAP)
+          maxHeight = Math.min(spaceAbove, 560)
         } else {
           // 上方不够：放她左边，底边与她脚底对齐
-          runtime.panelPos = {
-            right: Math.max(8, vw - r.left + PANEL_GAP) + 'px',
-            bottom: Math.max(8, vh - r.bottom) + 'px',
-            maxHeight: Math.min(Math.max(r.height + 60, 260), 520) + 'px',
-            width: PANEL_W + 'px',
-          }
+          right = Math.max(VIEW_MARGIN, vw - r.left + PANEL_GAP)
+          bottom = Math.max(VIEW_MARGIN, vh - r.bottom)
+          maxHeight = Math.min(Math.max(r.height + 60, 260), 520)
+        }
+        // 夹取：right ∈ [8, vw-W-8] 保证左右都在视口内；
+        // bottom 的上界由 maxHeight 反推（面板真实高度 ≤ maxHeight），保证顶部不越界。
+        const maxH = Math.max(160, Math.min(maxHeight, vh - VIEW_MARGIN * 2))
+        const rightMax = Math.max(VIEW_MARGIN, vw - PANEL_W - VIEW_MARGIN)
+        const bottomMax = Math.max(VIEW_MARGIN, vh - maxH - VIEW_MARGIN)
+        runtime.panelPos = {
+          right: clamp(right, VIEW_MARGIN, rightMax) + 'px',
+          bottom: clamp(bottom, VIEW_MARGIN, bottomMax) + 'px',
+          maxHeight: maxH + 'px',
+          width: PANEL_W + 'px',
         }
       } catch (e) {
         runtime.panelPos = null
@@ -197,7 +211,7 @@
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
-      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair', { ms: 1300 })
+      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
 
       // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次
       if (s.chaos !== false && runtime.visible && !runtime.fx.length) {

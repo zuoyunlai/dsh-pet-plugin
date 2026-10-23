@@ -6,8 +6,8 @@
   "pet": {
     "panel.title": "Pet",
     "panel.look": "Roop",
-    "panel.lang": "Bhasha",
-    "panel.langAuto": "Auto (DSH)",
+    "panel.lang": "Language",
+    "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "Aawaaz",
     "panel.display": "Dikhaav",
     "panel.actions": "Harkat",
@@ -19,7 +19,7 @@
     "panel.active": "Samay",
     "panel.voiceOn": "Bole",
     "panel.neural": "Neural",
-    "voice.auto": "Auto (bhasha se)",
+    "voice.auto": "Auto (by language)",
     "panel.voiceName": "Sur",
     "panel.volume": "Volume",
     "panel.pitch": "Pitch",
@@ -48,7 +48,11 @@
     "pet.toggle": "Pet",
     "pet.toggleOff": "Woh screen se bahar hai, wapas laane ke liye click karein",
     "hint.neuralOff": "Neural aawaaz upalabdh nahi, system voice use ho rahi hai",
-    "hint.privacy": "Neural voice padhe jaane wale text ko Microsoft bhejti hai. Sab kuchh is machine par rakhne ke liye ise band karein.",
-    "placeholder.chat": "{name} se kuchh kahein…"
+    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
+    "placeholder.chat": "{name} se kuchh kahein…",
+    "a11y.talkTo": "{name} se baat karein",
+    "a11y.send": "Bhejein",
+    "a11y.start": "Active kab se",
+    "a11y.end": "Active kab tak"
   }
 }

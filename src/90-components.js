@@ -74,7 +74,10 @@
       const s = runtime.settings
       const p = persona()
       const update = (patch) => {
+        const prevPersona = runtime.settings.persona
         Object.assign(runtime.settings, patch)
+        // 换形象：旧动作（以及它的片段/调度链）属于上一个人设，立刻收回
+        if (patch.persona && patch.persona !== prevPersona) clearAction()
         saveSettings()
         notify()
         if (patch.persona || patch.ttsVoice || patch.voicePitch != null || patch.voiceRate != null) {
@@ -144,9 +147,19 @@
           'div',
           { className: 'dsh-pet-field' },
           h('span', { className: 'lb' }, t('panel.active')),
-          h('input', { type: 'time', value: s.activeStart, onChange: (e) => update({ activeStart: e.target.value }) }),
+          h('input', {
+            type: 'time',
+            value: s.activeStart,
+            'aria-label': t('a11y.start'),
+            onChange: (e) => update({ activeStart: e.target.value }),
+          }),
           h('span', { className: 'val' }, '→'),
-          h('input', { type: 'time', value: s.activeEnd, onChange: (e) => update({ activeEnd: e.target.value }) }),
+          h('input', {
+            type: 'time',
+            value: s.activeEnd,
+            'aria-label': t('a11y.end'),
+            onChange: (e) => update({ activeEnd: e.target.value }),
+          }),
         ),
         sep(),
         sec(t('panel.voice')),
@@ -181,7 +194,7 @@
           'div',
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.panelOpen = false; runToCenterAndDance() } }, t('panel.dance')),
-          h('button', { onClick: () => playAction('hair', { ms: 1300 }) }, t('panel.hair')),
+          h('button', { onClick: () => playAction('hair', { explicit: true }) }, t('panel.hair')),
           h('button', { onClick: () => showPet('dance') }, t('panel.summon')),
           h('button', { onClick: () => { runtime.snoozeUntil = nowMs() + 3600 * 1000; hidePet(); runtime.panelOpen = false; notify() } }, t('panel.hide')),
         ),

@@ -25,13 +25,13 @@
 | 立绘素材 | **56 张 webp**：4 × (1 基础 + 4 表情) + 4 × 3 套动作 × 3 帧 | `assets/`（`Get-ChildItem assets -Filter *.webp` = 56）|
 | 动作帧数 | 每套 **3 帧**，340ms/帧交叉淡入 | `src/94-move.js`、`src/92-fx.js` |
 | 状态感知 | 只有 `useSession((s) => s.running)` 一个布尔量 | `src/96-overlay.js` PetToggle |
-| 事件联动 | ① 一轮结束：>4s 撒花；>20s 且前台且 10 分钟冷却 → 跑中间跳舞；② `tool/result` 失败 → 乌云（宿主侧 `index.js:415` 记 `lastErrorAt`，客户端 15s 轮询 `/dsh-pet/ping`） | `src/96-overlay.js:275-300`、`src/99-entry.js:115-140`、`index.js:415` |
+| 事件联动 | ① 一轮结束：>4s 撒花；>20s 且前台且 10 分钟冷却 → 跑中间跳舞；② `tools/result` 失败 → 乌云（宿主侧记 `lastErrorAt`，客户端 8s 轮询 `/dsh-pet/ping`） | `src/96-overlay.js` PetToggle、`src/99-entry.js` 轮询段、`index.js` 事件监听 |
 | 交互入口 | 宠物本体（拖拽/点击/被戳）+ 齿轮面板 + 输入框右侧 🐾 按钮 | `src/96-overlay.js`、`src/90-components.js` |
 | 右键菜单 | **无** | — |
 | 斜杠命令 | **无**（宿主有 `ctx.commands` 接口可用） | 指南 §能力表 |
 | 形象可扩展 | 写死在源码里，加形象要改代码 + 重新构建 | `src/30-personas.js` |
 | 语音 | 8 个 edge-tts 音色，按界面语言自动选；系统 SAPI 兜底 | `index.js` `TTS_VOICES` / `TTS_BY_LANG` |
-| 多语言 | 五语（en/zh/es/pt/hi）× 45 条文案 + 每形象 4 套台词（中/英/西/葡/印） | `locale/*.json`、`src/30-personas.js` |
+| 多语言 | 五语（en/zh/es/pt/hi）× 50 条文案 + 每形象 4 套台词（中/英/西/葡/印） | `locale/*.json`、`src/30-personas.js` |
 | 安全 | Host/Origin/Sec-Fetch-Site 三道准入、`/tts` POST-only、错误脱敏、缓存上限生效 | `index.js` 准入段、`tests/host.test.mjs` |
 | 测试 | 宿主单测 **22 条** + 冒烟（含 POST+blob 断言）+ `check --strict` 13 项 | `tests/` |
 | **已知缺陷** | `src/99-entry.js:120` 轮询仍在试 **`/api/dsh-pet/ping`** —— 该前缀在 1.9.0 已删除，属死代码（首个 URL 失败时白跑一次 404） | `src/99-entry.js:120` |
@@ -58,10 +58,10 @@
 ### F1 —— 状态联动升级：从「running 布尔」到「阶段机」〔P0〕**（1.11.0 已完成）**
 
 - **目标**：`idle / thinking / working(tool) / speaking / error / done` 六态驱动表情与动作，而不是只有"跑完撒花"。
-- **可行性**：宿主已有 `tool/result` 事件（我们已用）；`ctx.on` 还能挂 `agent/*`、`tools/*`（指南 §能力表）。客户端已有 `useSession`。
+- **可行性**：宿主的事件是 **`tools/result(exec, result)`**（复数、两个参数、按 `exec.agent` 作用域分发）；单数 `tool/result` 只是 session 持久化事件类型，**不会**走 `ctx.on`。1.11.0 误用了单数名，`tool`/`error` 两态在 1.19.2 及以前从未生效，1.19.3 已改正并补了兼容旧宿主的第二监听。客户端已有 `useSession`。
 - **改动面**：`index.js` 增加事件 → 在 `/ping` 里回一个 `phase` 字段（**不新增会话事件类型**，只读不写）；
   `src/96-overlay.js` 消费 `phase` 映射到 mood；`src/41-runtime.js` 加 `phase` 字段。
-- **验收**：单测断言 `/ping` 的 `phase` 在收到 `tool/result` 后从 `working` 变 `idle`；冒烟断言六态都能渲染；真机跑一次长任务看到表情随阶段变化。
+- **验收**：单测断言 `/ping` 的 `lastToolAt`/`toolEvents` 在收到 `tools/result` 后变化；冒烟断言六态都能渲染；真机跑一次长任务看到表情随阶段变化（本条此前**未真机执行**，1.19.3 只补齐了单测与事件名，真机验收仍需一次）。
 - **风险**：事件名字/载荷随宿主版本变化 → 全部 try/catch + 缺事件时静默退回轮询式判断。
 
 ### F2 —— 动作帧 3 → 6，并调缓动〔P1〕**（A 路已落地：真视频片段）**
@@ -160,7 +160,7 @@
 | 项 | 状态 | 版本 | 说明 |
 |---|---|---|---|
 | F5 死代码 | ✅ 完成 | 1.11.0 | 轮询只剩注入地址 + 相对路径 |
-| F1 阶段机 | ✅ 完成 | 1.11.0 | 六态 + 5 条新单测 + 冒烟断言 |
+| F1 阶段机 | ⚠️ 1.11.0 标完成、1.19.3 才真正生效 | 1.11.0 / 1.19.3 | 六态 + 单测 + 冒烟；事件名此前写错（`tool/result` → `tools/result`），见 F1 可行性段 |
 | F3 右键菜单 | ✅ 完成 | 1.11.0 | 5 项，跟随点击位置并收进视口 |
 | F3 斜杠命令 | ✅ 完成 | 1.11.0 | `/dsh-pet [show\|hide]`，commandSeq 防重放 |
 | F2 六帧动作 | 🚧 2/12 套 + 1 条真视频 | 1.16.0 | 薇与绯的跳舞已 6 帧；薇的跳舞另有 24fps alpha 视频（1.16.0）；剩 10 套 × 3 帧 = 30 张，以及绯/靛/雪的跳舞视频 |

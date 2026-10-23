@@ -55,8 +55,15 @@
   transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
 .dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
 /* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
-.dsh-pet-video{height:100%;width:auto;display:block;object-fit:contain;
+/* 1.19.3（R01）：静帧画在下面，video 只在真的开始播放后淡入（onPlaying 加 is-ready） */
+.dsh-pet-clipbox{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
+.dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  height:100%;width:auto;display:block;object-fit:contain;opacity:0;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
+/* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
+   舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
+.dsh-pet-video.is-ready{opacity:1}
 /* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
@@ -79,10 +86,6 @@
   50%{transform:scale(1.012) rotate(0.5deg)}
   75%{transform:scale(1.006) rotate(0deg)}
   100%{transform:scale(1) rotate(-0.5deg)}
-}
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-imgwrap{animation:none}
-  .dsh-pet-img-cur,.dsh-pet-img-prev{animation:none}
 }
 .dsh-pet-gear{position:absolute;right:-2px;top:-2px;pointer-events:auto;cursor:pointer;border:none;border-radius:999px;
   width:20px;height:20px;font-size:11px;line-height:1;opacity:0;transition:opacity .15s;
@@ -221,9 +224,6 @@
 @keyframes mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
 @keyframes mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
   30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.1)}}
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-body,.dsh-pet-eye,.dsh-pet-mouth,.dsh-pet-tail{animation:none!important}
-}
 
 /* —— 视线跟随 —— */
 .dsh-pet-pupils{transform:translate(var(--gx,0px),var(--gy,0px));transition:transform .1s linear}
@@ -297,11 +297,17 @@
   58%{opacity:.45;transform:scale(1.7)}
   70%,100%{opacity:0;transform:scale(2.1)}
 }
-@media (prefers-reduced-motion:reduce){
-  .dsh-pet-fx-ink i,.dsh-pet-fx-confetti i,.dsh-pet-fx-cloud,.fx-bomb,.fx-crack,.fx-flash{animation:none!important;opacity:.9}
-}
 .dsh-pet-menu-mask{position:fixed;inset:0;z-index:80;pointer-events:auto}
 .dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-bd);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
+/* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
+   旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
+   rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：
+   动画全部取消、过渡时长归零、特效层不显示。视频的自动播放由 JS 侧
+   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。 */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .dsh-pet-fx{display:none!important}
+}
 `
