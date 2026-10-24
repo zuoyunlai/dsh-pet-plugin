@@ -668,6 +668,19 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
 10,651,485 B）；tag CI **28s 绿**；远端 `pet-crimson-dance.webm` / `pet-violet-dance.webm`
 与本地 sha1 一致；desktop / web 两个 profile 已刷新。
 
+### 视频重生成尝试（2026-10-24，未闭环）
+
+- **用户诉求**：彻底解决紫色/清晰度，动作希望更妖娆，允许重新生成视频。
+- **尝试 1（2K + 多模态参考，任务 `smvm2nlxeb12c15`）**：产出 2560×1440 **横屏**。
+  实测单帧人物 bbox **334×1312**，而旧 768P 竖屏是 **714×984**——纵向 +33%、横向 **−53%**，
+  输出 640 高时横向欠采样，肉眼更软；动作仍是「一手举顶 + 一手横过身前」的重复姿势。
+  ⇒ **2K + 横屏这条路是负收益，已放弃**。
+- **尝试 2（2K + 首尾帧 + 竖构图首帧，任务 `smvmccu2y3746df`）**：任务已就绪（mode=frames、
+  首帧 `smvjgpugt331b7b/refs/firstFrame-dac05a9c.png` 768×1344、2K、强化腰胯/肩胸 articulation 的提示词），
+  但提交即失败：**MiniMax 返回 HTTP 402 insufficient balance (1008)** —— 账户余额不足，试验无法进行。
+- **状态**：阻塞在余额；充值后原任务一键重跑即可验证「竖屏 2K 能否让两个方向都翻倍」。
+  未充值前保持 1.19.8（12 条 640P）不动。
+
 ### 仍未闭环（下一轮再看）
 
 1. **真机验收 —— 已闭环（2026-10-23，重启后实测）**：
