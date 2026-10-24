@@ -693,6 +693,7 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
   参考图模式那次（横屏 2K）确认是负收益，已弃用。
 - **发版**：npm `1.19.9` = latest；tag `v1.19.9`；Release 公开（`dsh-pet-plugin-1.19.9.tgz` 10,295,177 B）；
   tag CI **25s 绿**；desktop 与 web 两个 profile 均已刷新到 1.19.9。
+- **用户验收**（m00684 原话）：「可以了」。1.19.9 结案。
 
 ### 仍未闭环（下一轮再看）
 
