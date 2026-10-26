@@ -534,7 +534,9 @@ export function apply(ctx, config) {
   // —— 神经语音可用性探测：客户端据此决定用神经音色还是系统语音 ——
   const ttsStatusHandler = async (req, res) => {
     if (applyCors(req, res)) return
-    const st = await probeNeural()
+    // ?refresh=1 跳过 5 分钟缓存（含负结果）：用户刚装完 edge-tts 能当场刷出来，不用等或重启
+    const refresh = /[?&]refresh=1\b/.test(String((req && req.url) || ''))
+    const st = await probeNeural({ force: refresh })
     reply(res, 200, {
       available: st.ok,
       reason: st.reason,
@@ -558,10 +560,14 @@ export function apply(ctx, config) {
   const RATE_RE = /^[+-]\d{1,3}%$/
   const pitchOf = (v) => (PITCH_RE.test(String(v || '')) ? String(v) : '+0Hz')
   const rateOf = (v) => (RATE_RE.test(String(v || '')) ? String(v) : '+0%')
+  const volumeOf = (v) => (RATE_RE.test(String(v || '')) ? String(v) : '+0%')
 
   /** 缓存键用 JSON 序列化，避免 '|' 拼接造成的键歧义 */
-  const ttsKey = (voice, pitch, rate, text) =>
-    createHash('sha1').update(JSON.stringify([voice, pitch, rate, text])).digest('hex').slice(0, 20)
+  const ttsKey = (voice, pitch, rate, text, volume) =>
+    createHash('sha1')
+      .update(JSON.stringify([voice, pitch, rate, volume || '+0%', text]))
+      .digest('hex')
+      .slice(0, 20)
 
   // 只接受 POST：GET 版本会让任意网页（甚至本机任意进程）用一句 <audio src> 就驱动合成。
   // 客户端改为 fetch 拿 blob 再 createObjectURL，所以不再需要可被直接当作 URL 的端点。
@@ -585,18 +591,19 @@ export function apply(ctx, config) {
     const voice = voiceFor(payload.voice, payload.lang)
     const pitch = pitchOf(payload.pitch)
     const rate = rateOf(payload.rate)
+    const volume = volumeOf(payload.volume)
     if (!text) {
       reply(res, 400, { error: 'empty-text' })
       return
     }
-    const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text) + '.mp3')
+    const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text, volume) + '.mp3')
     try {
       await stat(file)
     } catch (e) {
       try {
         // mode 0o700：缓存目录只有本用户能进（POSIX；Windows 忽略）
         await mkdir(TTS_CACHE, { recursive: true, mode: 0o700 })
-        await synthAtomic(text, voice, file, pitch, rate)
+        await synthAtomic(text, voice, file, pitch, rate, volume)
       } catch (err) {
         // 错误详情只写宿主日志：worker 的 OSError 里带绝对路径，不能回给页面
         try {
@@ -645,6 +652,7 @@ export function apply(ctx, config) {
     const voice = voiceFor(payload.voice, payload.lang)
     const pitch = pitchOf(payload.pitch)
     const rate = rateOf(payload.rate)
+    const volume = volumeOf(payload.volume)
     const lines = Array.isArray(payload.lines) ? payload.lines.slice(0, 30) : []
     warming = true
     res.writeHead(202, { 'content-type': 'application/json; charset=utf-8' })
@@ -661,7 +669,7 @@ export function apply(ctx, config) {
           if (disposed) return
           const text = String(raw || '').trim().slice(0, 300)
           if (!text) continue
-          const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text) + '.mp3')
+          const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text, volume) + '.mp3')
           try {
             await stat(file)
             continue
@@ -669,7 +677,7 @@ export function apply(ctx, config) {
             /* 需要合成 */
           }
           try {
-            await synthAtomic(text, voice, file, pitch, rate)
+            await synthAtomic(text, voice, file, pitch, rate, volume)
           } catch (e) {
             /* 单条失败不影响其它 */
           }

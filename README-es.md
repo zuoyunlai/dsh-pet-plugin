@@ -19,7 +19,9 @@ con su propio temperamento.
 - **Icono**: `icon.svg` y el botón del compositor comparten el mismo trazado.
 - **Panel de ajustes**: agrupado (aspecto / voz / visualización / acciones / efectos), con
   desplegables y conmutadores propios, fijado al viewport.
-- **Cuatro personajes** fotorrealistas, 5 expresiones cada uno: 薇, 绯, 靛, 雪.
+- **Cinco personajes** fotorrealistas: 薇, 绯, 靛, 雪 (5 expresiones cada uno) y 鲸鱼娘
+  (azure), una doncella con orejas y cola de ballena, con un solo retrato realista y sus
+  propios clips de caminar, bailar y apartarse el pelo.
 
 ## Behavior
 

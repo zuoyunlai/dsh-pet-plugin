@@ -4,6 +4,7 @@
  */
 import test from 'node:test'
 import assert from 'node:assert'
+import { readFileSync } from 'node:fs'
 import { apply } from '../index.js'
 
 function makeCtx(opts = {}) {
@@ -292,6 +293,19 @@ test('tts 的 pitch/rate 只接受固定形状', async () => {
     const res = await call(ctx.routes.get('/dsh-pet/tts'), { method: 'POST', url: '/dsh-pet/tts', body: q })
     assert.ok([200, 503].indexOf(res.statusCode) >= 0, q + ' -> ' + res.statusCode)
   }
+})
+
+test('tts 的 volume 也过白名单，并参与缓存键', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  for (const q of ['{"text":"hi","volume":"<x>"}', '{"text":"hi","volume":"+999%"}']) {
+    const res = await call(ctx.routes.get('/dsh-pet/tts'), { method: 'POST', url: '/dsh-pet/tts', body: q })
+    assert.ok([200, 503].indexOf(res.statusCode) >= 0, q + ' -> ' + res.statusCode)
+  }
+  // 同一个文件的键函数：volume 不同必须得到不同缓存键，否则轻/重读会互相命中
+  const src = readFileSync(new URL('../index.js', import.meta.url), 'utf8')
+  assert.match(src, /ttsKey = \(voice, pitch, rate, text, volume\)/, 'ttsKey 必须带上 volume')
+  assert.match(src, /volumeOf\(payload\.volume\)/, '处理器要解析 volume')
 })
 
 test('tts/warm 也有独立限流', async () => {

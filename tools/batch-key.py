@@ -8,7 +8,11 @@
 - 羽化：GaussianBlur(0.55)，**不用 MinFilter 腐蚀**——3×3 最小值会啃掉 1px 手指
 - 所有帧用同一个裁切框、同一个缩放比例（逐帧按内容裁剪会让编码器强行拉伸，见 1.16.1）
 
-用法：python batch-key.py <输入目录> <输出目录> [目标高度]
+用法：python batch-key.py <输入目录> <输出目录> [目标高度] [--crop l,t,r,b]
+
+`--crop` 给一个固定裁切框（源像素坐标）时不再自动求并集。同一个人物的多条片段
+（walk / dance / hair）必须传同一个框：各自自动裁会让画幅、缩放比例都不同，
+插件在片段之间切换时人物会突然平移或变大 —— 看起来就是"抖了一下"。
 """
 import glob
 import os
@@ -17,9 +21,18 @@ import sys
 import numpy as np
 from PIL import Image, ImageFilter
 
-src_dir = sys.argv[1]
-out_dir = sys.argv[2]
-target_h = int(sys.argv[3]) if len(sys.argv) > 3 else 640
+argv = sys.argv[1:]
+force_crop = None
+if "--crop" in argv:
+    i = argv.index("--crop")
+    force_crop = tuple(int(v) for v in argv[i + 1].split(","))
+    del argv[i:i + 2]
+if len(argv) < 2:
+    raise SystemExit("用法：batch-key.py <输入目录> <输出目录> [目标高度] [--crop l,t,r,b]")
+
+src_dir = argv[0]
+out_dir = argv[1]
+target_h = int(argv[2]) if len(argv) > 2 else 640
 
 os.makedirs(out_dir, exist_ok=True)
 files = sorted(glob.glob(os.path.join(src_dir, "*.png")))
@@ -126,10 +139,14 @@ if not keyed or union is None:
 
 pad = 6
 w0, h0 = Image.open(files[0]).size
-l = max(0, union[0] - pad)
-t = max(0, union[1] - pad)
-r = min(w0, union[2] + pad)
-b = min(h0, union[3] + pad)
+if force_crop:
+    l, t, r, b = force_crop
+    assert 0 <= l < r <= w0 and 0 <= t < b <= h0, "crop 越界：%r vs %dx%d" % (force_crop, w0, h0)
+else:
+    l = max(0, union[0] - pad)
+    t = max(0, union[1] - pad)
+    r = min(w0, union[2] + pad)
+    b = min(h0, union[3] + pad)
 scale = target_h / (b - t)
 out_w = max(1, int(round((r - l) * scale)))
 

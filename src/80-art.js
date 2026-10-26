@@ -178,6 +178,9 @@
             runtime.clipPlaying = clip
             notify()
           },
+          // 片段时长以媒体为准（1.20.0）：拿到 metadata 就把这一代动作的收尾时间
+          // 按真实片长重排，5.167s 的旧片段和 10s 的叙事片段共用一套逻辑。
+          onLoadedMetadata: (e) => noteClipDuration(clip, e && e.currentTarget ? e.currentTarget.duration : 0),
           // 自然播完就收尾：不要等到墙钟（片段 5167ms，action 默认也是 5167ms，
           // 两边谁先到都行；这里让「播完」这件事由媒体事件说了算）
           onEnded: () => endAction(gen),

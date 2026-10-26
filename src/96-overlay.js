@@ -10,7 +10,10 @@
       const rootRef = useRef(null)
       // 心情切到跳舞/走路时，自动播对应的动作序列
       useEffect(() => {
-        const name = runtime.mood === 'dance' || runtime.mood === 'walk' ? runtime.mood : null
+        const name =
+          runtime.mood === 'dance' || runtime.mood === 'walk' || runtime.mood === 'stage'
+            ? runtime.mood
+            : null
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
@@ -57,6 +60,12 @@
               return
             }
             runtime.petOffscreen = true
+            // 被拖出视口 = 看不见她 → 立刻闭嘴（音画同步，见 src/50-voice.js 的 onScreen）
+            try {
+              stopVoice()
+            } catch (e) {
+              /* ignore */
+            }
             // 用户拖过的位置如果已经跑到视口外（换窗口大小/换显示器），
             // 手动的锚点会被保留，那就永远看不见了 —— 这里直接丢掉旧位置。
             if (runtime.settings.pos) {
@@ -115,7 +124,7 @@
         const m = roll < 0.5 ? 'poked' : roll < 0.72 ? 'shy' : roll < 0.9 ? 'dance' : 'angry'
         runtime.mood = m
         runtime.moodUntil = nowMs() + 3500
-        bubble(randomLine('poked'), 3600)
+        bubble(randomLine('poked'), 3600, 'poked')
         notify()
       }
 
@@ -150,6 +159,9 @@
             runtime.dragPos = null
             saveSettings()
             petLog('moved', runtime.settings.pos)
+            // 被拖到新位置后说一句（1.21.0）：台词分类 drag，缺这类台词的形象保持安静
+            const line = dragLine()
+            if (line && Math.random() < 0.6) bubble(line, null, 'drag')
           } else {
             onPoke()
           }
@@ -178,6 +190,9 @@
           : null,
         runtime.bubble
           ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
+          : null,
+        runtime.aside
+          ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
           : null,
         h(
           'div',
@@ -406,7 +421,10 @@
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
           item(t('panel.hair'), () => playAction('hair', { explicit: true })),
-          item(t('panel.summon'), () => showPet()),
+          // 不叫它「叫出来」：藏起来后她整个人不渲染（96-overlay.js:91 返回 null），
+          // 这个菜单根本点不到。她看得见的时候，这一项的真实作用是「延长停留」。
+          // 把她叫回来请用输入框旁的 🐾 按钮或 /dsh-pet 叫出来。
+          item(t('panel.stay'), () => showPet()),
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
             runtime.panelOpen = true
@@ -468,8 +486,14 @@
         {
           className: 'dsh-pet-toggle' +
             (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
-          title: runtime.petOffscreen ? t('pet.toggleOff') : t('pet.toggle'),
-          'aria-label': t('pet.toggle'),
+          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌宠」。
+          title: !runtime.visible
+            ? t('panel.summon')
+            : runtime.petOffscreen
+              ? t('pet.toggleOff')
+              : t('pet.toggle'),
+          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
           onClick: () => {
             if (!runtime.visible || runtime.petOffscreen) {
               runtime.settings.pos = null

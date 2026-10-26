@@ -24,9 +24,19 @@
             showPet,
             hidePet,
             bubble,
+            asideLine,
+            dragLine,
+            linesOf,
+            maybeAside,
+            clearAside,
+            // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
+            voiceParams,
             playFx,
             notify,
             runToCenterAndDance,
+            // 片段时长（1.20.0）：媒体 metadata 到手后写进 runtime.clipMs，
+            // 收尾时间按真实片长重排；台架走同一个入口固定这条规则。
+            noteClipDuration,
             PetArt,
             CSS,
             // 自检用：当前语言 + 任意心情会抽到的那句台词 / 当前生效的文案

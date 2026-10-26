@@ -28,6 +28,9 @@
 .dsh-pet-bubble:after{content:"";position:absolute;right:22px;bottom:-5px;width:9px;height:9px;transform:rotate(45deg);
   background:var(--pet-bg);border-right:1px solid var(--pet-border);
   border-bottom:1px solid var(--pet-border)}
+.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);margin:3px 0 0 auto;padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
+.dsh-pet-aside:before{content:"( ")}
+.dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
 .dsh-pet-input{pointer-events:auto;width:186px;font-size:12px;padding:6px 9px;border-radius:999px;outline:none;
   background:var(--pet-bg);color:inherit;

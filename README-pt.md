@@ -17,7 +17,9 @@ seu temperamento.
   (sem sessão, sem log de sessão).
 - **Ícone**: `icon.svg` e o botão do compositor usam o mesmo traçado.
 - **Painel de ajustes** agrupado e fixo na viewport, com selects e switches próprios.
-- **Quatro personagens** fotorrealistas, 5 expressões cada: 薇, 绯, 靛, 雪.
+- **Cinco personagens** fotorrealistas: 薇, 绯, 靛, 雪 (5 expressões cada) e 鲸鱼娘
+  (azure), uma empregada com orelhas e cauda de baleia, com um único retrato realista e
+  seus próprios clipes de andar, dançar e ajeitar o cabelo.
 
 ## Behavior
 

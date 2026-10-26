@@ -68,7 +68,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"Auto (by language)","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Auto (by language)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -206,8 +206,28 @@ window.__ModuleLoader__.load({
           hair: ["pet-violet-hair1.webp", "pet-violet-hair2.webp", "pet-violet-hair3.webp"],
           walk: ["pet-violet-walk1.webp", "pet-violet-walk2.webp", "pet-violet-walk3.webp"],
         },
-        clips: { dance: "pet-violet-dance.webm", walk: "pet-violet-walk.webm", hair: "pet-violet-hair.webm" },
-        voice: { pitch: 1.18, rate: 0.88 },
+        clips: {
+          dance: "pet-violet-dance.webm",
+          walk: "pet-violet-walk.webm",
+          hair: "pet-violet-hair.webm",
+          stage: "pet-violet-stage.webm",
+        },
+        voice: {
+          pitch: 1.02,
+          rate: 0.86,
+          voiced: { zh: "hsiaochen", en: "sonia", es: "elvira", pt: "francisca", hi: "swara" },
+          moods: {
+            appear: { pitch: 1, rate: 1 },
+            idle: { pitch: 0, rate: 1 },
+            dance: { pitch: 2, rate: 1.04, volume: 1.05 },
+            shy: { pitch: 4, rate: 0.94, volume: 0.92 },
+            angry: { pitch: 2, rate: 1.05, volume: 1.06 },
+            sleep: { pitch: -3, rate: 0.84, volume: 0.72 },
+            error: { pitch: -1, rate: 0.96, volume: 0.95 },
+            drag: { pitch: 3, rate: 1.08 },
+            chatAck: { pitch: 1, rate: 1.02 },
+          },
+        },
         temper: { idle: 4, walk: 1.4, dance: 1.6, shy: 1.8, angry: 1, sleep: 1.4, happy: 1.8 },
         lines: {
           appear: ["来得正好，我正觉得无聊。", "别站那么远，我又不吃人。", "你今天……看起来很好欺负。", "忙完了？过来坐一会儿。"],
@@ -388,8 +408,24 @@ window.__ModuleLoader__.load({
           dance: "pet-crimson-dance.webm",
           walk: "pet-crimson-walk.webm",
           hair: "pet-crimson-hair.webm",
+          stage: "pet-crimson-stage.webm",
         },
-        voice: { pitch: 1.1, rate: 0.9 },
+        voice: {
+          pitch: 1.04,
+          rate: 0.94,
+          voiced: { zh: "xiaoxiao", en: "aria", es: "dalia", pt: "thalita", hi: "swara" },
+          moods: {
+            appear: { pitch: 3, rate: 1.04, volume: 1.06 },
+            idle: { pitch: 0, rate: 1 },
+            dance: { pitch: 4, rate: 1.1, volume: 1.1 },
+            shy: { pitch: 5, rate: 0.98, volume: 0.96 },
+            angry: { pitch: 5, rate: 1.12, volume: 1.15 },
+            sleep: { pitch: -2, rate: 0.86, volume: 0.74 },
+            error: { pitch: 0, rate: 1, volume: 1 },
+            drag: { pitch: 6, rate: 1.12 },
+            chatAck: { pitch: 2, rate: 1.04 },
+          },
+        },
         temper: { idle: 3.4, walk: 1.6, dance: 2.2, shy: 1.2, angry: 1.6, sleep: 0.8, happy: 2.2 },
         lines: {
           appear: ["哟，终于舍得看我了。", "别躲，我又不会咬你……至少今天不会。", "你今天归我管了。", "看你一眼就想逗你，是我的错吗。"],
@@ -535,8 +571,28 @@ window.__ModuleLoader__.load({
           hair: ["pet-indigo-hair1.webp", "pet-indigo-hair2.webp", "pet-indigo-hair3.webp"],
           walk: ["pet-indigo-walk1.webp", "pet-indigo-walk2.webp", "pet-indigo-walk3.webp"],
         },
-        clips: { dance: "pet-indigo-dance.webm", walk: "pet-indigo-walk.webm", hair: "pet-indigo-hair.webm" },
-        voice: { pitch: 1.12, rate: 0.86 },
+        clips: {
+          dance: "pet-indigo-dance.webm",
+          walk: "pet-indigo-walk.webm",
+          hair: "pet-indigo-hair.webm",
+          stage: "pet-indigo-stage.webm",
+        },
+        voice: {
+          pitch: 0.96,
+          rate: 0.82,
+          voiced: { zh: "xiaobei", en: "neerja", es: "elena", pt: "raquel", hi: "swara" },
+          moods: {
+            appear: { pitch: 1, rate: 0.98, volume: 0.96 },
+            idle: { pitch: 0, rate: 1 },
+            dance: { pitch: 3, rate: 1.06, volume: 1.08 },
+            shy: { pitch: 4, rate: 0.9, volume: 0.88 },
+            angry: { pitch: 3, rate: 1.02, volume: 1.04 },
+            sleep: { pitch: -2, rate: 0.82, volume: 0.7 },
+            error: { pitch: -2, rate: 0.94, volume: 0.92 },
+            drag: { pitch: 4, rate: 1.06 },
+            chatAck: { pitch: 1, rate: 0.98 },
+          },
+        },
         temper: { idle: 3.6, walk: 1.8, dance: 1.2, shy: 1.6, angry: 0.8, sleep: 1.8, happy: 1.4 },
         lines: {
           appear: ["不着急，我等你忙完。", "你看你的，我看我的。", "靠近点，我说话轻。", "今天的你，值得多看两眼。"],
@@ -672,8 +728,28 @@ window.__ModuleLoader__.load({
           hair: ["pet-silver-hair1.webp", "pet-silver-hair2.webp", "pet-silver-hair3.webp"],
           walk: ["pet-silver-walk1.webp", "pet-silver-walk2.webp", "pet-silver-walk3.webp"],
         },
-        clips: { dance: "pet-silver-dance.webm", walk: "pet-silver-walk.webm", hair: "pet-silver-hair.webm" },
-        voice: { pitch: 1.06, rate: 0.84 },
+        clips: {
+          dance: "pet-silver-dance.webm",
+          walk: "pet-silver-walk.webm",
+          hair: "pet-silver-hair.webm",
+          stage: "pet-silver-stage.webm",
+        },
+        voice: {
+          pitch: 0.92,
+          rate: 0.82,
+          voiced: { zh: "xiaoni", en: "natasha", es: "salome", pt: "francisca", hi: "swara" },
+          moods: {
+            appear: { pitch: 0, rate: 0.96, volume: 0.94 },
+            idle: { pitch: 0, rate: 1 },
+            dance: { pitch: 1, rate: 1.02, volume: 1.02 },
+            shy: { pitch: 2, rate: 0.9, volume: 0.86 },
+            angry: { pitch: 0, rate: 1, volume: 1.04 },
+            sleep: { pitch: -4, rate: 0.78, volume: 0.66 },
+            error: { pitch: -2, rate: 0.92, volume: 0.9 },
+            drag: { pitch: 1, rate: 0.98 },
+            chatAck: { pitch: 0, rate: 0.98 },
+          },
+        },
         temper: { idle: 4.2, walk: 1.2, dance: 0.8, shy: 1.4, angry: 1.2, sleep: 2, happy: 1 },
         lines: {
           appear: ["……你终于看见我了。", "不用解释，我不在意。", "站近点，我看不清你。", "嗯。就这一声，不许多问。"],
@@ -775,6 +851,332 @@ window.__ModuleLoader__.load({
           error: ["Samjhi nahi.", "Dobara bolo."],
         },
       },
+      azure: {
+        id: "azure",
+        name: "鲸鱼娘",
+        tag: "深海蓝 · 乖巧可爱的诱惑",
+        tagEn: "Azure — coy, sweet allure",
+        image: "pet-azure.webp",
+        images: {
+          idle: "pet-azure.webp",
+          walk: "pet-azure.webp",
+          talk: "pet-azure.webp",
+          happy: "pet-azure.webp",
+          shy: "pet-azure.webp",
+          angry: "pet-azure.webp",
+          sleep: "pet-azure.webp",
+          dance: "pet-azure.webp",
+          poked: "pet-azure.webp",
+        },
+        clips: {
+          dance: "pet-azure-dance.webm",
+          walk: "pet-azure-walk.webm",
+          hair: "pet-azure-hair.webm",
+          stage: "pet-azure-stage.webm",
+        },
+        voice: {
+          pitch: 1.06,
+          rate: 1,
+          voiced: { zh: "xiaoyi", en: "michelle", es: "camila", pt: "thalita", hi: "swara" },
+          moods: {
+            appear: { pitch: 3, rate: 1.04, volume: 1.04 },
+            idle: { pitch: 0, rate: 1 },
+            dance: { pitch: 4, rate: 1.08, volume: 1.08 },
+            shy: { pitch: 6, rate: 0.96, volume: 0.94 },
+            angry: { pitch: 4, rate: 1.1, volume: 1.08 },
+            sleep: { pitch: -1, rate: 0.88, volume: 0.76 },
+            error: { pitch: 1, rate: 0.98, volume: 0.96 },
+            drag: { pitch: 7, rate: 1.12 },
+            chatAck: { pitch: 2, rate: 1.02 },
+          },
+        },
+        temper: { idle: 4, walk: 1.5, dance: 1.8, shy: 1.6, angry: 1, sleep: 1.4, happy: 1.8 },
+        lines: {
+          appear: [
+            "你回来啦……我一直在这儿，尾巴都没敢乱动。",
+            "主人？这么叫……是不是太近了。",
+            "刚才有一点点想你，就一点点哦。",
+            "深海里的时间很慢，等你的时候更慢。",
+            "小鱼我先占好位置了，你坐这儿就行。",
+          ],
+          idle: [
+            "你敲键盘的声音，比潮水好听。",
+            "这一页你看很久了……要不要我陪你一起看？",
+            "尾巴我藏在椅子后面了，不会弄湿你的地板。",
+            "累了就靠一下嘛，鲸鱼很软的。",
+            "别一直盯着我看……我会不好意思的。",
+            "偷偷吃一块小鱼干，你应该不会发现吧？",
+          ],
+          dance: ["那……我跳一小段给你看，好不好？", "深海里的舞，是不用灯光的。", "看完要夸我哦，不许笑。"],
+          shy: ["诶——别、别突然靠这么近……", "耳朵会红……你看见了对不对。", "呜……这样太犯规了。", "再、再靠近一点的话……我会冒泡泡的。"],
+          angry: ["哼，鲸鱼也是会生气的。", "再不理我，我就游走了……真的会游走哦。", "尾巴甩到你了，抱歉——故意的。"],
+          sleep: ["深海很安静……我先睡一会儿……", "不要关灯，我怕黑……"],
+          poked: ["呀！鳍、鳍被碰到了……", "戳一下就要负责哦。", "呜……痒。"],
+          drag: [
+            "哇——轻、轻一点！尾巴会打结的……",
+            "要带我去哪儿呀？……好吧，跟着你走。",
+            "晕、晕鱼了……慢一点好不好。",
+            "放我下来嘛……不过，这样被你拎着也不坏。",
+            "泡泡都甩出来了……你要赔。",
+          ],
+          chatAck: ["嗯，我记下了。", "好，交给我……大概吧。"],
+          error: ["好像出错了……我、我帮你看看？", "不是我弄坏的，真的。"],
+          aside: [
+            "其实尾巴刚才撞到椅子了，不能承认。",
+            "小鱼干还剩三块，得省着吃。",
+            "他刚才是不是多看了我一眼……应该没有吧。",
+            "好想凑过去蹭一下，可是这样太主动了。",
+            "这个活儿看起来好难，我装作没看见。",
+            "要不要问他喝不喝水……算了，太像管家了。",
+            "其实一点都不困，只是想把眼睛闭上躲一躲。",
+            "深海里的规矩是慢慢来，所以我一点也不急。",
+          ],
+        },
+        linesEn: {
+          appear: [
+            "You're back... I've been right here, tail and all.",
+            "Master? Isn't that... a little too close?",
+            "I missed you a little. Only a little.",
+            "Time is slow in the deep. Slower still while I wait for you.",
+            "I saved you a spot. Sit here, next to me.",
+          ],
+          idle: [
+            "Your keyboard sounds nicer than the tide.",
+            "You've been on that page a while... want me to read it with you?",
+            "I tucked my tail behind the chair. I won't get your floor wet.",
+            "If you're tired, lean on me. Whales are soft.",
+            "Stop staring... I'll get embarrassed.",
+            "Just one little dried fish... you won't notice, right?",
+          ],
+          dance: [
+            "Then... let me dance a little for you. Okay?",
+            "Dances from the deep don't need any lights.",
+            "You have to praise me after. No laughing.",
+          ],
+          shy: [
+            "Eek— don't come so close all of a sudden...",
+            "My ears are turning red... you noticed, didn't you.",
+            "Mm... that's not fair.",
+            "One step closer and I'll start blowing bubbles.",
+          ],
+          angry: [
+            "Hmph. Whales get angry too.",
+            "Ignore me again and I'll swim off. I really will.",
+            "Sorry my tail hit you— on purpose.",
+          ],
+          sleep: [
+            "It's quiet down here... I'll nap for a bit...",
+            "Don't turn off the light... I'm scared of the dark...",
+          ],
+          poked: [
+            "Ah! My— my fin...",
+            "Poke me once and you have to take responsibility.",
+            "Mm... that tickles.",
+          ],
+          drag: [
+            "Whoa— gently! My tail will knot up...",
+            "Where are we going? ...Fine, I'll follow you.",
+            "Dizzy— whale dizzy... slower, please.",
+            "Put me down... though being carried by you isn't bad.",
+            "Bubbles everywhere... you owe me for that.",
+          ],
+          chatAck: ["Mm. Noted.", "Leave it to me... probably."],
+          error: ["Something went wrong... shall I take a look?", "I didn't break it. Really."],
+          aside: [
+            "I bumped my tail on the chair. Not admitting that.",
+            "Three dried fish left. Ration them.",
+            "Did he just look at me twice... probably not.",
+            "I want to lean on him. Too forward though.",
+            "That task looks hard. I saw nothing.",
+            "Should I offer him water... too butler-ish.",
+            "Not sleepy at all. Just hiding my eyes.",
+            "The deep says take it slow. So I'm in no rush.",
+          ],
+        },
+        linesEs: {
+          appear: [
+            "Volviste... estuve aquí todo el rato, sin mover la cola.",
+            "¿Amo? ¿No es... demasiado cercano?",
+            "Te extrañé un poquito. Solo un poquito.",
+            "En lo profundo el tiempo es lento. Más lento esperándote.",
+            "Te guardé un sitio. Siéntate aquí, conmigo.",
+          ],
+          idle: [
+            "Tu teclado suena mejor que la marea.",
+            "Llevas un rato en esa página... ¿la leo contigo?",
+            "Escondí la cola detrás de la silla. No mojaré tu suelo.",
+            "Si estás cansado, apóyate en mí. Las ballenas son suaves.",
+            "No me mires tanto... me da vergüenza.",
+            "Solo un pescadito seco... no te darás cuenta, ¿no?",
+          ],
+          dance: [
+            "Entonces... te bailo un poquito. ¿Sí?",
+            "Las danzas del fondo del mar no necesitan luces.",
+            "Después tienes que elogiarme. Sin reírte.",
+          ],
+          shy: [
+            "¡Ay— no te acerques de golpe así...!",
+            "Se me están poniendo rojas las orejas... lo notaste, ¿verdad?",
+            "Mm... eso no es justo.",
+            "Un paso más y empiezo a echar burbujas.",
+          ],
+          angry: [
+            "Hmph. Las ballenas también se enojan.",
+            "Si me ignoras otra vez, me voy nadando. De verdad.",
+            "Perdón por la cola— fue a propósito.",
+          ],
+          sleep: [
+            "Aquí abajo todo es silencio... voy a dormir un rato...",
+            "No apagues la luz... me da miedo la oscuridad...",
+          ],
+          poked: [
+            "¡Ah! Mi— mi aleta...",
+            "Si me tocas una vez, tienes que hacerte responsable.",
+            "Mm... qué cosquillas.",
+          ],
+          drag: [
+            "¡Uy— con cuidado! Se me va a enredar la cola...",
+            "¿Adónde vamos? ...Bueno, te sigo.",
+            "Mareo— mareo de ballena... más despacio, ¿sí?",
+            "Bájame... aunque así, en tus brazos, no está mal.",
+            "Se me escaparon las burbujas... me debes una.",
+          ],
+          chatAck: ["Mm. Anotado.", "Déjamelo a mí... probablemente."],
+          error: ["Algo salió mal... ¿lo reviso?", "No lo rompí yo. De verdad."],
+          aside: [
+            "Me choqué la cola con la silla. No lo admito.",
+            "Quedan tres pescaditos. Hay que racionarlos.",
+            "¿Me miró dos veces? ...Seguro que no.",
+            "Quiero acurrucarme. Pero sería muy atrevido.",
+            "Esa tarea se ve difícil. No vi nada.",
+            "¿Le ofrezco agua? ...Suena a mayordomo.",
+            "No tengo sueño. Solo escondo los ojos.",
+            "En el fondo del mar todo es lento. Yo también.",
+          ],
+        },
+        linesPt: {
+          appear: [
+            "Você voltou... fiquei aqui o tempo todo, sem mexer a cauda.",
+            "Amo? Isso não é... perto demais?",
+            "Senti sua falta um pouquinho. Só um pouquinho.",
+            "Lá no fundo o tempo é lento. Mais lento esperando você.",
+            "Guardei um lugar para você. Senta aqui comigo.",
+          ],
+          idle: [
+            "Seu teclado soa melhor que a maré.",
+            "Você está nessa página faz um tempo... quer que eu leia junto?",
+            "Escondi a cauda atrás da cadeira. Não vou molhar seu chão.",
+            "Se estiver cansado, encoste em mim. Baleias são macias.",
+            "Para de me olhar assim... vou ficar com vergonha.",
+            "Só um peixinho seco... você não vai notar, né?",
+          ],
+          dance: [
+            "Então... deixa eu dançar um pouquinho para você. Tá bom?",
+            "As danças do fundo do mar não precisam de luz.",
+            "Depois você tem que me elogiar. Sem rir.",
+          ],
+          shy: [
+            "Ai— não chega tão perto de repente...",
+            "Minhas orelhas estão ficando vermelhas... você viu, né.",
+            "Mm... isso não é justo.",
+            "Mais um passo e eu começo a soltar bolhas.",
+          ],
+          angry: [
+            "Hmpf. Baleias também ficam bravas.",
+            "Me ignore de novo e eu nado embora. De verdade.",
+            "Desculpa a cauda— foi de propósito.",
+          ],
+          sleep: [
+            "Lá embaixo é silencioso... vou tirar um cochilo...",
+            "Não apaga a luz... eu tenho medo do escuro...",
+          ],
+          poked: [
+            "Ah! Minha— minha barbatana...",
+            "Se me cutucar uma vez, tem que assumir a responsabilidade.",
+            "Mm... que cócegas.",
+          ],
+          drag: [
+            "Uau— com cuidado! Minha cauda vai dar nó...",
+            "Onde a gente vai? ...Tá, eu te sigo.",
+            "Tonta— baleia tonta... mais devagar, por favor.",
+            "Me põe no chão... mas assim, no seu colo, não é ruim.",
+            "Soltei bolhas todas... você me deve uma.",
+          ],
+          chatAck: ["Mm. Anotado.", "Deixa comigo... provavelmente."],
+          error: ["Algo deu errado... quer que eu veja?", "Não fui eu que quebrei. Sério."],
+          aside: [
+            "Bati a cauda na cadeira. Não vou admitir.",
+            "Restam três peixinhos. Racionar.",
+            "Ele olhou duas vezes? ...Acho que não.",
+            "Queria me encostar. Mas seria atrevido.",
+            "Essa tarefa parece difícil. Não vi nada.",
+            "Ofereço água? ...Parece mordomo.",
+            "Não estou com sono. Só escondendo os olhos.",
+            "No fundo do mar tudo é devagar. Eu também.",
+          ],
+        },
+        linesHi: {
+          appear: [
+            "आप लौट आए... मैं यहीं थी, पूँछ भी नहीं हिलाई।",
+            "मालिक? यह... थोड़ा ज़्यादा पास नहीं है?",
+            "मुझे थोड़ी याद आई थी। बस थोड़ी सी।",
+            "गहरे पानी में समय धीमा है। आपका इंतज़ार करते और भी धीमा।",
+            "मैंने आपके लिए जगह रखी है। यहाँ बैठिए, मेरे पास।",
+          ],
+          idle: [
+            "आपके कीबोर्ड की आवाज़ लहरों से भी अच्छी लगती है।",
+            "आप इस पन्ने पर काफ़ी देर से हैं... साथ पढ़ूँ?",
+            "मैंने अपनी पूँछ कुर्सी के पीछे छिपा दी है। फ़र्श गीला नहीं होगा।",
+            "थक गए हों तो मुझ पर टिक जाइए। व्हेल मुलायम होती हैं।",
+            "ऐसे घूरिए मत... मुझे शर्म आ जाएगी।",
+            "बस एक छोटी सूखी मछली... आपको पता नहीं चलेगा, है ना?",
+          ],
+          dance: [
+            "तो... मैं थोड़ा सा नाच दूँ आपके लिए? ठीक है?",
+            "गहरे समुद्र के नाच को रोशनी की ज़रूरत नहीं होती।",
+            "बाद में तारीफ़ करनी होगी। हँसना नहीं।",
+          ],
+          shy: [
+            "अरे— इतनी अचानक पास मत आइए...",
+            "मेरे कान लाल हो रहे हैं... आपने देख लिया, है ना?",
+            "मम... यह तो ग़लत बात है।",
+            "एक क़दम और आए तो बुलबुले छोड़ने लगूँगी।",
+          ],
+          angry: [
+            "हुम्फ़। व्हेल भी ग़ुस्सा होती हैं।",
+            "फिर से अनदेखा किया तो मैं तैर जाऊँगी। सच में।",
+            "पूँछ लग गई तो माफ़ी— जान-बूझकर।",
+          ],
+          sleep: [
+            "यहाँ नीचे बहुत शांति है... मैं थोड़ा सो जाऊँ...",
+            "बत्ती मत बुझाइए... मुझे अँधेरे से डर लगता है...",
+          ],
+          poked: [
+            "आह! मेरा— मेरा पंख...",
+            "एक बार छुआ तो ज़िम्मेदारी भी लेनी होगी।",
+            "मम... गुदगुदी होती है।",
+          ],
+          drag: [
+            "अरे— धीरे! मेरी पूँछ में गाँठ पड़ जाएगी...",
+            "कहाँ ले जा रहे हैं? ...ठीक है, आपके पीछे चलूँगी।",
+            "चक्कर— व्हेल को चक्कर... ज़रा धीरे।",
+            "मुझे नीचे उतारिए... पर इस तरह आपके हाथों में बुरा नहीं लगता।",
+            "सारे बुलबुले उड़ गए... इसका हिसाब चुकाना पड़ेगा।",
+          ],
+          chatAck: ["मम। नोट कर लिया।", "मुझ पर छोड़ दीजिए... शायद।"],
+          error: ["कुछ गड़बड़ हो गई... मैं देखूँ?", "मैंने तोड़ा नहीं है। सच में।"],
+          aside: [
+            "पूँछ कुर्सी से टकरा गई। मानूँगी नहीं।",
+            "तीन सूखी मछलियाँ बची हैं। बचाकर खानी हैं।",
+            "उन्होंने दो बार देखा? ...शायद नहीं।",
+            "सटकर बैठना है... पर बहुत आगे बढ़ना होगा।",
+            "यह काम मुश्किल लगता है। मैंने कुछ नहीं देखा।",
+            "पानी पूछूँ? ...बहुत नौकर जैसा लगेगा।",
+            "नींद नहीं आ रही। बस आँखें छिपा रही हूँ।",
+            "गहरे पानी का नियम है धीरे चलना। मुझे जल्दी नहीं।",
+          ],
+        },
+      },
     }
 
 
@@ -791,10 +1193,10 @@ window.__ModuleLoader__.load({
       activeEnd: '23:00',
       voiceOn: true,
       volume: 0.8,
-      voicePitch: null, // null = 用形象自带的音高
-      voiceRate: null, // null = 用形象自带的语速
+      pitchTrim: null, // null = 完全跟随形象；否则是「在形象基座上的倍率」(0.85–1.15)
+      rateTrim: null, // null = 完全跟随形象；否则是倍率 (0.8–1.25)
       neuralVoice: true, // 用 edge-tts 的神经音色（失败自动退回系统 SAPI）
-      ttsVoice: 'auto', // 'auto' 按界面语言挑 | xiaoxiao/ava/elvira/francisca/swara…
+      ttsVoice: 'auto', // 'auto' = 跟随角色（pack.voice.voiced）| 其余是手选固定音色
       chatter: true, // 主动蹦话
       showInput: true, // 宠物旁边的小输入框
       scale: 1.15,
@@ -809,6 +1211,9 @@ window.__ModuleLoader__.load({
         const raw = window.localStorage.getItem(STORAGE_KEY)
         if (!raw) return { ...DEFAULT_SETTINGS }
         const parsed = JSON.parse(raw)
+        // 迁移：voicePitch/voiceRate 曾是「绝对值」，会盖掉每只角色自己的音高，导致五只听起来一样
+        delete parsed.voicePitch
+        delete parsed.voiceRate
         const merged = { ...DEFAULT_SETTINGS }
         for (const k of Object.keys(DEFAULT_SETTINGS)) {
           if (parsed[k] !== undefined) merged[k] = parsed[k]
@@ -839,6 +1244,7 @@ window.__ModuleLoader__.load({
       mood: 'idle',
       moodUntil: 0,
       bubble: null, // { text, at, ttl }
+      aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
       chatOpen: false,
       panelOpen: false,
       ai: 'unknown', // 'unknown' | 'busy' | 'ok' | 'fail'
@@ -869,13 +1275,37 @@ window.__ModuleLoader__.load({
       reduced: false, // 系统是否要求减弱动效（apply 时读一次，随后跟随 matchMedia）
       clipFailed: {}, // 片段加载失败记忆 { src: true }：同一个文件不再反复尝试
       clipPlaying: '', // 当前正在播放的片段名（'' = 还没起来）：决定静帧 poster 是否撤掉
+      clipMs: {}, // 片段实测时长 { 文件名: ms }：metadata 到手后写进来
       lastClipError: '', // 最近一次片段加载失败的文件名（诊断用）
     }
 
-    // 12 条动作片段（VP9 + alpha，400 高）都是同一批参数生成的 5.167s。
-    // 动作存活时间默认取它——1.19.x 在调用点手写 1300/2400ms，会让 video 在手势
-    // 半途被卸载；dance 的 6000ms 又会撞上 loop 回跳。改此处即可统一口径。
-    const CLIP_DURATION_MS = 5167
+    // 片段时长不再写死（1.20.0）：早期 12 条都是同一批参数生成的 5.167s，写死没问题；
+    // 「走进画面 → 跳舞 → 走回去」这种叙事片段有 10s，写死会在半途把 video 卸掉。
+    // 现在以媒体自己的 metadata 为准，没拿到之前用一个宽上限兜底，真正的收尾靠 onEnded。
+    const CLIP_MAX_MS = 12000 // 兜底上限：媒体迟迟不触发 ended 时不至于永久占着动作
+
+    /** 某条片段的时长：拿到过 metadata 就用实测值，否则用宽上限。 */
+    function clipMsOf(clip) {
+      const ms = runtime.clipMs[clip]
+      return ms > 0 ? ms : CLIP_MAX_MS
+    }
+
+    /**
+     * 媒体 metadata 到手：记下真实时长，并把这一代的收尾时间按它重排。
+     * 首次播放时用的是 20s 兜底，若真的等到 20s 才收尾，片段播完（ended）本来就会
+     * 更早结束动作——这里补的是「兜底比片段短」的反向情况（旧片段 5.167s）。
+     */
+    function noteClipDuration(clip, seconds) {
+      if (!clip || !(seconds > 0)) return
+      runtime.clipMs[clip] = Math.round(seconds * 1000)
+      const act = runtime.action
+      if (!act || act.clip !== clip) return
+      const want = nowMs() + runtime.clipMs[clip]
+      if (want >= act.until) return // 兜底更宽松，交给 onEnded 收尾
+      act.until = want
+      clearActionTimer()
+      actionTimer = later(() => endAction(act.gen), Math.max(0, want - nowMs()))
+    }
 
     // 动作代际与唯一调度：同名动作连续触发时，旧链必须失效（R03）。
     let actionGen = 0
@@ -934,9 +1364,9 @@ window.__ModuleLoader__.load({
       clearActionTimer()
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
       const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
-      // 存活时间默认跟着媒体走：有片段就取片长，没片段才用旧的 2400ms。
+      // 存活时间默认跟着媒体走：有片段就取片长（实测优先），没片段才用旧的 2400ms。
       // （1.19.x 在调用点手写 1300/2400ms，会在手势半途卸载 video。）
-      const until = nowMs() + (o.ms || (clip ? CLIP_DURATION_MS : 2400))
+      const until = nowMs() + (o.ms || (clip ? clipMsOf(clip) : 2400))
       // moodDriven：这个动作是「心情」自动发起的（不是用户点的），心情变了可以收回
       runtime.clipPlaying = ''
       runtime.action = {
@@ -1096,14 +1526,33 @@ window.__ModuleLoader__.load({
     /** 系统语音用的 locale 标签（神经音色由宿主按 lang 选） */
     const SAPI_LANG = { zh: 'zh-CN', en: 'en-US', es: 'es-ES', pt: 'pt-BR', hi: 'hi-IN' }
 
-    function voiceParams() {
+    /**
+     * 演绎参数 = 形象基座（pack.voice.pitch / rate）× 这一句的心情方向（pack.voice.moods[mood]）。
+     *
+     * 「LLM 当导演、TTS 当演员」的落点就在这里：导演层不是每句话去调一次模型，而是把
+     * 表演纲领（每个心情的升降调幅度、语速倍率、音量倍率）写进角色包，运行时只查表相乘。
+     * 零延迟、零费用、可复现；想改演出只改 pack.json 那一行。
+     *
+     * 音色：用户手选了具体音色就用手选的；'auto' 时优先形象自带音色（voiced[语言]），
+     * 五只角色因此各自一个嗓子，而不是同一个人变调。
+     */
+    function voiceParams(mood) {
       const p = persona()
       const s = runtime.settings
+      const dir = (p.voice && p.voice.moods && p.voice.moods[mood || runtime.mood]) || null
+      const pt = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
+      const rt = s.rateTrim == null ? 1 : Number(s.rateTrim)
+      const basePitch = Number(p.voice.pitch) * (isFinite(pt) ? pt : 1)
+      const baseRate = Number(p.voice.rate) * (isFinite(rt) ? rt : 1)
+      const pitch = basePitch * (1 + (dir && dir.pitch ? Number(dir.pitch) : 0) / 100)
+      const rate = baseRate * (dir && dir.rate ? Number(dir.rate) : 1)
+      const manual = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : ''
+      const own = (p.voice && p.voice.voiced && p.voice.voiced[PET_LANG]) || ''
       return {
-        pitch: Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch),
-        rate: Number(s.voiceRate != null ? s.voiceRate : p.voice.rate),
-        // 'auto' = 交给宿主按界面语言挑；其余是用户手选的具体音色
-        voice: s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : '',
+        pitch: clamp(pitch, 0.5, 2),
+        rate: clamp(rate, 0.5, 2),
+        volume: dir && dir.volume != null ? clamp(Number(dir.volume), 0, 2) : 1,
+        voice: manual || own,
         lang: PET_LANG,
       }
     }
@@ -1133,17 +1582,19 @@ window.__ModuleLoader__.load({
     }
 
     /** POST 到 /dsh-pet/tts，拿回 mp3 的 objectURL（GET 端点已取消） */
-    async function ttsBlobUrl(text) {
-      const v = voiceParams()
+    async function ttsBlobUrl(text, mood) {
+      const v = voiceParams(mood)
       const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
       const pitch = ((v.pitch - 1) * 100).toFixed(0)
       const rate = ((v.rate - 1) * 100).toFixed(0)
+      const vol = ((v.volume - 1) * 100).toFixed(0)
       const body = {
         text,
         lang: v.lang,
         voice: v.voice || undefined,
         pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
         rate: (rate >= 0 ? '+' : '') + rate + '%',
+        volume: (vol >= 0 ? '+' : '') + vol + '%',
       }
       const res = await fetch(base + '/dsh-pet/tts', {
         method: 'POST',
@@ -1163,7 +1614,7 @@ window.__ModuleLoader__.load({
     }
 
     /** 系统 SAPI 兜底（神经语音失败时用）。 */
-    function saySapi(text, restore) {
+    function saySapi(text, restore, mood) {
       runtime.lastTts = 'sapi'
       const synth = window.speechSynthesis
       if (!synth || typeof window.SpeechSynthesisUtterance !== 'function') {
@@ -1172,12 +1623,12 @@ window.__ModuleLoader__.load({
       }
       try {
         synth.cancel()
-        const v = voiceParams()
+        const v = voiceParams(mood)
         const u = new window.SpeechSynthesisUtterance(text)
         u.lang = SAPI_LANG[PET_LANG] || 'zh-CN'
         u.pitch = clamp(v.pitch, 0, 2)
         u.rate = clamp(v.rate, 0.5, 2)
-        u.volume = clamp(runtime.settings.volume, 0, 1)
+        u.volume = clamp(Number(runtime.settings.volume) * v.volume, 0, 1)
         const voice = pickVoice()
         if (voice) u.voice = voice
         u.onend = restore
@@ -1188,8 +1639,19 @@ window.__ModuleLoader__.load({
       }
     }
 
-    function speak(text) {
+    /**
+     * 音画同步的唯一判据：人不在屏幕上就不发任何声。
+     * 三种「不在」：藏起来（visible=false，整层不渲染）、被拖出视口（petOffscreen）、
+     * 还没挂载（rootEl 为空）。判据只放在这一个函数里，其他分支一律调它。
+     */
+    function onScreen() {
+      return !!(runtime.visible && !runtime.petOffscreen && runtime.rootEl)
+    }
+
+    function speak(text, mood) {
       if (!text || !runtime.settings.voiceOn) return
+      // 人不在屏幕上就别出声（2026-10-25 用户报：人都藏起来了，她还在说话）
+      if (!onScreen()) return
       // 跳舞时不要被「说话」这个心情抢走动作（否则中间那 6 秒全在点头）
       const staged = !!runtime.stage
       const prevMood = runtime.mood === 'talk' ? 'idle' : runtime.mood
@@ -1211,7 +1673,7 @@ window.__ModuleLoader__.load({
       runtime.speakUntil = nowMs() + 1600 + text.length * 240
 
       if (runtime.settings.neuralVoice === false || runtime.neuralOk === false) {
-        saySapi(text, restore)
+        saySapi(text, restore, mood)
         return
       }
       checkNeural()
@@ -1226,7 +1688,7 @@ window.__ModuleLoader__.load({
           }
         }
         const seq = ++speakSeq
-        ttsBlobUrl(text)
+        ttsBlobUrl(text, mood)
           .then((url) => {
             // 期间又说了新的一句：丢掉这条，别让两句抢着播
             if (seq !== speakSeq) {
@@ -1235,6 +1697,17 @@ window.__ModuleLoader__.load({
               } catch (e) {
                 /* ignore */
               }
+              return
+            }
+            // 合成是异步的（几百毫秒）：等它回来时人可能已经被藏起来了，
+            // 这时候不能再出声，否则就是「人不见了声音还在」。
+            if (!onScreen()) {
+              try {
+                window.URL.revokeObjectURL(url)
+              } catch (e) {
+                /* ignore */
+              }
+              restore()
               return
             }
             const a = new Audio(url)
@@ -1279,35 +1752,50 @@ window.__ModuleLoader__.load({
       }
     }
 
-    /** 把当前形象常用的台词在后台合成好，之后播就是本地缓存，秒出。 */
+    /**
+     * 把当前形象常用的台词在后台合成好，之后播就是本地缓存，秒出。
+     *
+     * 有了「心情方向」之后，同一句话在 idle / dance 下的音高语速不同，所以按**类别分组**
+     * 预热（每类一次请求、各带一套参数），而不是把全部台词用同一套参数烤一遍——
+     * 那样只有一类能命中缓存。
+     */
     function warmVoice() {
       try {
         if (runtime.settings.neuralVoice === false || runtime.neuralOk === false) return
         const p = persona()
-        const all = []
+        const groups = []
         for (const k of Object.keys(p.lines || {})) {
-          for (const line of p.lines[k] || []) all.push(String(line))
+          const lines = (p.lines[k] || []).map((x) => String(x)).filter(Boolean)
+          if (lines.length) groups.push({ mood: k, lines })
         }
-        const uniq = Array.from(new Set(all)).slice(0, 20)
-        if (!uniq.length) return
-        const v = voiceParams()
-        const pitch = ((v.pitch - 1) * 100).toFixed(0)
-        const rate = ((v.rate - 1) * 100).toFixed(0)
-        const body = JSON.stringify({
-          voice: v.voice,
-          pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
-          rate: (rate >= 0 ? '+' : '') + rate + '%',
-          lines: uniq,
-        })
+        if (!groups.length) return
+        groups.sort((a, b) => b.lines.length - a.lines.length)
         const warmBase = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
-        fetch(warmBase + '/dsh-pet/tts/warm', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          credentials: 'include',
-          body,
-        })
-          .then(() => petLog('warm voice queued', { n: uniq.length }))
-          .catch(() => {})
+        let budget = 18
+        for (const g of groups.slice(0, 3)) {
+          if (budget <= 0) break
+          const lines = Array.from(new Set(g.lines)).slice(0, Math.min(8, budget))
+          budget -= lines.length
+          if (!lines.length) continue
+          const v = voiceParams(g.mood)
+          const pitch = ((v.pitch - 1) * 100).toFixed(0)
+          const rate = ((v.rate - 1) * 100).toFixed(0)
+          const vol = ((v.volume - 1) * 100).toFixed(0)
+          fetch(warmBase + '/dsh-pet/tts/warm', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              voice: v.voice,
+              pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
+              rate: (rate >= 0 ? '+' : '') + rate + '%',
+              volume: (vol >= 0 ? '+' : '') + vol + '%',
+              lines,
+            }),
+          })
+            .then(() => petLog('warm voice queued', { mood: g.mood, n: lines.length }))
+            .catch(() => {})
+        }
       } catch (e) {
         /* ignore */
       }
@@ -1344,13 +1832,58 @@ window.__ModuleLoader__.load({
       return next
     }
 
-    function bubble(text, ttl) {
+    function bubble(text, ttl, mood) {
       if (!text) return
+      // 人不在屏幕上（藏起来 / 被拖出视口）就不冒泡、不发声：
+      // 用户 2026-10-25 报的「人物不在桌面了，可她还在说话」就是这条漏了闸。
+      if (!runtime.visible || runtime.petOffscreen) return
       const s = runtime.settings
       const t = String(text)
       runtime.bubble = { text: t, at: nowMs(), ttl: ttl || clamp(2200 + t.length * 90, 2600, 9000) }
-      if (s.voiceOn) speak(t)
+      // 第三参是该句所属的类别（appear/dance/poked/drag…），交给导演层查演绎方向
+      if (s.voiceOn) speak(t, mood)
+      maybeAside()
       notify()
+    }
+
+    /**
+     * 心声（1.21.0）：只在自带 lines.aside 的形象上出现，灰色小字、不出声——
+     * 借的是「人设包装层」的思维链写法：正式台词之外，偶尔漏一句没经过脑子的
+     * 内心 OS，制造反差。低频（ASIDE_RATE）是关键，多了就腻。
+     */
+    const ASIDE_RATE = 0.07
+
+    /** 精确取某一类台词（不回落 idle）：缺这类就返回 ''，让「没有这类台词的形象」保持安静 */
+    function linesOf(mood) {
+      const p = persona()
+      const key = 'lines' + PET_LANG.charAt(0).toUpperCase() + PET_LANG.slice(1)
+      const pack = (p[key] && PET_LANG !== 'zh' ? p[key] : null) || (PET_LANG === 'zh' || !p.linesEn ? p.lines : p.linesEn)
+      return (pack && pack[mood]) || (p.lines && p.lines[mood]) || []
+    }
+
+    function asideLine() {
+      const list = linesOf('aside')
+      return list.length ? pick(list) : ''
+    }
+
+    /** 被拖动时说的一句；形象没写 drag 这类台词就不吭声（不回落到 idle，免得答非所问） */
+    function dragLine() {
+      const list = linesOf('drag')
+      return list.length ? pick(list) : ''
+    }
+
+    function maybeAside(rate) {
+      const text = asideLine()
+      if (!text) return ''
+      if (Math.random() >= (typeof rate === 'number' ? rate : ASIDE_RATE)) return ''
+      runtime.aside = { text, at: nowMs(), ttl: clamp(1800 + text.length * 70, 2200, 6000) }
+      return text
+    }
+
+    function clearAside() {
+      if (!runtime.aside) return false
+      runtime.aside = null
+      return true
     }
 
     function randomLine(mood) {
@@ -1372,7 +1905,10 @@ window.__ModuleLoader__.load({
       runtime.visibleUntil = nowMs() + randInt(45, 150) * 1000
       runtime.mood = kind === 'dance' ? 'dance' : 'happy'
       runtime.moodUntil = nowMs() + randInt(3000, 5000)
-      if (!wasVisible && runtime.settings.chatter) bubble(randomLine(kind === 'dance' ? 'dance' : 'appear'))
+      if (!wasVisible && runtime.settings.chatter) {
+        const k = kind === 'dance' ? 'dance' : 'appear'
+        bubble(randomLine(k), null, k)
+      }
       notify()
     }
 
@@ -1452,7 +1988,7 @@ window.__ModuleLoader__.load({
       runtime.moodUntil = nowMs() + randInt(4000, 9000)
       if (runtime.settings.chatter && m !== 'talk' && m !== 'idle') {
         const line = randomLine(m)
-        if (line && Math.random() < 0.55) bubble(line)
+        if (line && Math.random() < 0.55) bubble(line, null, m)
       }
       // 心情没变就不用重渲染（bubble 自己会 notify）
       if (m !== prev) notify()
@@ -1486,7 +2022,7 @@ window.__ModuleLoader__.load({
         } else if (!runtime.visible) {
           runtime.visible = true
           runtime.visibleUntil = 0
-          if (s.chatter) bubble(randomLine('appear'))
+          if (s.chatter) bubble(randomLine('appear'), null, 'appear')
           notify()
         }
       } else {
@@ -1507,6 +2043,12 @@ window.__ModuleLoader__.load({
         notify()
       }
 
+      // 心声过期（比主台词短，先消失，看起来才像「嘀咕完就收」）
+      if (runtime.aside && now - runtime.aside.at > runtime.aside.ttl) {
+        runtime.aside = null
+        notify()
+      }
+
       // 语音兜底解锁：自动播放被浏览器拦掉时 onend 不会来
       if (runtime.speaking && runtime.speakUntil && now > runtime.speakUntil) {
         runtime.speaking = false
@@ -1522,7 +2064,7 @@ window.__ModuleLoader__.load({
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
         lastChatterAt = now
         const line = randomLine('idle')
-        if (line) bubble(line)
+        if (line) bubble(line, null, 'idle')
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
@@ -1635,7 +2177,7 @@ window.__ModuleLoader__.load({
         .then((reply) => {
           runtime.ai = 'ok'
           pushHistory('assistant', reply)
-          bubble(reply, Math.max(3200, Math.min(12000, 900 + reply.length * 120)))
+          bubble(reply, Math.max(3200, Math.min(12000, 900 + reply.length * 120)), 'chatAck')
         })
         .catch((e) => {
           runtime.ai = 'fail'
@@ -1697,6 +2239,9 @@ window.__ModuleLoader__.load({
 .dsh-pet-bubble:after{content:"";position:absolute;right:22px;bottom:-5px;width:9px;height:9px;transform:rotate(45deg);
   background:var(--pet-bg);border-right:1px solid var(--pet-border);
   border-bottom:1px solid var(--pet-border)}
+.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);margin:3px 0 0 auto;padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
+.dsh-pet-aside:before{content:"( ")}
+.dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
 .dsh-pet-input{pointer-events:auto;width:186px;font-size:12px;padding:6px 9px;border-radius:999px;outline:none;
   background:var(--pet-bg);color:inherit;
@@ -2163,6 +2708,9 @@ window.__ModuleLoader__.load({
             runtime.clipPlaying = clip
             notify()
           },
+          // 片段时长以媒体为准（1.20.0）：拿到 metadata 就把这一代动作的收尾时间
+          // 按真实片长重排，5.167s 的旧片段和 10s 的叙事片段共用一套逻辑。
+          onLoadedMetadata: (e) => noteClipDuration(clip, e && e.currentTarget ? e.currentTarget.duration : 0),
           // 自然播完就收尾：不要等到墙钟（片段 5167ms，action 默认也是 5167ms，
           // 两边谁先到都行；这里让「播完」这件事由媒体事件说了算）
           onEnded: () => endAction(gen),
@@ -2312,18 +2860,26 @@ window.__ModuleLoader__.load({
         value: k,
         label: PERSONAS[k].name + ' · ' + (PET_LANG === 'zh' || !PERSONAS[k].tagEn ? PERSONAS[k].tag : PERSONAS[k].tagEn),
       }))
+      // 'auto' = 跟随角色（每个形象自带一个嗓子）；其余是用户手选的固定音色。
       const voiceOpts = [
         { value: 'auto', label: t('voice.auto') },
         { value: 'xiaoxiao', label: t('voice.xiaoxiao') },
         { value: 'xiaoyi', label: t('voice.xiaoyi') },
+        { value: 'hsiaochen', label: t('voice.hsiaochen') },
+        { value: 'xiaobei', label: t('voice.xiaobei') },
         { value: 'ava', label: 'Ava · en' },
         { value: 'emma', label: 'Emma · en' },
+        { value: 'aria', label: 'Aria · en' },
+        { value: 'jenny', label: 'Jenny · en' },
         { value: 'elvira', label: 'Elvira · es' },
         { value: 'francisca', label: 'Francisca · pt' },
         { value: 'swara', label: 'Swara · hi' },
       ]
-      const pitch = Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch)
-      const rate = Number(s.voiceRate != null ? s.voiceRate : p.voice.rate)
+      const pitchTrim = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
+      const rateTrim = s.rateTrim == null ? 1 : Number(s.rateTrim)
+      const eff = voiceParams('idle')
+      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
+      const effLine = t('panel.voiceEff').replace('{voice}', voiceLabel).replace('{pitch}', (eff.pitch - 1 >= 0 ? '+' : '') + Math.round((eff.pitch - 1) * 100) + '%').replace('{rate}', Math.round(eff.rate * 100) + '%')
       const sep = () => h('div', { className: 'dsh-pet-sep' })
       const sec = (t) => h('div', { className: 'dsh-pet-sec' }, t)
 
@@ -2393,14 +2949,15 @@ window.__ModuleLoader__.load({
           h(Toggle, { label: t('panel.voiceOn'), checked: s.voiceOn, onChange: (v) => update({ voiceOn: v }) }),
           h(Toggle, { label: t('panel.neural'), checked: s.neuralVoice !== false, onChange: (v) => update({ neuralVoice: v }) }),
         ),
-        h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.ttsVoice || 'xiaoxiao', options: voiceOpts, onChange: (v) => update({ ttsVoice: v }) })),
+        h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.ttsVoice || 'auto', options: voiceOpts, onChange: (v) => update({ ttsVoice: v }) })),
         runtime.neuralOk === false
           ? h('div', { className: 'dsh-pet-hint' }, t('hint.neuralOff'))
           : null,
         s.neuralVoice ? h('div', { className: 'dsh-pet-hint' }, t('hint.privacy')) : null,
         h(Slider, { label: t('panel.volume'), min: 0, max: 1, step: 0.1, value: s.volume, onChange: (v) => update({ volume: v }) }),
-        h(Slider, { label: t('panel.pitch'), min: 0.6, max: 2, step: 0.02, value: pitch.toFixed(2), onChange: (v) => update({ voicePitch: v }) }),
-        h(Slider, { label: t('panel.rate'), min: 0.6, max: 1.5, step: 0.02, value: rate.toFixed(2), onChange: (v) => update({ voiceRate: v }) }),
+        h('div', { className: 'dsh-pet-hint' }, effLine),
+        h(Slider, { label: t('panel.pitchTrim'), min: 0.85, max: 1.15, step: 0.01, value: pitchTrim.toFixed(2), suffix: '×', onChange: (v) => update({ pitchTrim: Math.abs(v - 1) < 0.005 ? null : v }) }),
+        h(Slider, { label: t('panel.rateTrim'), min: 0.8, max: 1.25, step: 0.01, value: rateTrim.toFixed(2), suffix: '×', onChange: (v) => update({ rateTrim: Math.abs(v - 1) < 0.005 ? null : v }) }),
         sep(),
         sec(t('panel.display')),
         h(
@@ -2419,7 +2976,9 @@ window.__ModuleLoader__.load({
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.panelOpen = false; runToCenterAndDance() } }, t('panel.dance')),
           h('button', { onClick: () => playAction('hair', { explicit: true }) }, t('panel.hair')),
-          h('button', { onClick: () => showPet('dance') }, t('panel.summon')),
+          // 面板是从她身上点开的，所以这里点不到「藏起来的她」；
+          // 这一项的实际作用是就地开心一下（mood=dance，不走位）。
+          h('button', { onClick: () => showPet('dance') }, t('panel.cheer')),
           h('button', { onClick: () => { runtime.snoozeUntil = nowMs() + 3600 * 1000; hidePet(); runtime.panelOpen = false; notify() } }, t('panel.hide')),
         ),
         sec(t('panel.effects')),
@@ -2841,13 +3400,53 @@ window.__ModuleLoader__.load({
 
     /** 跑到窗口中间跳一段，再走回原位。
      *  只挪「她」这一块（actor），输入框和气泡留在原地；跳舞时放大 1.8 倍。 */
+    // 「走到屏幕中间跳一段」的两种实现：
+    //   ① 有 clips.stage（一条「走进来 → 中间跳 → 走回去」的单镜头片段）时，只播这一条，
+    //      位移交给相位排程 —— 全片一个镜头，没有片段切换点，也就没有「抖一下」。
+    //   ② 没有 stage 片段的老形象，仍走「walk 片段 + dance 片段 + 两次平移」。
+    let stageGen = 0
+
+    /** 舞台相位：按片长百分比收尾，避免再写死 5167/7100 这种数字。 */
+    function planStage(gen, clip, delay) {
+      const ms = clipMsOf(clip)
+      const at = (frac, fn) => {
+        const wait = Math.max(0, Math.round(ms * frac) - delay)
+        later(() => {
+          if (gen !== stageGen) return
+          try {
+            fn()
+          } catch (e) {
+            /* 单个相位失败不影响后续 */
+          }
+        }, wait)
+      }
+      // 30%~70% 是片段自己的舞蹈窗口：这时候撒花 + 台词，不要去动 stage（会打断表演）
+      at(0.32, () => {
+        playFx('confetti', { ttl: 4200 })
+        bubble(randomLine('dance'), 3200, 'dance')
+        notify()
+      })
+      at(0.7, () => {
+        // 走回去：位置先回角落，片段里她本来就在迈步
+        runtime.stage = { tx: 0, ty: 0, zoom: 1 }
+        notify()
+      })
+      at(0.99, () => {
+        runtime.stage = null
+        runtime.mood = 'idle'
+        runtime.moodUntil = nowMs() + 3000
+        stageGen++
+        notify()
+      })
+    }
+
     function runToCenterAndDance() {
       try {
         // 减弱动效（R10）：不搬到屏幕中间、不撒花，只在原地放一次舞。
         // 这是用户显式点播（面板「跳一段」/庆祝），所以动作本身仍然放行。
         if (runtime.reduced) {
           playAction('dance', { explicit: true })
-          bubble(randomLine('dance'), 3200)
+          bubble(randomLine('dance'), 3200, 'dance')
           notify()
           return
         }
@@ -2860,10 +3459,26 @@ window.__ModuleLoader__.load({
         const host = (el.parentElement || document.body).getBoundingClientRect()
         const dx = host.width / 2 - (ar.left - host.left + ar.width / 2)
         const dy = Math.max(20, host.height / 2 - (ar.top - host.top + ar.height / 2) - 20)
+        const p = persona()
+        const stageClip = p.clips && p.clips.stage ? p.clips.stage : null
+        if (stageClip) {
+          // 一条连贯片段（1.20.0）：不切片段，位移按片长百分比排程
+          const gen = ++stageGen
+          runtime.stage = { tx: Math.round(dx), ty: Math.round(dy), zoom: 1.8 }
+          runtime.mood = 'stage'
+          runtime.moodUntil = nowMs() + clipMsOf(stageClip)
+          bubble(randomLine('idle'), 2400, 'idle')
+          notify()
+          // 片长要等 media metadata（~200ms 内到）；先等一拍再按真实时长排相位
+          later(() => {
+            if (gen === stageGen) planStage(gen, stageClip, 200)
+          }, 200)
+          return
+        }
         runtime.stage = { tx: Math.round(dx), ty: Math.round(dy), zoom: 1.8 }
         runtime.mood = 'walk'
         runtime.moodUntil = nowMs() + 1700
-        bubble(randomLine('idle'), 2400)
+        bubble(randomLine('idle'), 2400, 'idle')
         notify()
         // 舞蹈窗口与片段对齐（R02）：6000ms 会让 5.167s 的片段在 loop 处跳回；
         // 后续两个收尾时点按「舞 stop 之后 250ms / 1950ms」平移。
@@ -2871,7 +3486,7 @@ window.__ModuleLoader__.load({
           runtime.mood = 'dance'
           runtime.moodUntil = nowMs() + 5167
           playFx('confetti', { ttl: 4200 })
-          bubble(randomLine('dance'), 3200)
+          bubble(randomLine('dance'), 3200, 'dance')
           notify()
         }, 1650)
         // 裸 setTimeout 不受 clearLater 管辖（R08）：统一走 later，卸载时一起清
@@ -2904,7 +3519,10 @@ window.__ModuleLoader__.load({
       const rootRef = useRef(null)
       // 心情切到跳舞/走路时，自动播对应的动作序列
       useEffect(() => {
-        const name = runtime.mood === 'dance' || runtime.mood === 'walk' ? runtime.mood : null
+        const name =
+          runtime.mood === 'dance' || runtime.mood === 'walk' || runtime.mood === 'stage'
+            ? runtime.mood
+            : null
         if (name) {
           const pid = persona().id
           if (!runtime.action || runtime.action.name !== name || runtime.action.persona !== pid) {
@@ -2951,6 +3569,12 @@ window.__ModuleLoader__.load({
               return
             }
             runtime.petOffscreen = true
+            // 被拖出视口 = 看不见她 → 立刻闭嘴（音画同步，见 src/50-voice.js 的 onScreen）
+            try {
+              stopVoice()
+            } catch (e) {
+              /* ignore */
+            }
             // 用户拖过的位置如果已经跑到视口外（换窗口大小/换显示器），
             // 手动的锚点会被保留，那就永远看不见了 —— 这里直接丢掉旧位置。
             if (runtime.settings.pos) {
@@ -3009,7 +3633,7 @@ window.__ModuleLoader__.load({
         const m = roll < 0.5 ? 'poked' : roll < 0.72 ? 'shy' : roll < 0.9 ? 'dance' : 'angry'
         runtime.mood = m
         runtime.moodUntil = nowMs() + 3500
-        bubble(randomLine('poked'), 3600)
+        bubble(randomLine('poked'), 3600, 'poked')
         notify()
       }
 
@@ -3044,6 +3668,9 @@ window.__ModuleLoader__.load({
             runtime.dragPos = null
             saveSettings()
             petLog('moved', runtime.settings.pos)
+            // 被拖到新位置后说一句（1.21.0）：台词分类 drag，缺这类台词的形象保持安静
+            const line = dragLine()
+            if (line && Math.random() < 0.6) bubble(line, null, 'drag')
           } else {
             onPoke()
           }
@@ -3072,6 +3699,9 @@ window.__ModuleLoader__.load({
           : null,
         runtime.bubble
           ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
+          : null,
+        runtime.aside
+          ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
           : null,
         h(
           'div',
@@ -3300,7 +3930,10 @@ window.__ModuleLoader__.load({
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
           item(t('panel.hair'), () => playAction('hair', { explicit: true })),
-          item(t('panel.summon'), () => showPet()),
+          // 不叫它「叫出来」：藏起来后她整个人不渲染（96-overlay.js:91 返回 null），
+          // 这个菜单根本点不到。她看得见的时候，这一项的真实作用是「延长停留」。
+          // 把她叫回来请用输入框旁的 🐾 按钮或 /dsh-pet 叫出来。
+          item(t('panel.stay'), () => showPet()),
           item(t('panel.hide'), () => hidePet(3600 * 1000)),
           item(t('panel.settings'), () => {
             runtime.panelOpen = true
@@ -3362,8 +3995,14 @@ window.__ModuleLoader__.load({
         {
           className: 'dsh-pet-toggle' +
             (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
-          title: runtime.petOffscreen ? t('pet.toggleOff') : t('pet.toggle'),
-          'aria-label': t('pet.toggle'),
+          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌宠」。
+          title: !runtime.visible
+            ? t('panel.summon')
+            : runtime.petOffscreen
+              ? t('pet.toggleOff')
+              : t('pet.toggle'),
+          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
           onClick: () => {
             if (!runtime.visible || runtime.petOffscreen) {
               runtime.settings.pos = null
@@ -3418,9 +4057,19 @@ window.__ModuleLoader__.load({
             showPet,
             hidePet,
             bubble,
+            asideLine,
+            dragLine,
+            linesOf,
+            maybeAside,
+            clearAside,
+            // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
+            voiceParams,
             playFx,
             notify,
             runToCenterAndDance,
+            // 片段时长（1.20.0）：媒体 metadata 到手后写进 runtime.clipMs，
+            // 收尾时间按真实片长重排；台架走同一个入口固定这条规则。
+            noteClipDuration,
             PetArt,
             CSS,
             // 自检用：当前语言 + 任意心情会抽到的那句台词 / 当前生效的文案

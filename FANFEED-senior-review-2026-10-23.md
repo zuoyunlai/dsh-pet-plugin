@@ -746,6 +746,158 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
    7,344 字节（MPEG layer III 24kHz mono，3.7s）。同一轮重启后 `/ping` 仍是
    `toolEvents: ok`、`lastToolName: ops_bash`，R06 没有被这次改动影响。
 
+### 新形象「鲸鱼娘」（1.20.0，2026-10-25）
+
+**诉求**：用户给了一张三视图角色设定图（`深渊女仆：苍蓝巨鲸`）+ 一段详细设定文案，
+要求「按这个提示词修改后生成立绘，给我看，然后再生成视频」，范围「先试水：1 立绘 + 只做 dance」。
+
+**生图走了四轮，前三轮都不合格（如实记录）**：
+
+| 轮次 | 做法 | 结果 | 判定 |
+|---|---|---|---|
+| 1 | 纯文本提示 + 绿幕要求，count 1 | 二次元赛璐璐、短裙、脚下有投影 | ✗ |
+| 2 | 加「照片级写实 3D 渲染」硬约束，count 2 | 3D 手办 / figurine 感 | ✗ |
+| 3 | 把三视图设定图作参考图上传（`kind:"ref"`），count 2 | 身体质感变好，但**脸仍是二次元大眼** | ✗ |
+| 4 | `removeImageRef` 去参考图，改「真人棚拍 cosplay 模特」+ 反二次元负面清单 | 照片级棚拍：皮肤有真实纹理、白丝袜是布料质感、纯绿无投影 | ✓ |
+
+- **根因**：`doubao-seedream-5-0-flash-260915` 只要给了动漫/插画参考图，就会把风格整体
+  拉回动漫；提示词里写「写实」压不住参考图的风格权重。**要写实必须不给参考图、纯文本描述，
+  并显式写「摄影棚照片 / 85mm / 真人模特」**，再用负面清单排除「动漫/二次元/手办/CG」。
+- 用户选定候选 A（左），裙长「不必改」（原本提示词要求垂到小腿中段，模型始终给膝上，接受）。
+- 抠像：`make-pet-image.py` 会把白丝袜抠成半透明（白布料沾绿幕反光，`(dom-0.02)/0.12` 太激进），
+  换 `batch-key.py` v9 后白丝袜实心、四角 alpha=0、半透明像素仅占 2.27%。
+
+**「让视频自己走过去」这条路判死**：
+
+- 用户想要「从边角走到屏幕中间跳舞、跳完回到边角，视频要连贯」，我先按字面做：
+  mode=frames + 2K + `duration=10`，任务 `smvntg28q56328e` 拿到 1440×2528 / 243 帧 / 10.125s。
+- 结果三条都不成立：① 首帧要把人物缩到画幅 ~55% 才有横向走动空间，而 640 高抠像图放大 2.4 倍
+  当首帧 → **模型退回二次元手办风**；② 发长及胸（原及腰）、围裙与鲸尾位置全变 —— 身份漂移；
+  ③ 人物尺寸必须固定才不跳，缩到 55% 后又太小。
+- **改用插件侧移动**：`src/94-move.js:1` 的 `runToCenterAndDance()` 本来就实现「走到屏幕中间
+  （`runtime.stage={tx,ty,zoom:1.8}`）→ 播跳舞 → 走回角落」，mood walk/dance 由
+  `src/96-overlay.js:12-25` 的 effect 驱动 `playAction(name,{moodDriven:true})`。
+  所以新形象只要有 walk + dance 两条片段就自动具备该行为，减弱动效时退化为原地跳（`src/94-move.js:5-10`）。
+- 接着重做两条 5s 片段（`smvntwqyn5660a5` walk / `smvntx28r7e258d` dance），首帧改用**原始
+  1024×1536 绿幕照片降采样**（scale 0.7 → 716×1075、居中、占高 80%）拼 768×1344，
+  不再用放大过的抠像图 —— 身份与母版一致，照片写实风保住。
+
+**片段时长写死的问题（顺手修掉）**：
+
+- 原来 `CLIP_DURATION_MS = 5167` 是全局常量，长过 5.167s 的片段会在半途被卸掉（画面硬切回静帧）。
+  任何 8s / 10s 的叙事片段都得改代码，属于「迟早要踩」的坑。
+- 改成以媒体自己的 `loadedmetadata` 为准：`runtime.clipMs` + `clipMsOf()` + `noteClipDuration()`
+  （`src/41-runtime.js`），收尾时间按真实片长重排，自然播完仍由 `onEnded` 收口；metadata 未到时用
+  `CLIP_MAX_MS = 12000` 兜底。`tests/runtime.test.mjs` 相应改成四条用例（含「10s 长片段不被 5.167s 截断」）。
+
+**素材与体积**：`pet-azure.webp` 315×640 / 52,652 B；`pet-azure-walk.webm` 406×640 / 1,456,268 B；
+`pet-azure-dance.webm` 439×640 / 1,490,649 B。比旧四只（0.6–0.9MB）大一倍 —— 白色蕾丝高频细节多。
+
+**踩到的坑**：`ffprobe` 看成品 `pix_fmt=yuv420p` 是正常的 —— VP9 的 alpha 存在 WebM 的
+BlockAdditional 里，老资产同样显示 yuv420p；验证必须 `-c:v libvpx-vp9` 解码后看 alpha 通道
+（walk 透明占比 0.724 / 半透明 1.88%，dance 0.759 / 1.84%，健康）。
+
+**状态**：68/68 单测、smoke、`dsh-plugin-dev.js check --strict` 13/13 全绿；已 `install.ps1 -Update`
+刷新 desktop profile，宿主在服务新素材（`/dsh-pet/assets/pet-azure*.webm` 200）。
+**待用户 Ctrl+R 后真机验收**，验收后按纪律发版 1.20.0 并记录发版四项核对。
+
+**漏项：撩头发片段（2026-10-25，用户指出）**
+
+- **现象**：用户（m01238）「但是鲸鱼娘好像缺少撩头发视频」。四只老角色都有
+  `dance / walk / hair` 三条片段，鲸鱼娘在建时只做了 walk + dance。
+- **影响比"少一条素材"更大**：`src/41-runtime.js:105` 的守卫是
+  `if ((!frames || !frames.length) && !clip) return false` —— 没有片段也没有帧序列时
+  `playAction('hair')` **直接静默返回 false**。所以面板里的「撩头发」按钮和发呆时的
+  0.8%/tick 随机撩发，对鲸鱼娘都是**按了没反应**，不是"没动画但还播静帧"。
+- **处置**：新建任务 `smvnuj8d74df88b`（mode=frames、2K、duration=5，首帧复用
+  walk/dance 那张 `firstFrame-271982dc.png`，保证身份与另外两条同源），首次提交被
+  **MiniMax HTTP 402 insufficient balance (1008)** 挡下（本轮已出 3 条视频：10s 试验 1 条
+  + walk/dance 各 1 条），用户充值后原任务一键重跑成功：1440×2528 / 124 帧 / 5.167s。
+  抠像 `batch-key.py` v9 → 640 高 **427×640 / 974,661 B**，解码核 alpha：透明占比 71–78%、
+  半透明 1.7–2.4%、四角全 0，头发丝边缘无绿边。已写进 `pets/azure/pack.json` 的 `clips.hair`。
+  → 三条片段合计 3.87MB，鲸鱼娘在自己角色里齐了 dance / walk / hair。
+- 顺带记一个工具坑：`createSequenceJob` 不接受 `prompt`，必须 `saveSequenceJob({jobId,mode,prompt,settings})`
+  才会写进去；否则 `runSequenceVideo` 报「提示词为空」而不是明确说"你没保存"。
+
+**进度**：3 条 2K 视频已产出并接入（walk 1,456,268 B / dance 1,490,649 B / hair 974,661 B），
+资产基线 78 文件，68/68 单测 + smoke + `check --strict` 13/13 全绿。
+
+### 9.x 「一人一声」听不出差异：两个根因（2026-10-26）
+
+**现象**：用户在面板选「跟随角色」后反馈两件事——① 把薇的基座音高从 1.18 改到 1.00 后
+「感觉不到变化」；② 「薇、绯、雪的声音几乎一样」。
+
+**根因一（代码）**：面板的音高/语速滑块写的是**绝对值** `voicePitch` / `voiceRate`，
+`voiceParams()` 里 `s.voicePitch != null ? s.voicePitch : p.voice.pitch` —— 只要用户碰过一次滑块，
+这个全局值就**永久压在每只角色的基座之上**，改 pack.json 完全无效，五只也全被拉成同一个音高。
+而且滑块没有"复位"入口，null 状态回不去。
+
+**根因二（音色分配）**：先量了五个中文嗓子的天然基频（同一句话、+0Hz/−10%）：
+
+| 音色 | 实际声音 | 天然 f0 |
+| --- | --- | --- |
+| hsiaochen | zh-TW-HsiaoChenNeural | **188 Hz** |
+| xiaoni | zh-CN-shaanxi-XiaoniNeural | 235 Hz |
+| xiaobei | zh-CN-liaoning-XiaobeiNeural | 235 Hz |
+| xiaoxiao | zh-CN-XiaoxiaoNeural | 262 Hz |
+| xiaoyi | zh-CN-XiaoyiNeural | **286 Hz** |
+
+旧分配是 薇=xiaoyi(−2Hz→281) / 雪=xiaoyi(−8Hz→267) / 绯=xiaoxiao(+10Hz→256) ——
+**三只全挤在 256–281 Hz 这一簇**，同属"年轻女声"，叠加上面的滑块覆盖就完全分不开。
+
+**处置**：
+1. 把设置语义从"绝对值"改成"倍率"：`voicePitch/voiceRate` → `pitchTrim/rateTrim`
+   （null = 完全跟随角色），`loadSettings()` 里**删除旧键**（旧值是绝对值，保留只会继续压死角色数据）；
+   滑块范围改 ×0.85–1.15 / ×0.80–1.25，拖回 ×1.00 自动写回 null。
+2. 面板加一行「当前：{音色} · 音高 {pitch} · 语速 {rate}」，把实际生效值显式化——
+   以后"改了没变化"一眼能看出是滑块还是数据的问题。
+3. 按天然 f0 重排五只：薇=晓臻 1.02/0.86（198 Hz）、蓝=小北 0.96/0.82（213 Hz）、
+   雪=小妮 0.92/0.82（222 Hz）、绯=小晓 1.04/0.94（239 Hz）、鲸鱼娘=晓伊 1.06/1.00（296 Hz）。
+   实测五只 f0 依次 198 / 213 / 222 / 239 / 296 Hz，最小间隔 9 Hz 且互为不同嗓色。
+4. 新增回归断言「基座音高不许飘到幼稚区间」：薇 ≤ 1.04，全体夹在 0.88–1.16。
+
+**代价（如实记）**：蓝/雪 现在用的是**东北腔**与**陕西腔**。中文女声一共只有 5 个，
+要 5 只全不同就只能用带口音的两个；不想带口音就得回到 3 种嗓色（靠音高/speed 区分），
+或换能自造音色的 TTS（MiniMax 音色设计 / 火山 Seed-Audio）。
+
+**状态**：已完成并 install；37 项运行时/语音单测 + smoke（i18n 5×57）+ `check --strict` 13/13 + manifest 83 文件全绿。
+
+### 9.y 其他语言呢：8 处音色键指向已下线的发音人（2026-10-26）
+
+**现象**：用户追问「如果是其他语言呢？」，去查 en/es/pt/hi 的可用女声时，顺手把
+`pack.json` 与 `TTS_VOICES` 里的每个键**逐个对着 `edge_tts.list_voices()` 校验**，发现 8 处死键。
+
+**实测清单**（本机 edge-tts，322 个发音人）：中文女声 8、英文女声 24、西语女声 23、
+**葡语女声 3**、**印地语女声 1**。
+
+| 死键 | 被谁引用 | 真实情况 |
+| --- | --- | --- |
+| `lucia` → es-ES-LuciaNeural | 薇、绯的西语 | 该发音人已不在清单里 |
+| `thalita` → pt-BR-ThalitaNeural | 薇、雪、鲸鱼娘的葡语 | 实际名是 `pt-BR-ThalitaMultilingualNeural` |
+| `ananya` → hi-IN-AnanyaNeural | 绯、雪、鲸鱼娘的印地语 | 印地语女声只剩 `Swara` 一个 |
+| `xiaomo` → zh-CN-XiaomoNeural | 面板「男声」选项 | 已下线（改指 `zh-CN-YunxiNeural`） |
+
+**后果**：合成失败后 `lib/tts.js` 静默回落系统 SAPI —— 用户听到的是「同一只角色说着说着
+突然换成另一种机器音」，而日志里只有一行 failed。这类失败不会自己暴露，必须主动核对清单。
+
+**处置**：
+1. 死键改成真实发音人；`TTS_VOICES` 18 → 23 个键，新增 sonia / natasha / neerja / elena / salome / camila / raquel。
+2. 五只的五语音色重排：英文（Sonia 英 / Aria 美 / Neerja 印 / Natasha 澳 / Michelle 美）、
+   西语（Elvira 西 / Dalia 墨 / Elena 阿 / Salomé 哥 / Camila 秘）——这两门语言做到五只全不同。
+   葡语只有 3 个嗓子（Francisca / Thalita / Raquel），印地语只有 Swara 一个：
+   **做不到五只全不同，如实告知，靠音高/语速区分，不假装解决**。
+3. 新增 `tools/voice-inventory.mjs`（抓 `edge_tts.list_voices()` → `tests/voices.json`，322 条快照）
+   与两条离线断言：`TTS_VOICES` 里每个目标都必须在快照里存活；每只形象的五语键都要有效且
+   en/es 至少三种不同嗓子。以后服务端再下线发音人，`node --test` 就会红。
+4. 样带：`cast-voices-multi.mp3`（en/es/pt/hi × 五只，20 段 / 82.6 s / 495,596 B）。
+
+**教训**：语音这类"字符串 ID 指向远端资产"的配置，**不能靠命名规律猜**（`XxxNeural` 看起来都对，
+实际一半已下线），必须拿服务端的真实清单做基线与断言。
+
+**状态**：84/84 单测 + smoke（i18n 5×57）+ `check --strict` 13/13 全绿；已 install（客户端 Ctrl+R 生效，
+宿主 `lib/tts.js` 改动需重启 DSH 窗口才换表）。
+
+
 ---
 
 ## 附录 A：证据索引（文件:行）

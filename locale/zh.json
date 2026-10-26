@@ -19,7 +19,7 @@
     "panel.active": "活跃",
     "panel.voiceOn": "说话",
     "panel.neural": "神经音色",
-    "voice.auto": "Auto (by language)",
+    "voice.auto": "跟随角色（默认）",
     "panel.voiceName": "音色",
     "panel.volume": "音量",
     "panel.pitch": "音高",
@@ -32,6 +32,8 @@
     "panel.dance": "跳一段",
     "panel.hair": "撩头发",
     "panel.summon": "叫出来",
+    "panel.stay": "再待一会儿",
+    "panel.cheer": "开心一下",
     "panel.hide": "藏 1h",
     "panel.settings": "Settings",
     "panel.ink": "泼墨",
@@ -53,6 +55,11 @@
     "a11y.talkTo": "对 {name} 说话",
     "a11y.send": "发送",
     "a11y.start": "活跃开始",
-    "a11y.end": "活跃结束"
+    "a11y.end": "活跃结束",
+    "voice.hsiaochen": "晓臻 · 软糯（台湾）",
+    "voice.xiaobei": "晓北 · 活泼（东北）",
+    "panel.pitchTrim": "音高微调",
+    "panel.rateTrim": "语速微调",
+    "panel.voiceEff": "当前：{voice} · 音高 {pitch} · 语速 {rate}"
   }
 }

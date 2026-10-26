@@ -26,12 +26,15 @@ own temper.
 - **Settings panel**: grouped (look / voice / display / actions / effects), custom dropdowns
   (native `<select>` popups are system-white and unreadable in dark themes) and custom
   switches; it is pinned to the viewport and does not follow the pet.
-- **Four personas** (photo-realistic, same lighting, 5 expressions each: default / happy /
-  shy / angry / sleepy): 薇 (violet), 绯 (crimson), 靛 (indigo), 雪 (silver).
-  Expression changes cross-fade (240 ms) instead of hard-cutting.
+- **Five personas** (photo-realistic, same lighting; the four originals ship 5 expressions
+  each: default / happy / shy / angry / sleepy): 薇 (violet), 绯 (crimson), 靛 (indigo),
+  雪 (silver), plus 鲸鱼娘 (azure) — a whale-fin maid rendered from a single photo-real
+  still, with its own walk / dance / hair clips. Expression changes cross-fade (240 ms)
+  instead of hard-cutting.
 - **Action sequences**: a persona may declare `actions: { dance: [...], hair: [...],
-  walk: [...] }`; each set is 3 frames played as a 340 ms flip-book. All four have dance /
-  hair-flip / walk, each stylised to the character.
+  walk: [...] }`; each set is 3 frames played as a 340 ms flip-book. All four originals have
+  dance / hair-flip / walk, each stylised to the character; newer personas may instead ship
+  video clips (VP9 + alpha), and a clip's own length decides how long the action lives.
 - **Adding artwork**: drop transparent PNGs into `assets/` and reference them from
   `PERSONAS` (`image`, or `images: { mood: 'file.png' }`). Served by `/dsh-pet/assets/`
   (image extensions only, basename only). `tools/make-pet-image.py` removes a green-screen

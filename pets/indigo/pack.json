@@ -5,8 +5,59 @@
   "tagEn": "Indigo — slow-burn teasing",
   "image": "pet-indigo.webp",
   "voice": {
-    "pitch": 1.12,
-    "rate": 0.86
+    "pitch": 0.96,
+    "rate": 0.82,
+    "voiced": {
+      "zh": "xiaobei",
+      "en": "neerja",
+      "es": "elena",
+      "pt": "raquel",
+      "hi": "swara"
+    },
+    "moods": {
+      "appear": {
+        "pitch": 1,
+        "rate": 0.98,
+        "volume": 0.96
+      },
+      "idle": {
+        "pitch": 0,
+        "rate": 1.0
+      },
+      "dance": {
+        "pitch": 3,
+        "rate": 1.06,
+        "volume": 1.08
+      },
+      "shy": {
+        "pitch": 4,
+        "rate": 0.9,
+        "volume": 0.88
+      },
+      "angry": {
+        "pitch": 3,
+        "rate": 1.02,
+        "volume": 1.04
+      },
+      "sleep": {
+        "pitch": -2,
+        "rate": 0.82,
+        "volume": 0.7
+      },
+      "error": {
+        "pitch": -2,
+        "rate": 0.94,
+        "volume": 0.92
+      },
+      "drag": {
+        "pitch": 4,
+        "rate": 1.06
+      },
+      "chatAck": {
+        "pitch": 1,
+        "rate": 0.98
+      }
+    }
   },
   "temper": {
     "idle": 3.6,
@@ -283,6 +334,7 @@
   "clips": {
     "dance": "pet-indigo-dance.webm",
     "walk": "pet-indigo-walk.webm",
-    "hair": "pet-indigo-hair.webm"
+    "hair": "pet-indigo-hair.webm",
+    "stage": "pet-indigo-stage.webm"
   }
 }

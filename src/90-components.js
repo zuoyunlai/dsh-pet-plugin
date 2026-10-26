@@ -88,18 +88,26 @@
         value: k,
         label: PERSONAS[k].name + ' · ' + (PET_LANG === 'zh' || !PERSONAS[k].tagEn ? PERSONAS[k].tag : PERSONAS[k].tagEn),
       }))
+      // 'auto' = 跟随角色（每个形象自带一个嗓子）；其余是用户手选的固定音色。
       const voiceOpts = [
         { value: 'auto', label: t('voice.auto') },
         { value: 'xiaoxiao', label: t('voice.xiaoxiao') },
         { value: 'xiaoyi', label: t('voice.xiaoyi') },
+        { value: 'hsiaochen', label: t('voice.hsiaochen') },
+        { value: 'xiaobei', label: t('voice.xiaobei') },
         { value: 'ava', label: 'Ava · en' },
         { value: 'emma', label: 'Emma · en' },
+        { value: 'aria', label: 'Aria · en' },
+        { value: 'jenny', label: 'Jenny · en' },
         { value: 'elvira', label: 'Elvira · es' },
         { value: 'francisca', label: 'Francisca · pt' },
         { value: 'swara', label: 'Swara · hi' },
       ]
-      const pitch = Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch)
-      const rate = Number(s.voiceRate != null ? s.voiceRate : p.voice.rate)
+      const pitchTrim = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
+      const rateTrim = s.rateTrim == null ? 1 : Number(s.rateTrim)
+      const eff = voiceParams('idle')
+      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
+      const effLine = t('panel.voiceEff').replace('{voice}', voiceLabel).replace('{pitch}', (eff.pitch - 1 >= 0 ? '+' : '') + Math.round((eff.pitch - 1) * 100) + '%').replace('{rate}', Math.round(eff.rate * 100) + '%')
       const sep = () => h('div', { className: 'dsh-pet-sep' })
       const sec = (t) => h('div', { className: 'dsh-pet-sec' }, t)
 
@@ -169,14 +177,15 @@
           h(Toggle, { label: t('panel.voiceOn'), checked: s.voiceOn, onChange: (v) => update({ voiceOn: v }) }),
           h(Toggle, { label: t('panel.neural'), checked: s.neuralVoice !== false, onChange: (v) => update({ neuralVoice: v }) }),
         ),
-        h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.ttsVoice || 'xiaoxiao', options: voiceOpts, onChange: (v) => update({ ttsVoice: v }) })),
+        h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.ttsVoice || 'auto', options: voiceOpts, onChange: (v) => update({ ttsVoice: v }) })),
         runtime.neuralOk === false
           ? h('div', { className: 'dsh-pet-hint' }, t('hint.neuralOff'))
           : null,
         s.neuralVoice ? h('div', { className: 'dsh-pet-hint' }, t('hint.privacy')) : null,
         h(Slider, { label: t('panel.volume'), min: 0, max: 1, step: 0.1, value: s.volume, onChange: (v) => update({ volume: v }) }),
-        h(Slider, { label: t('panel.pitch'), min: 0.6, max: 2, step: 0.02, value: pitch.toFixed(2), onChange: (v) => update({ voicePitch: v }) }),
-        h(Slider, { label: t('panel.rate'), min: 0.6, max: 1.5, step: 0.02, value: rate.toFixed(2), onChange: (v) => update({ voiceRate: v }) }),
+        h('div', { className: 'dsh-pet-hint' }, effLine),
+        h(Slider, { label: t('panel.pitchTrim'), min: 0.85, max: 1.15, step: 0.01, value: pitchTrim.toFixed(2), suffix: '×', onChange: (v) => update({ pitchTrim: Math.abs(v - 1) < 0.005 ? null : v }) }),
+        h(Slider, { label: t('panel.rateTrim'), min: 0.8, max: 1.25, step: 0.01, value: rateTrim.toFixed(2), suffix: '×', onChange: (v) => update({ rateTrim: Math.abs(v - 1) < 0.005 ? null : v }) }),
         sep(),
         sec(t('panel.display')),
         h(
@@ -195,7 +204,9 @@
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.panelOpen = false; runToCenterAndDance() } }, t('panel.dance')),
           h('button', { onClick: () => playAction('hair', { explicit: true }) }, t('panel.hair')),
-          h('button', { onClick: () => showPet('dance') }, t('panel.summon')),
+          // 面板是从她身上点开的，所以这里点不到「藏起来的她」；
+          // 这一项的实际作用是就地开心一下（mood=dance，不走位）。
+          h('button', { onClick: () => showPet('dance') }, t('panel.cheer')),
           h('button', { onClick: () => { runtime.snoozeUntil = nowMs() + 3600 * 1000; hidePet(); runtime.panelOpen = false; notify() } }, t('panel.hide')),
         ),
         sec(t('panel.effects')),

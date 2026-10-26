@@ -19,7 +19,7 @@
     "panel.active": "Horario",
     "panel.voiceOn": "Hablar",
     "panel.neural": "Neural",
-    "voice.auto": "Auto (by language)",
+    "voice.auto": "Seguir al personaje (por defecto)",
     "panel.voiceName": "Timbre",
     "panel.volume": "Volumen",
     "panel.pitch": "Tono",
@@ -32,6 +32,8 @@
     "panel.dance": "Bailar",
     "panel.hair": "Mover pelo",
     "panel.summon": "Llamar",
+    "panel.stay": "Quédate un rato",
+    "panel.cheer": "Anímate",
     "panel.hide": "Ocultar 1h",
     "panel.settings": "Settings",
     "panel.ink": "Tinta",
@@ -53,6 +55,11 @@
     "a11y.talkTo": "Habla con {name}",
     "a11y.send": "Enviar",
     "a11y.start": "Activo desde",
-    "a11y.end": "Activo hasta"
+    "a11y.end": "Activo hasta",
+    "voice.hsiaochen": "HsiaoChen · suave (TW)",
+    "voice.xiaobei": "Xiaobei · vivaz (NE)",
+    "panel.pitchTrim": "Ajuste de tono",
+    "panel.rateTrim": "Ajuste de velocidad",
+    "panel.voiceEff": "Ahora: {voice} · tono {pitch} · velocidad {rate}"
   }
 }

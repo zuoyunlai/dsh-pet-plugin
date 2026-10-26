@@ -11,10 +11,10 @@
       activeEnd: '23:00',
       voiceOn: true,
       volume: 0.8,
-      voicePitch: null, // null = 用形象自带的音高
-      voiceRate: null, // null = 用形象自带的语速
+      pitchTrim: null, // null = 完全跟随形象；否则是「在形象基座上的倍率」(0.85–1.15)
+      rateTrim: null, // null = 完全跟随形象；否则是倍率 (0.8–1.25)
       neuralVoice: true, // 用 edge-tts 的神经音色（失败自动退回系统 SAPI）
-      ttsVoice: 'auto', // 'auto' 按界面语言挑 | xiaoxiao/ava/elvira/francisca/swara…
+      ttsVoice: 'auto', // 'auto' = 跟随角色（pack.voice.voiced）| 其余是手选固定音色
       chatter: true, // 主动蹦话
       showInput: true, // 宠物旁边的小输入框
       scale: 1.15,
@@ -29,6 +29,9 @@
         const raw = window.localStorage.getItem(STORAGE_KEY)
         if (!raw) return { ...DEFAULT_SETTINGS }
         const parsed = JSON.parse(raw)
+        // 迁移：voicePitch/voiceRate 曾是「绝对值」，会盖掉每只角色自己的音高，导致五只听起来一样
+        delete parsed.voicePitch
+        delete parsed.voiceRate
         const merged = { ...DEFAULT_SETTINGS }
         for (const k of Object.keys(DEFAULT_SETTINGS)) {
           if (parsed[k] !== undefined) merged[k] = parsed[k]

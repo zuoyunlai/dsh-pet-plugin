@@ -8,6 +8,7 @@
       mood: 'idle',
       moodUntil: 0,
       bubble: null, // { text, at, ttl }
+      aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
       chatOpen: false,
       panelOpen: false,
       ai: 'unknown', // 'unknown' | 'busy' | 'ok' | 'fail'
@@ -38,13 +39,37 @@
       reduced: false, // 系统是否要求减弱动效（apply 时读一次，随后跟随 matchMedia）
       clipFailed: {}, // 片段加载失败记忆 { src: true }：同一个文件不再反复尝试
       clipPlaying: '', // 当前正在播放的片段名（'' = 还没起来）：决定静帧 poster 是否撤掉
+      clipMs: {}, // 片段实测时长 { 文件名: ms }：metadata 到手后写进来
       lastClipError: '', // 最近一次片段加载失败的文件名（诊断用）
     }
 
-    // 12 条动作片段（VP9 + alpha，400 高）都是同一批参数生成的 5.167s。
-    // 动作存活时间默认取它——1.19.x 在调用点手写 1300/2400ms，会让 video 在手势
-    // 半途被卸载；dance 的 6000ms 又会撞上 loop 回跳。改此处即可统一口径。
-    const CLIP_DURATION_MS = 5167
+    // 片段时长不再写死（1.20.0）：早期 12 条都是同一批参数生成的 5.167s，写死没问题；
+    // 「走进画面 → 跳舞 → 走回去」这种叙事片段有 10s，写死会在半途把 video 卸掉。
+    // 现在以媒体自己的 metadata 为准，没拿到之前用一个宽上限兜底，真正的收尾靠 onEnded。
+    const CLIP_MAX_MS = 12000 // 兜底上限：媒体迟迟不触发 ended 时不至于永久占着动作
+
+    /** 某条片段的时长：拿到过 metadata 就用实测值，否则用宽上限。 */
+    function clipMsOf(clip) {
+      const ms = runtime.clipMs[clip]
+      return ms > 0 ? ms : CLIP_MAX_MS
+    }
+
+    /**
+     * 媒体 metadata 到手：记下真实时长，并把这一代的收尾时间按它重排。
+     * 首次播放时用的是 20s 兜底，若真的等到 20s 才收尾，片段播完（ended）本来就会
+     * 更早结束动作——这里补的是「兜底比片段短」的反向情况（旧片段 5.167s）。
+     */
+    function noteClipDuration(clip, seconds) {
+      if (!clip || !(seconds > 0)) return
+      runtime.clipMs[clip] = Math.round(seconds * 1000)
+      const act = runtime.action
+      if (!act || act.clip !== clip) return
+      const want = nowMs() + runtime.clipMs[clip]
+      if (want >= act.until) return // 兜底更宽松，交给 onEnded 收尾
+      act.until = want
+      clearActionTimer()
+      actionTimer = later(() => endAction(act.gen), Math.max(0, want - nowMs()))
+    }
 
     // 动作代际与唯一调度：同名动作连续触发时，旧链必须失效（R03）。
     let actionGen = 0
@@ -103,9 +128,9 @@
       clearActionTimer()
       // 帧时长跟着帧数走：3 帧用 340ms，6 帧用 230ms，整套循环长度基本不变
       const step = o.step || (frames && frames.length >= 6 ? 230 : 340)
-      // 存活时间默认跟着媒体走：有片段就取片长，没片段才用旧的 2400ms。
+      // 存活时间默认跟着媒体走：有片段就取片长（实测优先），没片段才用旧的 2400ms。
       // （1.19.x 在调用点手写 1300/2400ms，会在手势半途卸载 video。）
-      const until = nowMs() + (o.ms || (clip ? CLIP_DURATION_MS : 2400))
+      const until = nowMs() + (o.ms || (clip ? clipMsOf(clip) : 2400))
       // moodDriven：这个动作是「心情」自动发起的（不是用户点的），心情变了可以收回
       runtime.clipPlaying = ''
       runtime.action = {

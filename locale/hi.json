@@ -19,7 +19,7 @@
     "panel.active": "Samay",
     "panel.voiceOn": "Bole",
     "panel.neural": "Neural",
-    "voice.auto": "Auto (by language)",
+    "voice.auto": "Persona ke hisaab se (default)",
     "panel.voiceName": "Sur",
     "panel.volume": "Volume",
     "panel.pitch": "Pitch",
@@ -32,6 +32,8 @@
     "panel.dance": "Naacho",
     "panel.hair": "Baal sarkaao",
     "panel.summon": "Bulaao",
+    "panel.stay": "Thodi der ruko",
+    "panel.cheer": "Khush ho jao",
     "panel.hide": "1 ghantaa chhupao",
     "panel.settings": "Settings",
     "panel.ink": "Ink",
@@ -53,6 +55,11 @@
     "a11y.talkTo": "{name} se baat karein",
     "a11y.send": "Bhejein",
     "a11y.start": "Active kab se",
-    "a11y.end": "Active kab tak"
+    "a11y.end": "Active kab tak",
+    "voice.hsiaochen": "HsiaoChen · komal (TW)",
+    "voice.xiaobei": "Xiaobei · jeevant (NE)",
+    "panel.pitchTrim": "पिच समायोजन",
+    "panel.rateTrim": "गति समायोजन",
+    "panel.voiceEff": "अभी: {voice} · पिच {pitch} · गति {rate}"
   }
 }

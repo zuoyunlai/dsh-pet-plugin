@@ -5,8 +5,59 @@
   "tagEn": "Crimson — shameless flirting",
   "image": "pet-crimson.webp",
   "voice": {
-    "pitch": 1.1,
-    "rate": 0.9
+    "pitch": 1.04,
+    "rate": 0.94,
+    "voiced": {
+      "zh": "xiaoxiao",
+      "en": "aria",
+      "es": "dalia",
+      "pt": "thalita",
+      "hi": "swara"
+    },
+    "moods": {
+      "appear": {
+        "pitch": 3,
+        "rate": 1.04,
+        "volume": 1.06
+      },
+      "idle": {
+        "pitch": 0,
+        "rate": 1.0
+      },
+      "dance": {
+        "pitch": 4,
+        "rate": 1.1,
+        "volume": 1.1
+      },
+      "shy": {
+        "pitch": 5,
+        "rate": 0.98,
+        "volume": 0.96
+      },
+      "angry": {
+        "pitch": 5,
+        "rate": 1.12,
+        "volume": 1.15
+      },
+      "sleep": {
+        "pitch": -2,
+        "rate": 0.86,
+        "volume": 0.74
+      },
+      "error": {
+        "pitch": 0,
+        "rate": 1.0,
+        "volume": 1.0
+      },
+      "drag": {
+        "pitch": 6,
+        "rate": 1.12
+      },
+      "chatAck": {
+        "pitch": 2,
+        "rate": 1.04
+      }
+    }
   },
   "temper": {
     "idle": 3.4,
@@ -286,6 +337,7 @@
   "clips": {
     "dance": "pet-crimson-dance.webm",
     "walk": "pet-crimson-walk.webm",
-    "hair": "pet-crimson-hair.webm"
+    "hair": "pet-crimson-hair.webm",
+    "stage": "pet-crimson-stage.webm"
   }
 }

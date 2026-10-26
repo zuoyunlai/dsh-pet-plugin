@@ -1,7 +1,27 @@
 {
   "generatedAt": "baseline",
-  "count": 74,
+  "count": 83,
   "files": {
+    "pet-azure-dance.webm": {
+      "bytes": 1490649,
+      "sha256": "0792d7a78c128b98cb938dccca7c22348b57aa40471d816e4f1005350f17bcbd"
+    },
+    "pet-azure-hair.webm": {
+      "bytes": 974661,
+      "sha256": "3f157c8d63add415a9e13b162cf643b08f4155edac090105d8392eba3446ffa3"
+    },
+    "pet-azure-stage.webm": {
+      "bytes": 1833528,
+      "sha256": "5f70aa2f532b7226f83b43ca3f464f51e669c9192ae9271f3ad55c66f87809f0"
+    },
+    "pet-azure-walk.webm": {
+      "bytes": 1456268,
+      "sha256": "37bf5a495641c8ab1d9bc97fe2ee0711f11be1dfcc80f8adaa1c50b04f4a4481"
+    },
+    "pet-azure.webp": {
+      "bytes": 52652,
+      "sha256": "15d521af0d1a61466feadfc5bcfd1ec389356ec7b6e9644080c9d67169bf7edb"
+    },
     "pet-crimson-angry.webp": {
       "bytes": 31082,
       "sha256": "23c62f7b24cf09e81fe081887046788dbc8a953e054d42e1fbadc9d5caf432cc"
@@ -61,6 +81,10 @@
     "pet-crimson-sleep.webp": {
       "bytes": 31094,
       "sha256": "d6abca36b36a1593fe5c504829d66314df1c9a98b90ebdbe2429a29e34e49c44"
+    },
+    "pet-crimson-stage.webm": {
+      "bytes": 1052125,
+      "sha256": "d4bea7a21f49e79ffef1658775fb28de62d9b5398f5845ff67ef73d8d5ef2615"
     },
     "pet-crimson-walk.webm": {
       "bytes": 787365,
@@ -130,6 +154,10 @@
       "bytes": 33846,
       "sha256": "e4093fb31b5e628292ad943c79a38d02ecc3f961241cb7d722e7ebca70b4f4b1"
     },
+    "pet-indigo-stage.webm": {
+      "bytes": 859541,
+      "sha256": "daf2ee3f793d3a829f7d87910230a2141214a57ac9b19c351b29965d7bfd0d53"
+    },
     "pet-indigo-walk.webm": {
       "bytes": 732162,
       "sha256": "273f0ed02d2488377e4f970b7224f7931ebc05a360108ad3d9958a9b51ff30d2"
@@ -197,6 +225,10 @@
     "pet-silver-sleep.webp": {
       "bytes": 26404,
       "sha256": "79cc7b192e61e3ec67352982982cde0a8b4175c7ba1eacf0eb6327867c511f43"
+    },
+    "pet-silver-stage.webm": {
+      "bytes": 873966,
+      "sha256": "49f98f4a51437886add46a715dd0891d83475c4c33d3940ee6d42c05ed4b05ac"
     },
     "pet-silver-walk.webm": {
       "bytes": 673728,
@@ -277,6 +309,10 @@
     "pet-violet-sleep.webp": {
       "bytes": 27030,
       "sha256": "c76593faa470c93791192b89fda1dc8f3349c05b662d82d14e726d7c81f55bac"
+    },
+    "pet-violet-stage.webm": {
+      "bytes": 747237,
+      "sha256": "f5aa6a2ac7ca93f1d6b45db2086a9f6ab961a6cd4acaf2e8283f4922009e75eb"
     },
     "pet-violet-walk.webm": {
       "bytes": 704889,

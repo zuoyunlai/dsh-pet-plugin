@@ -56,14 +56,33 @@
     /** 系统语音用的 locale 标签（神经音色由宿主按 lang 选） */
     const SAPI_LANG = { zh: 'zh-CN', en: 'en-US', es: 'es-ES', pt: 'pt-BR', hi: 'hi-IN' }
 
-    function voiceParams() {
+    /**
+     * 演绎参数 = 形象基座（pack.voice.pitch / rate）× 这一句的心情方向（pack.voice.moods[mood]）。
+     *
+     * 「LLM 当导演、TTS 当演员」的落点就在这里：导演层不是每句话去调一次模型，而是把
+     * 表演纲领（每个心情的升降调幅度、语速倍率、音量倍率）写进角色包，运行时只查表相乘。
+     * 零延迟、零费用、可复现；想改演出只改 pack.json 那一行。
+     *
+     * 音色：用户手选了具体音色就用手选的；'auto' 时优先形象自带音色（voiced[语言]），
+     * 五只角色因此各自一个嗓子，而不是同一个人变调。
+     */
+    function voiceParams(mood) {
       const p = persona()
       const s = runtime.settings
+      const dir = (p.voice && p.voice.moods && p.voice.moods[mood || runtime.mood]) || null
+      const pt = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
+      const rt = s.rateTrim == null ? 1 : Number(s.rateTrim)
+      const basePitch = Number(p.voice.pitch) * (isFinite(pt) ? pt : 1)
+      const baseRate = Number(p.voice.rate) * (isFinite(rt) ? rt : 1)
+      const pitch = basePitch * (1 + (dir && dir.pitch ? Number(dir.pitch) : 0) / 100)
+      const rate = baseRate * (dir && dir.rate ? Number(dir.rate) : 1)
+      const manual = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : ''
+      const own = (p.voice && p.voice.voiced && p.voice.voiced[PET_LANG]) || ''
       return {
-        pitch: Number(s.voicePitch != null ? s.voicePitch : p.voice.pitch),
-        rate: Number(s.voiceRate != null ? s.voiceRate : p.voice.rate),
-        // 'auto' = 交给宿主按界面语言挑；其余是用户手选的具体音色
-        voice: s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : '',
+        pitch: clamp(pitch, 0.5, 2),
+        rate: clamp(rate, 0.5, 2),
+        volume: dir && dir.volume != null ? clamp(Number(dir.volume), 0, 2) : 1,
+        voice: manual || own,
         lang: PET_LANG,
       }
     }
@@ -93,17 +112,19 @@
     }
 
     /** POST 到 /dsh-pet/tts，拿回 mp3 的 objectURL（GET 端点已取消） */
-    async function ttsBlobUrl(text) {
-      const v = voiceParams()
+    async function ttsBlobUrl(text, mood) {
+      const v = voiceParams(mood)
       const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
       const pitch = ((v.pitch - 1) * 100).toFixed(0)
       const rate = ((v.rate - 1) * 100).toFixed(0)
+      const vol = ((v.volume - 1) * 100).toFixed(0)
       const body = {
         text,
         lang: v.lang,
         voice: v.voice || undefined,
         pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
         rate: (rate >= 0 ? '+' : '') + rate + '%',
+        volume: (vol >= 0 ? '+' : '') + vol + '%',
       }
       const res = await fetch(base + '/dsh-pet/tts', {
         method: 'POST',
@@ -123,7 +144,7 @@
     }
 
     /** 系统 SAPI 兜底（神经语音失败时用）。 */
-    function saySapi(text, restore) {
+    function saySapi(text, restore, mood) {
       runtime.lastTts = 'sapi'
       const synth = window.speechSynthesis
       if (!synth || typeof window.SpeechSynthesisUtterance !== 'function') {
@@ -132,12 +153,12 @@
       }
       try {
         synth.cancel()
-        const v = voiceParams()
+        const v = voiceParams(mood)
         const u = new window.SpeechSynthesisUtterance(text)
         u.lang = SAPI_LANG[PET_LANG] || 'zh-CN'
         u.pitch = clamp(v.pitch, 0, 2)
         u.rate = clamp(v.rate, 0.5, 2)
-        u.volume = clamp(runtime.settings.volume, 0, 1)
+        u.volume = clamp(Number(runtime.settings.volume) * v.volume, 0, 1)
         const voice = pickVoice()
         if (voice) u.voice = voice
         u.onend = restore
@@ -148,8 +169,19 @@
       }
     }
 
-    function speak(text) {
+    /**
+     * 音画同步的唯一判据：人不在屏幕上就不发任何声。
+     * 三种「不在」：藏起来（visible=false，整层不渲染）、被拖出视口（petOffscreen）、
+     * 还没挂载（rootEl 为空）。判据只放在这一个函数里，其他分支一律调它。
+     */
+    function onScreen() {
+      return !!(runtime.visible && !runtime.petOffscreen && runtime.rootEl)
+    }
+
+    function speak(text, mood) {
       if (!text || !runtime.settings.voiceOn) return
+      // 人不在屏幕上就别出声（2026-10-25 用户报：人都藏起来了，她还在说话）
+      if (!onScreen()) return
       // 跳舞时不要被「说话」这个心情抢走动作（否则中间那 6 秒全在点头）
       const staged = !!runtime.stage
       const prevMood = runtime.mood === 'talk' ? 'idle' : runtime.mood
@@ -171,7 +203,7 @@
       runtime.speakUntil = nowMs() + 1600 + text.length * 240
 
       if (runtime.settings.neuralVoice === false || runtime.neuralOk === false) {
-        saySapi(text, restore)
+        saySapi(text, restore, mood)
         return
       }
       checkNeural()
@@ -186,7 +218,7 @@
           }
         }
         const seq = ++speakSeq
-        ttsBlobUrl(text)
+        ttsBlobUrl(text, mood)
           .then((url) => {
             // 期间又说了新的一句：丢掉这条，别让两句抢着播
             if (seq !== speakSeq) {
@@ -195,6 +227,17 @@
               } catch (e) {
                 /* ignore */
               }
+              return
+            }
+            // 合成是异步的（几百毫秒）：等它回来时人可能已经被藏起来了，
+            // 这时候不能再出声，否则就是「人不见了声音还在」。
+            if (!onScreen()) {
+              try {
+                window.URL.revokeObjectURL(url)
+              } catch (e) {
+                /* ignore */
+              }
+              restore()
               return
             }
             const a = new Audio(url)
@@ -239,35 +282,50 @@
       }
     }
 
-    /** 把当前形象常用的台词在后台合成好，之后播就是本地缓存，秒出。 */
+    /**
+     * 把当前形象常用的台词在后台合成好，之后播就是本地缓存，秒出。
+     *
+     * 有了「心情方向」之后，同一句话在 idle / dance 下的音高语速不同，所以按**类别分组**
+     * 预热（每类一次请求、各带一套参数），而不是把全部台词用同一套参数烤一遍——
+     * 那样只有一类能命中缓存。
+     */
     function warmVoice() {
       try {
         if (runtime.settings.neuralVoice === false || runtime.neuralOk === false) return
         const p = persona()
-        const all = []
+        const groups = []
         for (const k of Object.keys(p.lines || {})) {
-          for (const line of p.lines[k] || []) all.push(String(line))
+          const lines = (p.lines[k] || []).map((x) => String(x)).filter(Boolean)
+          if (lines.length) groups.push({ mood: k, lines })
         }
-        const uniq = Array.from(new Set(all)).slice(0, 20)
-        if (!uniq.length) return
-        const v = voiceParams()
-        const pitch = ((v.pitch - 1) * 100).toFixed(0)
-        const rate = ((v.rate - 1) * 100).toFixed(0)
-        const body = JSON.stringify({
-          voice: v.voice,
-          pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
-          rate: (rate >= 0 ? '+' : '') + rate + '%',
-          lines: uniq,
-        })
+        if (!groups.length) return
+        groups.sort((a, b) => b.lines.length - a.lines.length)
         const warmBase = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
-        fetch(warmBase + '/dsh-pet/tts/warm', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          credentials: 'include',
-          body,
-        })
-          .then(() => petLog('warm voice queued', { n: uniq.length }))
-          .catch(() => {})
+        let budget = 18
+        for (const g of groups.slice(0, 3)) {
+          if (budget <= 0) break
+          const lines = Array.from(new Set(g.lines)).slice(0, Math.min(8, budget))
+          budget -= lines.length
+          if (!lines.length) continue
+          const v = voiceParams(g.mood)
+          const pitch = ((v.pitch - 1) * 100).toFixed(0)
+          const rate = ((v.rate - 1) * 100).toFixed(0)
+          const vol = ((v.volume - 1) * 100).toFixed(0)
+          fetch(warmBase + '/dsh-pet/tts/warm', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              voice: v.voice,
+              pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
+              rate: (rate >= 0 ? '+' : '') + rate + '%',
+              volume: (vol >= 0 ? '+' : '') + vol + '%',
+              lines,
+            }),
+          })
+            .then(() => petLog('warm voice queued', { mood: g.mood, n: lines.length }))
+            .catch(() => {})
+        }
       } catch (e) {
         /* ignore */
       }

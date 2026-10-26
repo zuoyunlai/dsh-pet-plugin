@@ -31,6 +31,7 @@ async def synth(req):
         req['voice'],
         rate=req.get('rate') or '+0%',
         pitch=req.get('pitch') or '+0Hz',
+        volume=req.get('volume') or '+0%',
     )
     with open(req['out'], 'wb') as f:
         async for chunk in comm.stream():

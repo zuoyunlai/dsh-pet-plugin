@@ -29,13 +29,58 @@
       return next
     }
 
-    function bubble(text, ttl) {
+    function bubble(text, ttl, mood) {
       if (!text) return
+      // 人不在屏幕上（藏起来 / 被拖出视口）就不冒泡、不发声：
+      // 用户 2026-10-25 报的「人物不在桌面了，可她还在说话」就是这条漏了闸。
+      if (!runtime.visible || runtime.petOffscreen) return
       const s = runtime.settings
       const t = String(text)
       runtime.bubble = { text: t, at: nowMs(), ttl: ttl || clamp(2200 + t.length * 90, 2600, 9000) }
-      if (s.voiceOn) speak(t)
+      // 第三参是该句所属的类别（appear/dance/poked/drag…），交给导演层查演绎方向
+      if (s.voiceOn) speak(t, mood)
+      maybeAside()
       notify()
+    }
+
+    /**
+     * 心声（1.21.0）：只在自带 lines.aside 的形象上出现，灰色小字、不出声——
+     * 借的是「人设包装层」的思维链写法：正式台词之外，偶尔漏一句没经过脑子的
+     * 内心 OS，制造反差。低频（ASIDE_RATE）是关键，多了就腻。
+     */
+    const ASIDE_RATE = 0.07
+
+    /** 精确取某一类台词（不回落 idle）：缺这类就返回 ''，让「没有这类台词的形象」保持安静 */
+    function linesOf(mood) {
+      const p = persona()
+      const key = 'lines' + PET_LANG.charAt(0).toUpperCase() + PET_LANG.slice(1)
+      const pack = (p[key] && PET_LANG !== 'zh' ? p[key] : null) || (PET_LANG === 'zh' || !p.linesEn ? p.lines : p.linesEn)
+      return (pack && pack[mood]) || (p.lines && p.lines[mood]) || []
+    }
+
+    function asideLine() {
+      const list = linesOf('aside')
+      return list.length ? pick(list) : ''
+    }
+
+    /** 被拖动时说的一句；形象没写 drag 这类台词就不吭声（不回落到 idle，免得答非所问） */
+    function dragLine() {
+      const list = linesOf('drag')
+      return list.length ? pick(list) : ''
+    }
+
+    function maybeAside(rate) {
+      const text = asideLine()
+      if (!text) return ''
+      if (Math.random() >= (typeof rate === 'number' ? rate : ASIDE_RATE)) return ''
+      runtime.aside = { text, at: nowMs(), ttl: clamp(1800 + text.length * 70, 2200, 6000) }
+      return text
+    }
+
+    function clearAside() {
+      if (!runtime.aside) return false
+      runtime.aside = null
+      return true
     }
 
     function randomLine(mood) {
@@ -57,7 +102,10 @@
       runtime.visibleUntil = nowMs() + randInt(45, 150) * 1000
       runtime.mood = kind === 'dance' ? 'dance' : 'happy'
       runtime.moodUntil = nowMs() + randInt(3000, 5000)
-      if (!wasVisible && runtime.settings.chatter) bubble(randomLine(kind === 'dance' ? 'dance' : 'appear'))
+      if (!wasVisible && runtime.settings.chatter) {
+        const k = kind === 'dance' ? 'dance' : 'appear'
+        bubble(randomLine(k), null, k)
+      }
       notify()
     }
 
@@ -137,7 +185,7 @@
       runtime.moodUntil = nowMs() + randInt(4000, 9000)
       if (runtime.settings.chatter && m !== 'talk' && m !== 'idle') {
         const line = randomLine(m)
-        if (line && Math.random() < 0.55) bubble(line)
+        if (line && Math.random() < 0.55) bubble(line, null, m)
       }
       // 心情没变就不用重渲染（bubble 自己会 notify）
       if (m !== prev) notify()
@@ -171,7 +219,7 @@
         } else if (!runtime.visible) {
           runtime.visible = true
           runtime.visibleUntil = 0
-          if (s.chatter) bubble(randomLine('appear'))
+          if (s.chatter) bubble(randomLine('appear'), null, 'appear')
           notify()
         }
       } else {
@@ -192,6 +240,12 @@
         notify()
       }
 
+      // 心声过期（比主台词短，先消失，看起来才像「嘀咕完就收」）
+      if (runtime.aside && now - runtime.aside.at > runtime.aside.ttl) {
+        runtime.aside = null
+        notify()
+      }
+
       // 语音兜底解锁：自动播放被浏览器拦掉时 onend 不会来
       if (runtime.speaking && runtime.speakUntil && now > runtime.speakUntil) {
         runtime.speaking = false
@@ -207,7 +261,7 @@
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
         lastChatterAt = now
         const line = randomLine('idle')
-        if (line) bubble(line)
+        if (line) bubble(line, null, 'idle')
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
@@ -320,7 +374,7 @@
         .then((reply) => {
           runtime.ai = 'ok'
           pushHistory('assistant', reply)
-          bubble(reply, Math.max(3200, Math.min(12000, 900 + reply.length * 120)))
+          bubble(reply, Math.max(3200, Math.min(12000, 900 + reply.length * 120)), 'chatAck')
         })
         .catch((e) => {
           runtime.ai = 'fail'

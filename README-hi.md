@@ -18,7 +18,9 @@ photo-realistic characters, har ek kaa apanaa mizaaj.
 - **Icon**: `icon.svg` aur composer button ek hi path use karte hain.
 - **Settings panel**: groups ke saath (look / voice / display / actions / effects) aur
   apane custom dropdowns/switch, viewport par fixed.
-- **Chaar characters**, photo-realistic, har ek ke 5 expressions: 薇, 绯, 靛, 雪.
+- **Paanch characters**, photo-realistic: 薇, 绯, 靛, 雪 (har ek ke 5 expressions) aur
+  鲸鱼娘 (azure) — whale-fin ears aur tail wali maid, ek hi realistic still aur apne
+  walk/dance/hair clips ke saath.
 
 ## Behavior
 

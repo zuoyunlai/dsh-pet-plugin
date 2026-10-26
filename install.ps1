@@ -65,6 +65,20 @@ foreach ($f in @('package.json', 'client.js', 'cordis.patch.yml', 'index.js')) {
   }
 }
 
+# 装之前先重打包：client.js 是 build.mjs 由 src/*.js 拼出来的产物。
+# 只复制不重建时，改了 src（例如新增 clips.stage）却装进去旧包，
+# 现场表现是「新形象的片段生效了，老形象的改动没生效」（2026-10-25 踩过）。
+if (Test-Path -LiteralPath (Join-Path $src 'build.mjs')) {
+  Push-Location $src
+  try {
+    & node build.mjs | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'build.mjs failed; refusing to install a stale client.js.' }
+  } finally {
+    Pop-Location
+  }
+  Write-Host '[ok] rebuilt client.js from src'
+}
+
 function Test-Json([string]$text) {
   try { [void]($text | ConvertFrom-Json); return $true } catch { return $false }
 }

@@ -5,8 +5,58 @@
   "tagEn": "Violet — unhurried teasing",
   "image": "pet-violet.webp",
   "voice": {
-    "pitch": 1.18,
-    "rate": 0.88
+    "pitch": 1.02,
+    "rate": 0.86,
+    "voiced": {
+      "zh": "hsiaochen",
+      "en": "sonia",
+      "es": "elvira",
+      "pt": "francisca",
+      "hi": "swara"
+    },
+    "moods": {
+      "appear": {
+        "pitch": 1,
+        "rate": 1.0
+      },
+      "idle": {
+        "pitch": 0,
+        "rate": 1.0
+      },
+      "dance": {
+        "pitch": 2,
+        "rate": 1.04,
+        "volume": 1.05
+      },
+      "shy": {
+        "pitch": 4,
+        "rate": 0.94,
+        "volume": 0.92
+      },
+      "angry": {
+        "pitch": 2,
+        "rate": 1.05,
+        "volume": 1.06
+      },
+      "sleep": {
+        "pitch": -3,
+        "rate": 0.84,
+        "volume": 0.72
+      },
+      "error": {
+        "pitch": -1,
+        "rate": 0.96,
+        "volume": 0.95
+      },
+      "drag": {
+        "pitch": 3,
+        "rate": 1.08
+      },
+      "chatAck": {
+        "pitch": 1,
+        "rate": 1.02
+      }
+    }
   },
   "temper": {
     "idle": 4,
@@ -286,6 +336,7 @@
   "clips": {
     "dance": "pet-violet-dance.webm",
     "walk": "pet-violet-walk.webm",
-    "hair": "pet-violet-hair.webm"
+    "hair": "pet-violet-hair.webm",
+    "stage": "pet-violet-stage.webm"
   }
 }

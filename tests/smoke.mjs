@@ -240,6 +240,10 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
 
 /* ---------- 神经语音：POST + blob ---------- */
 {
+  // 音画同步闸门（1.20.0）：人不在屏幕上不说话。这里要模拟「她就站在屏幕上」。
+  petApi.runtime.visible = true
+  petApi.runtime.petOffscreen = false
+  if (!petApi.runtime.rootEl) petApi.runtime.rootEl = { querySelector: () => null, parentElement: null }
   petApi.runtime.settings.neuralVoice = true
   petApi.runtime.neuralOk = true
   petApi.runtime.settings.voiceOn = true
