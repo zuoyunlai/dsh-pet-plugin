@@ -897,6 +897,39 @@ BlockAdditional 里，老资产同样显示 yuv420p；验证必须 `-c:v libvpx-
 **状态**：84/84 单测 + smoke（i18n 5×57）+ `check --strict` 13/13 全绿；已 install（客户端 Ctrl+R 生效，
 宿主 `lib/tts.js` 改动需重启 DSH 窗口才换表）。
 
+### 9.z 发版 1.20.0：两次 CI 红，一次是我自己的测试写错了（2026-10-26）
+
+**经过**：`tools/release.cjs --apply --publish` 一次跑通（npm 1.20.0 / tag / Release），
+但随后 `Test@main` 与 `release@v1.20.0` **两个 CI 都红**，同一个用例：
+`tts/status 不泄露本机绝对路径`。
+
+**根因**：断言原文是 `assert.ok(!/Users|home"|python/i.test(body))` —— 它把「python」这个词
+也当成路径泄露。而 1.20.0 新加的失败理由是「没装 edge-tts（试过 python / python3 / py；用 python -m pip install edge-tts 装）」，
+**这是给用户看的安装提示**，在没装 edge-tts 的 runner 上必然出现 ⇒ 必红。
+换句话说：这不是产品缺陷，是我在给 reason 加提示时，撞上了自己早年写的过宽断言。
+
+**处置**：
+1. 断言收窄成「只禁绝对路径」：`/(?:[A-Za-z]:\|\\|\/(?:Users|home|usr|opt|var|tmp|root)\/|python\.exe)/i`，
+   并在用例里写清「解释器名字是要给用户看的安装提示，不属于机器信息」。
+2. `git push --delete origin v1.20.0` + `gh release delete --cleanup-tag`，在修好的提交上重建 tag
+   （tag 必须指向远端 main 的 SHA，push-via-api 建的是**新提交对象**，本地 SHA 不等于远端）。
+3. 重跑 tag CI → 54 s 绿，Release 自动挂上 tgz。
+4. 发现 CI 打的 tgz（19,673,258 B）与 npm 上的（19,673,047 B）不是同一份——CI 从 tag 树打包，
+   里面有修复后的测试文件。**Release 资产应当就是用户会装的那份**，于是下载 registry 的 tgz、
+   `--clobber` 覆盖资产（sha1 `55a6118a190eb185318e86a545334a205dbd11f8` 与 npm `dist.shasum` 逐字相同），
+   再用 CHANGELOG 的 1.20.0 小节覆盖 Release 正文（`--latest`）。
+
+**教训**：
+- 断言「不许出现某词」时，要问一句「这个词会不会出现在**合理的用户提示**里」。过宽的否定断言会在
+  特定环境（CI 无依赖）必红，而对真实风险毫无增益。
+- push-via-api 建的是远端新提交，**本地 tag 不能直接推**；发版后要拿远端 SHA 重建 tag。
+- Release 资产的 sha 必须与 `dist.shasum` 一致；CI 从 tag 树打包，与 npm 发布的那份可能差一个提交。
+
+**核对**：npm `1.20.0` = latest（`55a6118a…`，2026-10-26T04:47:30Z）；tag `v1.20.0` → `d9d57dfd`；
+Release 公开、`/releases/latest` 指向它、资产 `dsh-pet-plugin-1.20.0.tgz` 19,673,047 B（= npm 原件）；
+`Test@main` 42 s 绿、`release@v1.20.0` 54 s 绿；desktop profile 1.20.0（`install.ps1 -Update`）、
+web profile 1.20.0（`rm -rf node_modules/dsh-pet-plugin && pnpm install`）。
+
 
 ---
 
