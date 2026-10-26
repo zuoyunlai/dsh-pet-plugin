@@ -34,6 +34,9 @@ jobs:
       - name: Persona generator in sync
         run: node tools/gen-personas.cjs --check
 
+      - name: Install ffmpeg (asset manifest reads WebM codec/duration via ffprobe)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
       - name: Asset baseline (sha256 manifest)
         run: node tools/assets-manifest.cjs
 

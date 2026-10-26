@@ -23,9 +23,23 @@ function sha256(buf) {
 
 function probeMedia(full) {
   if (path.extname(full).toLowerCase() !== '.webm') return {}
-  const raw = execFileSync('ffprobe', [
-    '-v', 'error', '-show_streams', '-show_format', '-of', 'json', full,
-  ], { encoding: 'utf8' })
+  let raw
+  try {
+    raw = execFileSync('ffprobe', [
+      '-v', 'error', '-show_streams', '-show_format', '-of', 'json', full,
+    ], { encoding: 'utf8' })
+  } catch (err) {
+    // ffprobe 不在 PATH 是最常见的环境问题（CI 的 ubuntu-latest 默认没有 ffmpeg）。
+    // 显式说清楚要装什么，别把 spawnSync 的 ENOENT 栈原样甩给读者。
+    if (err && err.code === 'ENOENT') {
+      console.error('ffprobe 不可用：本清单要读 WebM 的宽高/时长/编码/alpha，得先装 ffmpeg。')
+      console.error('  Windows: winget install --id Gyan.FFmpeg   （或 scoop install ffmpeg）')
+      console.error('  Ubuntu : sudo apt-get install -y ffmpeg')
+      console.error('装好后重跑：node tools/assets-manifest.cjs' + (process.argv.includes('--update') ? ' --update' : ''))
+      process.exit(1)
+    }
+    throw err
+  }
   const info = JSON.parse(raw)
   const stream = (info.streams || []).find((s) => s.codec_type === 'video')
   if (!stream) throw new Error(`no video stream: ${full}`)
