@@ -201,7 +201,11 @@ test('tts/status 不泄露本机绝对路径', async () => {
   apply(ctx, {})
   const res = await call(ctx.routes.get('/dsh-pet/tts/status'), { url: '/dsh-pet/tts/status' })
   const body = res.body()
-  assert.ok(!/Users|home"|python/i.test(body), '不应包含路径字段: ' + body)
+  // 只禁「绝对路径」本身。解释器**名字**（python / python3 / py）是要给用户看的安装提示，
+  // 不属于机器信息；旧断言用 /python/i 连它一起禁，CI 上必红（runner 没装 edge-tts，
+  // 于是 reason 里出现「用 python -m pip install edge-tts 装」这个提示）。
+  const pathish = /(?:[A-Za-z]:\\|\\\\|\/(?:Users|home|usr|opt|var|tmp|root)\/|python\.exe)/i
+  assert.ok(!pathish.test(body), '不应包含本机绝对路径: ' + body)
 })
 
 test('只挂 /dsh-pet 一个前缀（不再占用宿主 /api）', () => {
