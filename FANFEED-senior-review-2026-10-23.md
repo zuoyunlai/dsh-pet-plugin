@@ -930,6 +930,54 @@ Release 公开、`/releases/latest` 指向它、资产 `dsh-pet-plugin-1.20.0.tg
 `Test@main` 42 s 绿、`release@v1.20.0` 54 s 绿；desktop profile 1.20.0（`install.ps1 -Update`）、
 web profile 1.20.0（`rm -rf node_modules/dsh-pet-plugin && pnpm install`）。
 
+### 9.aa 发版 1.20.1：新门禁自己把 CI 撞红了（2026-10-26）
+
+**背景**：1.20.1 是 1.20.0 的审查反哺批（设置归一化 / LLM 超时 / 轮询退避 / 资产元数据门禁 /
+`package.json` 描述「四只」改「五只」）。核实记录单独成文：
+`FANFEED-1.20.0-review-2026-10-26.md`。
+
+**经过**：`printf 'y\n' | node tools/release.cjs --apply --publish` 一次跑通
+（npm `1.20.1` / tag `v1.20.1` / 公开 Release），但随后 **`Test@main` 红**，
+失败步骤是 `Asset baseline (sha256 manifest)`：
+
+```
+Error: spawnSync ffprobe ENOENT   (errno: -2, syscall: 'spawnSync ffprobe', path: 'ffprobe')
+    at build (tools/assets-manifest.cjs:53:10)
+```
+
+**根因**：1.20.1 新加的资产门禁要用 `ffprobe` 读 WebM 的宽高/时长/codec/alpha，
+而 **GitHub 的 `ubuntu-latest` 镜像默认没有装 ffmpeg**。本机有 ffmpeg，所以本地两次
+`npm test` 全绿、`npm pack` 正常，到了 runner 才炸。**这不是资产坏了，是我给仓库加了
+外部依赖却没有在 CI 里声明它**。
+
+**处置**：
+1. `.github/workflows/test.yml` 在资产基线前加一步
+   `sudo apt-get update && sudo apt-get install -y ffmpeg`。
+2. `tools/assets-manifest.cjs` 捕获 `ENOENT`，打印 Windows / Ubuntu 的安装命令与重跑命令，
+   不再把 `spawnSync` 的栈原样甩给读者（栈里只有 `errno: -2`，看不出缺的是 ffmpeg）。
+3. 修复提交 `2f7d31e` 经 `tools/push-via-api.cjs --apply` 推上 main
+   （远端新提交 `b7a76a7`），`Test@main` 复跑转绿。
+
+**这次的 tag 没有重建**：1.20.0 那次重建 tag 是因为**产品代码/测试**错了（tag 树里的
+`tests/voice.test.mjs` 必红）；这次错的只有 `.github/workflows/test.yml` 和工具脚本的报错文案，
+发布出去的包内容没有任何差异，而 tag 自己的 `release@v1.20.1` 是绿的。按「不为了好看重建已发布对象」
+的原则保留原 tag，把修复留给 main。
+
+**核对**：
+- npm `1.20.1` = latest，`dist.shasum` = `9d359243530d329ddb89158c95578f27626bdeb2`；
+- tag `v1.20.1` → `56f7a575`；Release 公开、`/releases/latest` 指向它；
+- 资产 `dsh-pet-plugin-1.20.1.tgz` 19,677,287 B，下载后 `sha1sum` = `9d3592…`，
+  **与 npm `dist.shasum` 逐字相同**（这次 CI 没有重打包，无需像 1.20.0 那样 `--clobber` 覆盖）；
+- tag 树里 20 条 `assets/*.webm` 的 blob sha 与本机 `git hash-object` 结果 **0 mismatch**
+  （push-via-api 的二进制通道自 1.19.4 修复后未再退化）；
+- `Test@main` 绿、`release@v1.20.1` 绿；desktop profile 已 `install.ps1 -Update` 到 1.20.1。
+- 本机真实宿主复核：`/dsh-pet/ping` → `ok:true`、`toolEvents:"ok"`；`/dsh-pet/tts/status` →
+  `available:true` + 23 音色。
+
+**教训**：**给仓库加门禁，先问「runner 上有没有这个依赖」**。本机全绿只能证明本机；
+`ffprobe`/`ffmpeg` 这类二进制依赖要在 workflow 里显式安装，脚本侧还要在缺失时给出可执行的
+下一步（装什么、重跑什么），否则下一个人只会看到 `errno: -2`。
+
 
 ---
 
