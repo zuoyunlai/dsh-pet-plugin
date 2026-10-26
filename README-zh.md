@@ -135,7 +135,7 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - **界面文案**：改 `locale/*.json` 的 `pet` 命名空间，再 `node build.mjs` —— 字典在构建时注入
   产物，所以 locale 文件是唯一真源。加语言：先 `node tools/gen-locales.cjs` 出骨架，再补翻译。
 - **动作动画**：`src/70-style.js` 里加 keyframes，在 `src/96-overlay.js` 按 `mood` 挂 class。
-- **动作视频**：pack 里可以带 `clips: { dance: "pet-x-dance.webm" }`——带 alpha 通道的 VP9 WebM。
+- **动作视频**：pack 里可以带 `clips: { dance: "pet-x-dance.webm" }`——带 alpha 通道的 VP9 WebM。1.20.0 随包视频高度为 640；普通片段约 5.167 秒，stage 片段约 10.125 秒。`tools/assets-manifest.cjs` 会记录尺寸、时长、编码器、像素格式、alpha 模式、字节数和 SHA-256；资产测试会锁定这些值，并检查总预算不超过 20 MB。
   该动作播放时她用循环 `<video>` 而不是翻帧，这是做到真 24fps 的唯一办法。
 - **立绘**：透明底 WebP 丢进 `assets/`，在 `pets/<id>/pack.json` 里引用，再 `node build.mjs`
   （它会先从 `pets/` 生成 `src/30-personas.js`）。宿主路由 `/dsh-pet/assets/` 只放行图片扩展名。

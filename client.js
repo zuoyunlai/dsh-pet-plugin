@@ -1206,21 +1206,62 @@ window.__ModuleLoader__.load({
       pos: null, // { x, y } 左上角像素，null = 用默认右下角锚点
     }
 
+    const SETTINGS_LANGS = new Set(['auto', 'en', 'zh', 'es', 'pt', 'hi'])
+    const SETTINGS_MODES = new Set(['always', 'random'])
+    const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
+
+    function finiteNumber(value, fallback, min, max) {
+      const n = typeof value === 'number' && Number.isFinite(value) ? value : Number(value)
+      return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback
+    }
+
+    function booleanSetting(value, fallback) {
+      return typeof value === 'boolean' ? value : fallback
+    }
+
+    function clockSetting(value, fallback) {
+      return typeof value === 'string' && CLOCK_RE.test(value) ? value : fallback
+    }
+
+    function normalizeSettings(input) {
+      const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {}
+      const out = { ...DEFAULT_SETTINGS }
+      if (typeof source.persona === 'string' && PERSONAS[source.persona]) out.persona = source.persona
+      if (typeof source.lang === 'string' && SETTINGS_LANGS.has(source.lang)) out.lang = source.lang
+      if (typeof source.mode === 'string' && SETTINGS_MODES.has(source.mode)) out.mode = source.mode
+      out.probability = finiteNumber(source.probability, out.probability, 0, 100)
+      out.activeStart = clockSetting(source.activeStart, out.activeStart)
+      out.activeEnd = clockSetting(source.activeEnd, out.activeEnd)
+      out.voiceOn = booleanSetting(source.voiceOn, out.voiceOn)
+      out.volume = finiteNumber(source.volume, out.volume, 0, 1)
+      out.pitchTrim = source.pitchTrim == null ? null : finiteNumber(source.pitchTrim, DEFAULT_SETTINGS.pitchTrim, 0.85, 1.15)
+      out.rateTrim = source.rateTrim == null ? null : finiteNumber(source.rateTrim, DEFAULT_SETTINGS.rateTrim, 0.8, 1.25)
+      out.neuralVoice = booleanSetting(source.neuralVoice, out.neuralVoice)
+      if (typeof source.ttsVoice === 'string' && source.ttsVoice.length <= 120) out.ttsVoice = source.ttsVoice
+      out.chatter = booleanSetting(source.chatter, out.chatter)
+      out.showInput = booleanSetting(source.showInput, out.showInput)
+      out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
+      out.chaos = booleanSetting(source.chaos, out.chaos)
+      out.celebrate = booleanSetting(source.celebrate, out.celebrate)
+      if (source.pos && typeof source.pos === 'object' && !Array.isArray(source.pos)) {
+        const x = finiteNumber(source.pos.x, NaN, -100000, 100000)
+        const y = finiteNumber(source.pos.y, NaN, -100000, 100000)
+        if (Number.isFinite(x) && Number.isFinite(y)) out.pos = { x, y }
+      }
+      return out
+    }
+
     function loadSettings() {
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY)
         if (!raw) return { ...DEFAULT_SETTINGS }
         const parsed = JSON.parse(raw)
         // 迁移：voicePitch/voiceRate 曾是「绝对值」，会盖掉每只角色自己的音高，导致五只听起来一样
-        delete parsed.voicePitch
-        delete parsed.voiceRate
-        const merged = { ...DEFAULT_SETTINGS }
-        for (const k of Object.keys(DEFAULT_SETTINGS)) {
-          if (parsed[k] !== undefined) merged[k] = parsed[k]
+        if (parsed && typeof parsed === 'object') {
+          delete parsed.voicePitch
+          delete parsed.voiceRate
         }
-        if (!PERSONAS[merged.persona]) merged.persona = DEFAULT_SETTINGS.persona
-        if (merged.mode !== 'always' && merged.mode !== 'random') merged.mode = 'always'
-        return merged
+        return normalizeSettings(parsed)
       } catch (e) {
         return { ...DEFAULT_SETTINGS }
       }
@@ -4201,6 +4242,7 @@ window.__ModuleLoader__.load({
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000
           let ctrl = null
+          let failures = 0
           const doPoll = async () => {
             if (stop) return
             ctrl =
@@ -4236,11 +4278,12 @@ window.__ModuleLoader__.load({
                     else if (j.command === 'show') showPet()
                   }
                   if (syncPhase()) notify()
-                  return
+                  return true
                 } catch (err) {
                   /* 换下一个地址（含超时中止） */
                 }
               }
+              return false
             } finally {
               clearTimeout(guard)
               ctrl = null
@@ -4248,13 +4291,15 @@ window.__ModuleLoader__.load({
           }
           const schedule = () => {
             if (stop) return
-            // 不可见时降频到 30s（省 CPU/网络），可见时 8s
-            const gap = runtime.visible || runtime.panelOpen ? 8000 : 30000
+            // 正常状态按可见性轮询；连续失败指数退避，避免宿主不可用时打满请求。
+            const baseGap = runtime.visible || runtime.panelOpen ? 8000 : 30000
+            const gap = Math.min(120000, baseGap * Math.pow(2, Math.min(failures, 4)))
             timer = setTimeout(async () => {
               try {
-                await doPoll()
+                const ok = await doPoll()
+                failures = ok ? 0 : Math.min(failures + 1, 4)
               } catch (e) {
-                /* ignore */
+                failures = Math.min(failures + 1, 4)
               }
               schedule()
             }, gap)

@@ -105,7 +105,10 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - **Moods and animations**: add keyframes in `src/70-style.js` and map the class by `mood`
   in `src/96-overlay.js`.
 - **Action clips**: a pack may carry `clips: { dance: "pet-x-dance.webm" }` — a VP9 WebM with an
-  alpha channel. When that action plays the pet renders a looping `<video>` instead of
+  alpha channel. The shipped 1.20.0 clips are 640 pixels tall; ordinary clips are about 5.167s and
+  stage clips about 10.125s. `tools/assets-manifest.cjs` records dimensions, duration, codec,
+  pixel format, alpha mode, byte size, and SHA-256; the asset test enforces those values and a
+  20 MB aggregate budget. When that action plays the pet renders a looping `<video>` instead of
   flipping through still frames, which is the only way to get true 24 fps motion.
 - **Artwork**: drop transparent WebPs into `assets/` and reference them from
   `pets/<id>/pack.json`, then `node build.mjs` (it regenerates `src/30-personas.js`).

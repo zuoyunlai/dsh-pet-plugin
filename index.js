@@ -413,9 +413,39 @@ export function apply(ctx, config) {
     ]
 
     let aborted = false
+    let timedOut = false
+    const streamCtrl = typeof AbortController === 'function' ? new AbortController() : null
+    const CHAT_TIMEOUT = Number.isFinite(Number(cfg.chatTimeoutMs))
+      ? Math.min(120000, Math.max(1000, Number(cfg.chatTimeoutMs)))
+      : 30000
+    const timeout = setTimeout(() => {
+      timedOut = true
+      try {
+        if (streamCtrl) streamCtrl.abort()
+      } catch (e) {
+        /* ignore */
+      }
+    }, CHAT_TIMEOUT)
     try {
-      req.on('close', () => {
+      req.on('aborted', () => {
         aborted = true
+        try {
+          if (streamCtrl) streamCtrl.abort()
+        } catch (e) {
+          /* ignore */
+        }
+      })
+      req.on('close', () => {
+        // IncomingMessage 的 close 也会在正常读完请求体后触发；只有
+        // readableAborted/destroyed 才表示客户端真的断开，避免吞掉正常回复。
+        if (req.readableAborted || req.destroyed) {
+          aborted = true
+          try {
+            if (streamCtrl) streamCtrl.abort()
+          } catch (e) {
+            /* ignore */
+          }
+        }
       })
     } catch (e) {
       /* ignore */
@@ -431,11 +461,17 @@ export function apply(ctx, config) {
         messages,
         maxTokens: cfg.maxTokens,
         temperature: cfg.temperature,
+        signal: streamCtrl ? streamCtrl.signal : undefined,
       })
       for await (const chunk of stream) {
         if (aborted) break
         if (chunk && chunk.type === 'finish') finish = chunk.reason
         if (chunk && chunk.type === 'text-delta' && typeof chunk.text === 'string') out += chunk.text
+      }
+      clearTimeout(timeout)
+      if (timedOut && !aborted) {
+        reply(res, 504, { error: 'llm-timeout', message: 'model request timed out' })
+        return
       }
       out = out.trim()
       if (!out) {
@@ -463,6 +499,11 @@ export function apply(ctx, config) {
       }
       reply(res, 200, { reply: out.slice(0, 1200) })
     } catch (e) {
+      clearTimeout(timeout)
+      if (timedOut && !aborted) {
+        reply(res, 504, { error: 'llm-timeout', message: 'model request timed out' })
+        return
+      }
       const detail = String((e && e.message) || e)
       const ref = failRef(detail)
       try {

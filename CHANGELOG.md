@@ -1,5 +1,46 @@
 # Changelog
 
+## 1.20.1 — 2026-10-26
+
+本轮是 1.20.0 的审查反哺：先把全部结论对着当前源码核实，再按报告顺序修，
+没有把「代码里已有修复」当成「已经验证过」。完整核实记录在
+`FANFEED-1.20.0-review-2026-10-26.md`。
+
+- **修：设置面板的脏数据可以一路流进渲染和请求**（审计 P1-1）。`loadSettings()` 原来只校验
+  `persona` 和 `mode`，其余字段把 `localStorage` 里的 JSON 直接吃下去——手改过存储、旧版本遗留、
+  或别的插件写坏同名键，都能让 `scale` 变成 `"big"`、音量变成 `99`、概率变成 `-5`、
+  定时器间隔变成 `0`。现在 `normalizeSettings()` 逐字段过：枚举按白名单、数值按 `Number.isFinite`
+  + 区间夹取（`probability` 0–100、`volume` 0–1、`pitchTrim` 0.85–1.15、`rateTrim` 0.8–1.25、
+  `scale` 0.5–2、`pos` 各轴 ±100000）、时间走 `HH:MM` 正则、布尔只认真正的布尔。
+  非法值一律回默认，不再尝试「修一修继续用」。
+- **修：聊天请求没有服务端超时，上游挂住就一直挂着**（审计 P1-2）。`/dsh-pet/chat` 原来只监听
+  `req` 的 `close`，`ctx.llm.stream()` 没有 `AbortSignal`，也没有等待上限。现在加了
+  `chatTimeoutMs` 配置（默认 30000，夹取 1000–120000），超时立刻 abort 模型流并返回
+  `504 llm-timeout`；顺带修掉一个反向的坑——`close` 在**正常读完请求体之后**也会触发，
+  旧写法会把它当断连，把已经拿到的回复丢掉。现在只有 `req.readableAborted || req.destroyed`
+  算断连。
+- **修：`/ping` 轮询在网络异常时按固定节奏空转**（审计 P2-2）。可见时 8s 一次、不可见 30s 一次，
+  这个节奏不变；但连续失败会指数退避（`baseGap × 2^min(failures,4)`，上限 120s），
+  成功一次立刻回到基础节奏。宿主侧断网或重启时不再每 8 秒白撞一次。
+- **新：资产门禁从「只要没动过」升级到「尺寸/时长/编码也要对」**（审计 P2-1）。
+  `tools/assets-manifest.cjs` 现在对每条 WebM 跑 `ffprobe`，把宽高、时长、`vp9`、像素格式、
+  alpha 模式一起写进 `tests/assets-manifest.json`；`tests/assets.test.mjs` 逐条断言，
+  并加总预算 20 MB。普通片段期望 5167ms、`-stage` 片段期望 10125ms——两者本就是不同批次，
+  门禁按文件名区分，不再拿一个常数硬套（第一次跑就是被这条抓住的）。
+- **修：`package.json` 的描述把五只角色写成四只**（审计 M3）。npm 包页和面板元数据都读它，
+  1.20.0 加了鲸鱼娘之后这里一直是旧文案，改成「五只」。
+- **文档**：README / README-zh 的资产段补上「640 高、普通 5.167s / stage 10.125s、
+  门禁记什么、总预算 20 MB」，不再只写一句「VP9 + alpha」。
+- **弃用**：`dsh-plugin-dev check --strict` 不再作为本仓库门禁——新宿主已不随包提供该工具
+  （`app.asar` 内只剩 `cordis-plugin-development` 技能文档，`@deepseek-ai/` 下也没有 `dsh-tools`）。
+  替代证据是三条：宿主加载期校验、`install.ps1 -Verify`、本机真实宿主实跑。
+
+**验证**：`npm test` 86/86（新增 4 条：设置归一化、正常 close 仍返回模型结果、超时
+AbortSignal 返回 `504`、轮询失败退避）；`git diff --check` 干净；`npm pack --dry-run` 135 files、
+packed 19,675,824 B；`install.ps1 -Verify` 在 Windows PowerShell 5.1 上通过；本机真实宿主
+`/dsh-pet/ping` 返回 `toolEvents:"ok"`、`/dsh-pet/tts/status` 返回 `available:true` + 23 个音色。
+仍未做的是 CI 内的浏览器/跨平台自动化矩阵（本机可用是人工确认，不是可回归的门禁）。
+
 ## 1.20.0 — 2026-10-25
 
 - **新形象：鲸鱼娘**（`azure`）。深海蓝渐变长发、鲸鳍状耳朵、腰后鲸尾的女仆装，
@@ -57,6 +98,8 @@
 - 素材：`assets/` 12MB → 19MB（新增五条 stage，5.4MB）。五条尺寸：
   薇 318×640 / 747KB、绯 454×640 / 1,052KB、蓝 358×640 / 860KB、雪 428×640 / 874KB、
   鲸鱼娘 426×640 / 1,834KB；抠像半透明 1.0–1.5%，四角 alpha 全 0，脚部锚点逐帧钉到中位数。
+  当前 20 条 WebM 的 manifest 还锁定实际尺寸、时长、VP9、像素格式、alpha mode、字节数和 SHA-256；
+  普通片段为 5167ms，五条 stage 为 10125ms，全部资产总量 19,432,671 bytes，测试预算上限 20 MB。
 - 台账：`FANFEED-senior-review-2026-10-23.md` §9 记录本轮全部现象 / 根因 / 处置
   （含「让视频自己走过去」被判死的原因与数字：横向空间需要人物缩到画幅 55%）。
 

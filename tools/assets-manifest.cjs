@@ -11,6 +11,7 @@
 const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
+const { execFileSync } = require('child_process')
 
 const ROOT = path.join(__dirname, '..')
 const ASSETS = path.join(ROOT, 'assets')
@@ -18,6 +19,25 @@ const MANIFEST = path.join(ROOT, 'tests', 'assets-manifest.json')
 
 function sha256(buf) {
   return crypto.createHash('sha256').update(buf).digest('hex')
+}
+
+function probeMedia(full) {
+  if (path.extname(full).toLowerCase() !== '.webm') return {}
+  const raw = execFileSync('ffprobe', [
+    '-v', 'error', '-show_streams', '-show_format', '-of', 'json', full,
+  ], { encoding: 'utf8' })
+  const info = JSON.parse(raw)
+  const stream = (info.streams || []).find((s) => s.codec_type === 'video')
+  if (!stream) throw new Error(`no video stream: ${full}`)
+  return {
+    width: stream.width,
+    height: stream.height,
+    durationMs: Math.round(Number(info.format?.duration || stream.duration || 0) * 1000),
+    fps: stream.avg_frame_rate || stream.r_frame_rate,
+    codec: stream.codec_name,
+    pixelFormat: stream.pix_fmt,
+    alphaMode: stream.tags?.alpha_mode || stream.tags?.ALPHA_MODE || null,
+  }
 }
 
 function build() {
@@ -30,9 +50,15 @@ function build() {
     out[name] = {
       bytes: buf.length,
       sha256: sha256(buf),
+      ...probeMedia(full),
     }
   }
-  return { generatedAt: 'baseline', count: Object.keys(out).length, files: out }
+  return {
+    generatedAt: 'baseline',
+    count: Object.keys(out).length,
+    totalBytes: Object.values(out).reduce((sum, meta) => sum + meta.bytes, 0),
+    files: out,
+  }
 }
 
 const update = process.argv.includes('--update')

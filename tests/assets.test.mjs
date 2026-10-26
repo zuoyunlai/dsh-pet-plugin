@@ -9,7 +9,8 @@ const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..')
 
 /**
- * 资产回归基线：assets/ 下每个文件的 sha256 必须与 tests/assets-manifest.json 一致。
+ * 资产回归基线：assets/ 下每个文件的哈希、字节数和媒体元数据必须与
+ * tests/assets-manifest.json 一致。媒体字段由生成阶段的 ffprobe 固化，测试阶段不依赖 ffprobe。
  *
  * 为什么用哈希而不是截图对比：截图受动画时序、字体渲染、窗口尺寸影响，
  * 在 CI 上几乎必然误报；而"素材文件本身变了"是确定性的，也正好是这类插件
@@ -42,10 +43,24 @@ test('assets match the committed sha256 baseline', () => {
 
   const actual = hashAssets()
   const problems = []
+  assert.equal(manifest.totalBytes, Object.values(manifest.files).reduce((sum, meta) => sum + meta.bytes, 0),
+    'manifest totalBytes must equal the sum of file bytes')
+  assert.ok(manifest.totalBytes <= 20_000_000, `asset budget exceeded: ${manifest.totalBytes} bytes`)
   for (const [name, meta] of Object.entries(actual)) {
     const base = manifest.files[name]
     if (!base) problems.push('added: ' + name)
-    else if (base.sha256 !== meta.sha256) problems.push('changed: ' + name)
+    else if (base.sha256 !== meta.sha256 || base.bytes !== meta.bytes) problems.push('changed: ' + name)
+    if (name.endsWith('.webm') && base) {
+      for (const field of ['width', 'height', 'durationMs', 'fps', 'codec', 'pixelFormat', 'alphaMode']) {
+        if (!(field in base)) problems.push(`${name}: missing ${field} metadata`)
+      }
+      assert.equal(base.codec, 'vp9', `${name}: expected VP9`)
+      assert.ok(base.width > 0 && base.width <= 640, `${name}: invalid width`)
+      assert.equal(base.height, 640, `${name}: expected 640px height`)
+      const expectedDuration = name.includes('-stage.') ? 10125 : 5167
+      assert.equal(base.durationMs, expectedDuration, `${name}: unexpected duration`)
+      assert.equal(base.alphaMode, '1', `${name}: expected alpha_mode=1`)
+    }
   }
   for (const name of Object.keys(manifest.files)) {
     if (!actual[name]) problems.push('removed: ' + name)

@@ -58,20 +58,25 @@ function makeCtx(opts = {}) {
   }
 }
 
-function call(handler, { method = 'GET', url = '/', body = '', headers = {} } = {}) {
+function call(handler, { method = 'GET', url = '/', body = '', headers = {}, closeAfterBody = false } = {}) {
+  const closeListeners = []
   const req = {
     method,
     url,
     headers,
+    readableAborted: false,
+    destroyed: false,
     socket: { remoteAddress: '127.0.0.1' },
     on(ev, fn) {
       if (ev === 'data' && body) fn(Buffer.from(body))
       if (ev === 'end') fn()
+      if (ev === 'aborted' || ev === 'close') closeListeners.push(fn)
       return req
     },
     // readBody 用 for await (const chunk of req)，所以假 req 要能异步迭代
     async *[Symbol.asyncIterator]() {
       if (body) yield Buffer.from(body)
+      if (closeAfterBody) for (const fn of closeListeners) fn()
     },
   }
   const chunks = []
@@ -455,6 +460,46 @@ test('chat 失败不回上游原文，只给稳定错误码 + 关联 ID', async 
   assert.equal(j.code, '502')
   assert.match(j.ref, /^[0-9a-f]{8}$/)
   assert.ok(j.message.indexOf(j.ref) >= 0, 'message 里要带关联 ID，用户才能对日志')
+})
+
+test('chat 正常读完后 close 仍然返回模型结果', async () => {
+  const llm = fakeLlm([
+    { type: 'text-delta', text: '正常回复' },
+    { type: 'finish', reason: { kind: 'stop' } },
+  ])
+  const ctx = makeCtx({ llm })
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/chat'), {
+    method: 'POST',
+    url: '/dsh-pet/chat',
+    closeAfterBody: true,
+    body: JSON.stringify({ text: 'hi', personaId: 'violet', lang: 'zh' }),
+  })
+  assert.equal(res.statusCode, 200)
+  assert.equal(JSON.parse(res.body()).reply, '正常回复')
+})
+
+test('chat 超时会中止模型请求并返回稳定错误', async () => {
+  let signal = null
+  const llm = {
+    stream(args) {
+      signal = args.signal
+      return (async function* () {
+        await new Promise((resolve) => setTimeout(resolve, 1100))
+        yield { type: 'text-delta', text: '迟到的回复' }
+      })()
+    },
+  }
+  const ctx = makeCtx({ llm })
+  apply(ctx, { chatTimeoutMs: 1000 })
+  const res = await call(ctx.routes.get('/dsh-pet/chat'), {
+    method: 'POST',
+    url: '/dsh-pet/chat',
+    body: JSON.stringify({ text: 'hi', personaId: 'violet', lang: 'zh' }),
+  })
+  assert.equal(res.statusCode, 504)
+  assert.equal(JSON.parse(res.body()).error, 'llm-timeout')
+  assert.ok(signal && signal.aborted, '超时必须触发 AbortSignal')
 })
 
 test('chat 抛异常时同样不回原文', async () => {

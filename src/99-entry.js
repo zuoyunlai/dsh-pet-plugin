@@ -168,6 +168,7 @@
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000
           let ctrl = null
+          let failures = 0
           const doPoll = async () => {
             if (stop) return
             ctrl =
@@ -203,11 +204,12 @@
                     else if (j.command === 'show') showPet()
                   }
                   if (syncPhase()) notify()
-                  return
+                  return true
                 } catch (err) {
                   /* 换下一个地址（含超时中止） */
                 }
               }
+              return false
             } finally {
               clearTimeout(guard)
               ctrl = null
@@ -215,13 +217,15 @@
           }
           const schedule = () => {
             if (stop) return
-            // 不可见时降频到 30s（省 CPU/网络），可见时 8s
-            const gap = runtime.visible || runtime.panelOpen ? 8000 : 30000
+            // 正常状态按可见性轮询；连续失败指数退避，避免宿主不可用时打满请求。
+            const baseGap = runtime.visible || runtime.panelOpen ? 8000 : 30000
+            const gap = Math.min(120000, baseGap * Math.pow(2, Math.min(failures, 4)))
             timer = setTimeout(async () => {
               try {
-                await doPoll()
+                const ok = await doPoll()
+                failures = ok ? 0 : Math.min(failures + 1, 4)
               } catch (e) {
-                /* ignore */
+                failures = Math.min(failures + 1, 4)
               }
               schedule()
             }, gap)
