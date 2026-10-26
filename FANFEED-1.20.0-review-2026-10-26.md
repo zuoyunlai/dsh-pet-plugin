@@ -67,3 +67,27 @@
 - 资产 manifest：当前门禁校验 83 个文件的 SHA-256 与字节数，并通过 ffprobe 锁定 WebM 尺寸、时长、VP9、像素格式和 alpha mode；20 条 WebM 总字节数 19,432,671，低于 20 MB 预算。普通片段 5167ms，五条 stage 片段 10125ms。
 - 本轮修订未执行 npm/GitHub 发布；工作树变更需在发布前单独审阅。
 - 仍未做的只有「CI 内自动化矩阵」：GitHub Actions 里没有 Playwright/Chromium 截图比对、没有 Windows runner 跑 `install.ps1`、没有网络挂起与 TTS 缺失的故障注入。本机的真实浏览器与桌面版可用是人工确认结论，不是可回归的门禁。
+
+## 收录状态（2026-10-26 实测，非引用他人结论）
+
+四个社区目录各有一条 `dsh-pet-plugin` 收录 PR，全部由本人账号 `zuoyunlai` 提交，状态逐个查过 GitHub API：
+
+| 目录 | PR | 改动 | 合并状态 | CI |
+| --- | --- | --- | --- | --- |
+| `awesome-dsh-plugin/awesome-dsh-plugin`（主目录，一插件一个 YAML） | #9610 | `data/plugins/zuoyunlai__dsh-pet-plugin.yml` +2/-2 | `clean` | `Submission gate`、`check` 两个 check 均 success |
+| `dshworks/awesome-dsh-plugins`（20,769 条注册表 + 渲染站点） | #181 | 7 files +53/-12 | `clean` | `check` success |
+| `kejixiaoliang/awesome-dsh-plugins`（中文清单） | #147 | `plugins/fun-other.md` +1 | `mergeable`（`unstable`） | `validate` 停在 `action_required`：首次贡献者的 workflow 要维护者点「Approve and run」，不是代码问题 |
+| `0xsline/awesome-deepseek-harness`（双语 README 清单） | #732 | `README.md`、`README.zh-CN.md` 各 +1 | `clean` | `awesome-lint` success |
+
+### dshworks #181：一次 CONFLICTING + 一次 CI 红，都已修
+
+- **现象 1**：`mergeable_state = dirty`（CONFLICTING）。根因是这条 PR 的分支基线停在 `8dafc69`（20,770 条），而上游 `main` 已前进到 `4269f7ba`，两边都改过 `data/plugins.json` 的同一批行，Git 无法自动合并。
+- **处置**：本机 `git fetch/clone` 到 `github.com:443` 超时，改用 REST 逐文件重建仓库（`raw.githubusercontent` 拉文件 + `git/trees` 取全量清单），本地装 `@deepseek-ai/dsh-plugin-market-index@0.2.1-rc.2` 与 `semver` 后跑真正的 `node scripts/validate.mjs` 与 `node scripts/render.mjs`，再用 Data API 重写分支：先把 fork 的 `main` 用 `merge-upstream` 快进到上游 head，再以 `base_tree = 上游树`、`parent = 上游 head` 建提交，`force` 移动分支。
+- **自证不是手改 JSON**：拿上游原始数据重跑一次 `render`，四个产物与上游树的 blob sha **逐字节相同**（`README.md 17da3329`、`docs/plugins.json 7c339dba`、`docs/plugins-embed.js d40257c6`、`docs/stats.json 18ede602`）——证明本机工装与上游 CI 同构，条目是唯一差异。
+- **现象 2**：第一次重推后 `check` 红，日志原文 `render: lists/fun.md is out of sync with data/plugins.json; run \`npm run render\``。根因：`render` 的产物除 README 与 `docs/*` 外还包含按标签拆分的 `lists/*.md`，我只传了 6 个文件，漏了 `lists/fun.md`（新条目的 `fun` 标签落在这张表）。
+- **处置**：把 `lists/fun.md` 一并提交（复用已上传的 blob sha 组树，避免重传 37 MB），`check` 转 success，`mergeable_state = clean`。
+- 条目内容按事实写：五个形象（薇/绯/靛/银/鲸鱼女仆）、24fps VP9 alpha 动作、10 秒单镜头舞台片段、五语台词、可选 edge-tts；`status` 写 `verified` 并引用 `package.json#dsh.bundle` 作证据（该目录要求 `verified` 必须给 evidence，否则 validate 直接报错）。描述被 `maxLength: 200` 卡过一次（238 → 217 → 182 字符），是工具报错后逐次收紧的，不是预判。
+
+### 另两个清单：只剩过期描述
+
+`#147` 与 `#732` 原文写「四个形象 / four personas」（1.20.0 之前的事实），已各推一个修订提交改成五个形象并补上舞台片段与 24fps 说法；`#732` 的 `awesome-lint` 在改后仍 success。
