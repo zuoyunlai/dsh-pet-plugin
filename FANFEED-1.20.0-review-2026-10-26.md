@@ -75,7 +75,7 @@
 | 目录 | PR | 改动 | 合并状态 | CI |
 | --- | --- | --- | --- | --- |
 | `awesome-dsh-plugin/awesome-dsh-plugin`（主目录，一插件一个 YAML） | #9610 | `data/plugins/zuoyunlai__dsh-pet-plugin.yml` +2/-2 | `clean` | `Submission gate`、`check` 两个 check 均 success |
-| `dshworks/awesome-dsh-plugins`（20,769 条注册表 + 渲染站点） | #181 | 7 files +53/-12 | `clean` | `check` success |
+| `dshworks/awesome-dsh-plugins`（20,769 条注册表 + 渲染站点） | #181 → #197 | #181 已并入 #196；#197 是收录后的事实刷新（4 文件） | #181 `closed`（维护者合入 #196）、#197 `clean` | #197 `check` success |
 | `kejixiaoliang/awesome-dsh-plugins`（中文清单） | #147 | `plugins/fun-other.md` +1 | `mergeable`（`unstable`） | `validate` 停在 `action_required`：首次贡献者的 workflow 要维护者点「Approve and run」，不是代码问题 |
 | `0xsline/awesome-deepseek-harness`（双语 README 清单） | #732 | `README.md`、`README.zh-CN.md` 各 +1 | `clean` | `awesome-lint` success |
 
@@ -87,6 +87,14 @@
 - **现象 2**：第一次重推后 `check` 红，日志原文 `render: lists/fun.md is out of sync with data/plugins.json; run \`npm run render\``。根因：`render` 的产物除 README 与 `docs/*` 外还包含按标签拆分的 `lists/*.md`，我只传了 6 个文件，漏了 `lists/fun.md`（新条目的 `fun` 标签落在这张表）。
 - **处置**：把 `lists/fun.md` 一并提交（复用已上传的 blob sha 组树，避免重传 37 MB），`check` 转 success，`mergeable_state = clean`。
 - 条目内容按事实写：五个形象（薇/绯/靛/银/鲸鱼女仆）、24fps VP9 alpha 动作、10 秒单镜头舞台片段、五语台词、可选 edge-tts；`status` 写 `verified` 并引用 `package.json#dsh.bundle` 作证据（该目录要求 `verified` 必须给 evidence，否则 validate 直接报错）。描述被 `maxLength: 200` 卡过一次（238 → 217 → 182 字符），是工具报错后逐次收紧的，不是预判。
+
+### #181 的结局：维护者把它并进 #196 收录了，于是改成事实刷新（#197）
+
+- **现象**：`#181` 在 2026-10-26T12:38:22Z 被关闭，`merged=false`。关闭者是维护者 `lroolle`，原话：「Thanks! Admitted in #196 with your text, tags and npm name. Trailer kept.」——即条目不是走我的 PR 合的，而是被 10-26 那次大扫（`81a9ef5e`，`Sweep 2026-10-26: #177 + 2,400 of the overflow drained, 14 contributor PRs folded …; 20,769 -> 21,928 (#196)`）连同另外 13 条贡献者 PR 一起折进注册表。
+- **核实收录事实**（不是信口径）：拉当前 `main` 的 `data/plugins.json`（21,928 条）在 index 20918 找到 `zuoyunlai/dsh-pet-plugin`，`status: verified`、`npm: dsh-pet-plugin`、`evidence: package.json#dsh.bundle`、`tags: [fun, ui]` 都在；但描述仍是 PR 原文的「four personas … Zero dependencies」，且没有 `stars`/`starsUpdated`/`pushedAt`（条目进库早于 star 扫描看到该仓库）。
+- **处置**：不重开 #181（那是已合入的投放单，重开只会制造两个 PR 抢同一行），改为在新基线 `81a9ef5e` 上开 **#197**，只改这一行：`four personas → five personas`、补 10 秒舞台片段与 `1.20.1`、补 `stars: 1` / `starsUpdated` / `pushedAt: 2026-10-26`（描述从 189 字符起手，仍在 `maxLength: 200` 内）。`category`/`status`/`evidence`/`tags` 不动。
+- **再次自证同构**：这次先在**新**上游 head 上跑一遍纯基线 `render`，`README.md`/`data/plugins.json`/`docs/plugins.json`/`docs/plugins-embed.js`/`docs/stats.json`/`docs/index.html` 与全部 `lists/*.md` 的 blob sha 与上游树 **19/19 全等**，再打补丁，最终只有 4 个文件变（`data/plugins.json`、`docs/plugins.json`、`docs/plugins-embed.js`、`lists/fun.md`），`render --check` 干净、`check` workflow success、`mergeable_state = clean`。
+- **教训**：这类注册表 PR 的基线寿命以小时计——上游每天扫一次、每次都重写整个 13 MB `data/plugins.json`，任何未合的 PR 必然 CONFLICTING。要么等扫完立刻推，要么接受「先被扫入、再补一条事实刷新」。
 
 ### 另两个清单：只剩过期描述
 
