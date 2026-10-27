@@ -90,9 +90,38 @@ const root = createRoot(host)
 
 const tick = (ms = 40) => new Promise((r) => setTimeout(r, ms))
 
+/**
+ * 等条件成立再断言，最多等 timeout 毫秒（默认 3000）。
+ *
+ * 为什么不能只用固定 tick：React 18 的 createRoot 是并发渲染，render() 返回后
+ * DOM 未必已经提交；固定等 40ms 在本机够用，但在更慢的 CI runner 上不够——
+ * v1.24.0 的 release workflow 就是因此红了（"菜单项应是原生 button，实际 0 个"，
+ * 而本地连跑 5 次全绿）。这类"本地绿、CI 红"的假绿比测试缺失更危险，必须改成轮询。
+ */
+async function waitFor(fn, msg, timeout = 3000) {
+  const start = Date.now()
+  for (;;) {
+    let v
+    try {
+      v = fn()
+    } catch (e) {
+      v = undefined
+    }
+    if (v) return v
+    if (Date.now() - start > timeout) {
+      throw new Error('等待超时（' + timeout + 'ms）：' + msg)
+    }
+    await tick(16)
+  }
+}
+
 before(async () => {
   root.render(React.createElement(PetOverlay, { sessionId: 'session-1' }))
-  await tick()
+  // 等到组件真的挂进 DOM 再进用例，避免下游用例拿到空树
+  await waitFor(
+    () => window.document.querySelector('.dsh-pet-root'),
+    'PetOverlay 未在超时内挂载到 .dsh-pet-root'
+  )
 })
 
 after(() => {
@@ -107,10 +136,13 @@ test('右键菜单每一项都是原生 button[role=menuitem]（键盘可达）'
   petApi.runtime.visible = true
   petApi.runtime.menu = { x: 120, y: 120 }
   petApi.notify()
-  await tick()
 
-  const items = host.querySelectorAll('button[role="menuitem"]')
-  assert.ok(items.length >= 5, `菜单项应是原生 button，实际 ${items.length} 个`)
+  // 等菜单真的提交到 DOM（CI runner 慢，固定 40ms 不够）
+  const items = await waitFor(() => {
+    const list = host.querySelectorAll('button[role="menuitem"]')
+    return list.length >= 5 ? list : null
+  }, '菜单项应是原生 button，实际 ' + host.querySelectorAll('button[role="menuitem"]').length + ' 个')
+  assert.ok(items.length >= 5)
   const menu = host.querySelector('[role="menu"]')
   assert.ok(menu, '菜单容器应带 role=menu')
   assert.equal(host.querySelector('.dsh-pet-menu-mask') != null, true, '遮罩应存在')
@@ -118,22 +150,21 @@ test('右键菜单每一项都是原生 button[role=menuitem]（键盘可达）'
   // 清场：直接关掉
   petApi.runtime.menu = null
   petApi.notify()
-  await tick()
-  assert.equal(host.querySelector('.dsh-pet-menu-mask'), null)
+  await waitFor(() => host.querySelector('.dsh-pet-menu-mask') === null, '关掉后遮罩应移除')
 })
 
 test('Escape 键关闭菜单', async () => {
   petApi.runtime.visible = true
   petApi.runtime.menu = { x: 120, y: 120 }
   petApi.notify()
-  await tick()
-  assert.ok(host.querySelector('.dsh-pet-menu-mask'), '菜单应已打开')
+  const mask = await waitFor(
+    () => host.querySelector('.dsh-pet-menu-mask'),
+    '菜单应已打开'
+  )
 
-  const mask = host.querySelector('.dsh-pet-menu-mask')
   mask.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-  await tick()
+  await waitFor(() => host.querySelector('.dsh-pet-menu-mask') === null, 'Escape 后遮罩应移除')
 
-  assert.equal(host.querySelector('.dsh-pet-menu-mask'), null, 'Escape 后遮罩应移除')
   assert.equal(petApi.runtime.menu, null, 'runtime.menu 应清空')
 })
 
