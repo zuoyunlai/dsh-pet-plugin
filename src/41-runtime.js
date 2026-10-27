@@ -218,16 +218,42 @@
     }
 
     function persona() {
-      return PERSONAS[runtime.settings.persona] || PERSONAS.violet
+      const map = PERSONA_REG.map
+      return map[runtime.settings.persona] || map[Object.keys(map)[0]]
     }
 
-    /** 贴图地址：桌面壳里相对路径不通，用宿主注入的绝对 origin。 */
-    function assetUrl(name) {
+    /**
+     * 运行期注册表替换（R-01）：宿主 /personas 成功返回非空表时整表换入。
+     * 空表/坏表一律拒收（宿主扫描失败时保持内置表）；换表后当前 persona
+     * 若不在新表里，回落到新表第一只，避免渲染一个查无此人的形象。
+     */
+    function setPersonas(list) {
+      if (!Array.isArray(list) || !list.length) return false
+      const map = {}
+      for (const p of list) {
+        if (p && typeof p === 'object' && p.id) map[p.id] = p
+      }
+      if (!Object.keys(map).length) return false
+      PERSONA_REG.map = map
+      if (!map[runtime.settings.persona]) {
+        runtime.settings.persona = Object.keys(map)[0]
+      }
+      notify()
+      return true
+    }
+
+    /**
+     * 贴图地址：桌面壳里相对路径不通，用宿主注入的绝对 origin。
+     * R-01：贴图不一定还在包内 assets/ —— 用户包走 /dsh-pet/pets/<id>/，
+     * 由 pack 的 assetBase 指路；内置包没有该字段，回落默认路径。
+     */
+    function assetUrl(name, p) {
       let base = ''
       try {
         base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
       } catch (e) {
         base = ''
       }
-      return base + '/dsh-pet/assets/' + name
+      const assetBase = (p && p.assetBase) || '/dsh-pet/assets'
+      return base + assetBase + '/' + name
     }

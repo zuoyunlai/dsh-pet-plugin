@@ -15,6 +15,7 @@ import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { probeNeural, pythonCandidates, resolvePython, TTS_VOICES } from '../lib/tts.js'
+import { applyVoiceOverrides } from '../lib/registry.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 
@@ -111,4 +112,73 @@ test('probeNeural({force:true}) 能绕过缓存并重新给出结论（装完依
   assert.equal(typeof forced.ok, 'boolean')
   // 缓存里那条不能被 force 结果弄丢类型
   assert.equal(typeof first.ok, 'boolean')
+})
+
+// —— R-07：voice.json 台词覆盖（applyVoiceOverrides）warn-and-drop 回归 ——
+
+const BASE_PERSONAS = [
+  { id: 'violet', name: '微', lines: { idle: ['内置一句'] }, linesEn: { idle: ['builtin'] } },
+  { id: 'crimson', name: '绯', lines: { idle: ['内置一句'] } },
+]
+
+test('R-07：按 id 覆盖指定形象的台词包', () => {
+  const { personas, warnings } = applyVoiceOverrides(BASE_PERSONAS, {
+    violet: { lines: { idle: ['你好，我是覆盖后的微'] }, linesEn: { idle: ['hi'] } },
+  })
+  assert.equal(personas[0].lines.idle[0], '你好，我是覆盖后的微')
+  assert.equal(personas[0].linesEn.idle[0], 'hi')
+  assert.equal(personas[1].lines.idle[0], '内置一句', '未覆盖的形象不受影响')
+  assert.deepEqual(warnings, [])
+})
+
+test('R-07：* 通配符应用到所有形象', () => {
+  const { personas } = applyVoiceOverrides(BASE_PERSONAS, {
+    '*': { linesPt: { idle: ['olá'] } },
+  })
+  for (const p of personas) {
+    assert.equal(p.linesPt.idle[0], 'olá')
+    assert.equal(p.lines.idle[0], '内置一句', '通配只覆盖给的键')
+  }
+})
+
+test('R-07：坏输入逐级丢弃并出 warning，不拖垮其他键', () => {
+  const { personas, warnings } = applyVoiceOverrides(BASE_PERSONAS, {
+    nobody: { lines: { idle: ['x'] } }, // 没有匹配的形象
+    violet: { idle: { idle: ['x'] }, linesEn: 'not-object' }, // idle 不在白名单 + 台词包不是对象
+    crimson: { lines: { idle: Array(201).fill('x') } }, // 单 mood 超 200 条
+    indigo: { lines: 'not-object' }, // 同上：未匹配形象本身也不产生台词包警告
+  })
+  assert.equal(personas[0].lines.idle[0], '内置一句', '全部被丢弃，保持内置')
+  assert.equal(personas[1].lines.idle[0], '内置一句')
+  assert.equal(warnings.length, 5)
+  assert.ok(warnings.some((w) => w.includes('没有匹配的形象')))
+  assert.ok(warnings.some((w) => w.includes('不在允许清单')))
+  assert.ok(warnings.some((w) => w.includes('不是合规台词数组')))
+  assert.ok(warnings.some((w) => w.includes('不是台词包对象')))
+})
+
+test('R-07：顶层不是对象 → 整体忽略；单条超 300 字 → 整 mood 丢弃', () => {
+  const a = applyVoiceOverrides(BASE_PERSONAS, ['array'])
+  assert.equal(a.personas[0].lines.idle[0], '内置一句')
+  assert.equal(a.warnings.length, 1)
+  assert.ok(a.warnings[0].includes('顶层不是对象'))
+
+  const long = 'x'.repeat(301)
+  const b = applyVoiceOverrides(BASE_PERSONAS, { violet: { lines: { idle: [long] } } })
+  assert.equal(b.personas[0].lines.idle[0], '内置一句', '超长条目整 mood 丢弃，不截断')
+  assert.equal(b.warnings.length, 1)
+})
+
+test('R-07：按 mood 合并，未覆盖的 mood 保留内置', () => {
+  const { personas } = applyVoiceOverrides(BASE_PERSONAS, {
+    violet: { lines: { happy: ['覆盖的 happy'] } },
+  })
+  assert.equal(personas[0].lines.happy[0], '覆盖的 happy')
+  assert.equal(personas[0].lines.idle[0], '内置一句', 'idle 未给出，保留内置')
+})
+
+test('R-07：不就地修改入参（注册表扫描结果可复用）', () => {
+  const snapshot = JSON.stringify(BASE_PERSONAS[0])
+  applyVoiceOverrides(BASE_PERSONAS, { violet: { lines: { idle: ['mutate?'] } } })
+  assert.equal(JSON.stringify(BASE_PERSONAS[0]), snapshot)
 })

@@ -15,7 +15,8 @@
         if (petDebug) {
           globalThis.__dshPet = {
             runtime,
-            PERSONAS,
+            // R-01：debug 出口也读运行期注册表（与下拉一致）
+            PERSONAS: PERSONA_REG.map,
             inActiveWindow,
             toMinutes,
             weighted,
@@ -197,6 +198,20 @@
                   if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
                   if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
                   if (j.toolEvents) runtime.toolEvents = j.toolEvents
+                  // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
+                  if (j.phase) runtime.hostPhase = String(j.phase)
+                  if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // —— 公告（R-03）：序号变大才播，轮询重复拿到同一条不重放 ——
+                  if (
+                    j.announce &&
+                    j.announce.seq > (runtime.lastAnnounceSeq || 0) &&
+                    typeof j.announce.text === 'string' &&
+                    j.announce.text
+                  ) {
+                    runtime.lastAnnounceSeq = j.announce.seq
+                    // announce 是外部触发（脚本/其它插件点名要她说），不走 statusBubbles 闸
+                    bubble(String(j.announce.text).slice(0, 300), null, 'announce')
+                  }
                   // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
                   if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
                     runtime.lastCommandSeq = j.commandSeq
@@ -241,6 +256,61 @@
             } catch (e) {
               /* ignore */
             }
+          }
+        })
+
+        // —— personas / 跨设备状态（R-01 / R-04，反哺报告 2026-10-27）：启动各拉一次 ——
+        // personas：宿主扫描到的形象整表下发；失败/空表保持内置表（setPersonas 拒收空表）。
+        // state：宿主有 → 宿主优先合并；宿主空 → 本地状态推上云（$DSH_HOME），换浏览器/设备不失忆。
+        ctx.effect(() => {
+          let stop = false
+          const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+          const withTimeout = (url, ms, init) => {
+            if (typeof AbortController !== 'function') return fetch(url, init)
+            const c = new AbortController()
+            const t = setTimeout(() => {
+              try {
+                c.abort()
+              } catch (e) {
+                /* ignore */
+              }
+            }, ms)
+            return fetch(url, { credentials: 'include', ...init, signal: c.signal }).finally(() => clearTimeout(t))
+          }
+          ;(async () => {
+            try {
+              const res = await withTimeout(base + '/dsh-pet/personas', 8000)
+              if (!stop && res.ok) {
+                const j = await res.json()
+                if (j && j.ok && Array.isArray(j.personas)) setPersonas(j.personas)
+              }
+            } catch (e) {
+              /* 老宿主没有这个端点：保持内置表 */
+            }
+            try {
+              const res = await withTimeout(base + '/dsh-pet/state', 8000)
+              if (!stop && res.ok) {
+                const j = await res.json()
+                const host = (j && j.state) || {}
+                const hasHost =
+                  (host.settings && Object.keys(host.settings).length) || (host.history && host.history.length)
+                if (hasHost) {
+                  mergeHostState(host)
+                } else {
+                  // 宿主还没有状态文件：把本地的推上去当初始真相
+                  await withTimeout(base + '/dsh-pet/state', 8000, {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ settings: runtime.settings, history: runtime.history }),
+                  }).catch(() => {})
+                }
+              }
+            } catch (e) {
+              /* 老宿主没有这个端点：本地 localStorage 照旧 */
+            }
+          })()
+          return () => {
+            stop = true
           }
         })
 

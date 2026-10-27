@@ -15,6 +15,19 @@
       const now = nowMs()
       if (runtime.speaking) return 'speak'
       if (runtime.lastErrorAt && now - runtime.lastErrorAt < ERROR_WINDOW) return 'error'
+      // —— 宿主直出（R-02，反哺报告 2026-10-27）：新鲜窗口内优先采用宿主投影 ——
+      // thinking → working（模型推理中，她在屏幕上溜达等结果）
+      // review → speak（回答文本在流，正好借说话的口型）
+      // tool / working 原样；done 只认前 DONE_WINDOW 秒——一轮回答结束后不能
+      // 在 15s 新鲜窗口里一直「庆祝」。过期或宿主没有 phase 就回落本地推导。
+      const hp = runtime.hostPhase
+      const hpAt = runtime.hostPhaseAt || 0
+      if (hp && hp !== 'idle' && hpAt && now - hpAt < 15000) {
+        if (hp === 'thinking' || hp === 'working') return 'working'
+        if (hp === 'tool') return 'tool'
+        if (hp === 'review') return 'speak'
+        if (hp === 'done' && now - hpAt < DONE_WINDOW) return 'done'
+      }
       if (runtime.lastToolAt && now - runtime.lastToolAt < TOOL_WINDOW) return 'tool'
       if (runtime.running) return 'working'
       if (runtime.doneUntil && now < runtime.doneUntil) return 'done'
@@ -27,6 +40,16 @@
       if (next === runtime.phase) return ''
       runtime.phase = next
       return next
+    }
+
+    /**
+     * 自动台词闸（R-03）：statusBubbles='off' 时关掉「自言自语」类的气泡
+     * （心情台词 / 阶段台词 / 闲聊 / 出现问候）。点按、拖拽、announce 公告
+     * 这类「有明确触发」的仍然走 bubble()，不受这个开关影响。
+     */
+    function statusBubble(text, ttl, mood) {
+      if (runtime.settings.statusBubbles === 'off') return
+      bubble(text, ttl, mood)
     }
 
     function bubble(text, ttl, mood) {
@@ -185,7 +208,7 @@
       runtime.moodUntil = nowMs() + randInt(4000, 9000)
       if (runtime.settings.chatter && m !== 'talk' && m !== 'idle') {
         const line = randomLine(m)
-        if (line && Math.random() < 0.55) bubble(line, null, m)
+        if (line && Math.random() < 0.55) statusBubble(line, null, m)
       }
       // 心情没变就不用重渲染（bubble 自己会 notify）
       if (m !== prev) notify()
@@ -205,10 +228,17 @@
         } else if (runtime.phase === 'done' && runtime.settings.celebrate !== false) {
           runtime.mood = 'happy'
           runtime.moodUntil = now + 3500
-        } else if (runtime.phase === 'tool' && runtime.mood === 'idle' && runtime.visible) {
-          // 在调工具时轻轻踱两步，别一直僵着
+        } else if (
+          (runtime.phase === 'tool' || runtime.phase === 'working') &&
+          runtime.mood === 'idle' &&
+          runtime.visible
+        ) {
+          // 在调工具 / 模型推理时轻轻踱两步，别一直僵着（working 来自 R-02 宿主 thinking 投影）
           runtime.mood = 'walk'
-          runtime.moodUntil = now + Math.min(TOOL_WINDOW, 3000)
+          runtime.moodUntil = now + 3000
+        } else if (runtime.phase === 'speak' && runtime.hostPhase === 'review' && runtime.visible && !runtime.action && !runtime.speaking) {
+          // 回答在流（宿主 review）：让她撩着头发等字出来（R-02）
+          playAction('hair')
         }
       }
 
@@ -219,7 +249,7 @@
         } else if (!runtime.visible) {
           runtime.visible = true
           runtime.visibleUntil = 0
-          if (s.chatter) bubble(randomLine('appear'), null, 'appear')
+          if (s.chatter) statusBubble(randomLine('appear'), null, 'appear')
           notify()
         }
       } else {
@@ -261,7 +291,7 @@
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
         lastChatterAt = now
         const line = randomLine('idle')
-        if (line) bubble(line, null, 'idle')
+        if (line) statusBubble(line, null, 'idle')
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
@@ -316,6 +346,34 @@
         }
       } catch (e) {
         runtime.history = []
+      }
+    }
+
+    /**
+     * 宿主状态合并（R-04，反哺报告 2026-10-27）：宿主侧 $DSH_HOME 的状态文件
+     * 是跨设备真相源——宿主有 → 宿主优先覆盖本地（同键才覆盖，本地多出来的键保留），
+     * 并归一化后落回 localStorage。history 直接替换（本就只留最近 8 条）。
+     */
+    function mergeHostState(host) {
+      try {
+        if (host.settings && typeof host.settings === 'object' && !Array.isArray(host.settings)) {
+          runtime.settings = normalizeSettings({ ...runtime.settings, ...host.settings })
+          saveSettings()
+        }
+        if (Array.isArray(host.history) && host.history.length) {
+          runtime.history = host.history
+            .filter((m) => m && typeof m.content === 'string')
+            .slice(-8)
+            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+          try {
+            window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history))
+          } catch (e) {
+            /* 隐私模式/配额满，忽略 */
+          }
+        }
+        notify()
+      } catch (e) {
+        /* ignore */
       }
     }
 

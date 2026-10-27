@@ -96,3 +96,21 @@ test('every persona referenced in a pack exists on disk', (t) => {
     }
   }
 })
+
+test('every pack declares a license (R-10 分发门禁)', (t) => {
+  const petsDir = join(root, 'pets')
+  if (!existsSync(petsDir)) {
+    t.skip('no pets/ in this install (runtime-only copy)')
+    return
+  }
+  const ids = readdirSync(petsDir).sort()
+  assert.ok(ids.length > 0, 'pets/ 目录不应为空')
+  for (const id of ids) {
+    const pack = JSON.parse(readFileSync(join(petsDir, id, 'pack.json'), 'utf8'))
+    assert.ok(
+      typeof pack.license === 'string' && pack.license.length > 0,
+      `${id}: pack.json 缺少 license 字段（分发合规门禁，见 THIRD_PARTY_NOTICES.md）`,
+    )
+  }
+  assert.ok(existsSync(join(root, 'THIRD_PARTY_NOTICES.md')), '根目录应有 THIRD_PARTY_NOTICES.md')
+})

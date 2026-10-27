@@ -60,7 +60,7 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 
 ## Customize
 
-- Personagens, falas e temperamentos ficam em `PERSONAS` no `client.js`.
+- Personagens, falas e temperamentos ficam em `pets/<id>/pack.json` (regenerado no `client.js` por `node build.mjs`); desde 1.21.0 também dá para adicionar em runtime via `$DSH_HOME/dsh-pet/pets/<id>/pack.json` — veja `README.md` / `README-zh.md` («Extending at runtime» / «运行期扩展»).
 - Novos humores: keyframes no bloco `CSS` e o mapeamento da classe em `Face`/`PetArt`.
 - `provider`, `model`, `maxTokens` e `temperature` são configuração do plugin.
 

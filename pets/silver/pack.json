@@ -22,7 +22,7 @@
       },
       "idle": {
         "pitch": 0,
-        "rate": 1.0
+        "rate": 1
       },
       "dance": {
         "pitch": 1,
@@ -36,7 +36,7 @@
       },
       "angry": {
         "pitch": 0,
-        "rate": 1.0,
+        "rate": 1,
         "volume": 1.04
       },
       "sleep": {
@@ -336,5 +336,6 @@
     "walk": "pet-silver-walk.webm",
     "hair": "pet-silver-hair.webm",
     "stage": "pet-silver-stage.webm"
-  }
+  },
+  "license": "MIT"
 }

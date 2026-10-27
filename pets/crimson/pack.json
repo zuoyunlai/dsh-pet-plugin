@@ -22,7 +22,7 @@
       },
       "idle": {
         "pitch": 0,
-        "rate": 1.0
+        "rate": 1
       },
       "dance": {
         "pitch": 4,
@@ -46,8 +46,8 @@
       },
       "error": {
         "pitch": 0,
-        "rate": 1.0,
-        "volume": 1.0
+        "rate": 1,
+        "volume": 1
       },
       "drag": {
         "pitch": 6,
@@ -339,5 +339,6 @@
     "walk": "pet-crimson-walk.webm",
     "hair": "pet-crimson-hair.webm",
     "stage": "pet-crimson-stage.webm"
-  }
+  },
+  "license": "MIT"
 }

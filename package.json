@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.20.1",
+  "version": "1.21.0",
   "description": "DSH 桌宠插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
@@ -20,6 +20,7 @@
     "tools/tts_worker.py",
     "CHANGELOG.md",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
     "README.md",
     "README-zh.md",
     "README-es.md",
@@ -36,7 +37,8 @@
     "lib/*.js"
   ],
   "peerDependencies": {
-    "@deepseek-ai/schemastery": "^3.18.2"
+    "@deepseek-ai/schemastery": "^3.18.2",
+    "react": ">=18.2.0"
   },
   "dsh": {
     "bundle": {
@@ -68,8 +70,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node build.mjs && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs",
-    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs",
+    "test": "node build.mjs && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs",
+    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs",
     "gen": "node tools/gen-personas.cjs",
     "gen:check": "node tools/gen-personas.cjs --check"
   },

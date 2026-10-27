@@ -107,7 +107,7 @@
     }
 
     /** 换表情/换动作帧时做一次带方向的交叉淡入淡出，硬切在照片上会很跳。 */
-    function CrossImage({ src, alt }) {
+    function CrossImage({ src, alt, persona }) {
       const [cur, setCur] = useState(src)
       const [prev, setPrev] = useState(null)
       const swap = useRef(0)
@@ -127,8 +127,8 @@
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur), alt, draggable: false }),
+        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
+        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
       )
     }
 
@@ -143,7 +143,7 @@
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen, exiting }) {
+    function ClipLayer({ clip, poster, alt, gen, exiting, persona }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -153,7 +153,7 @@
         return () => clearTimeout(t)
       }, [failed, giveUp, ready])
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
-      const still = h(CrossImage, { src: poster, alt })
+      const still = h(CrossImage, { src: poster, alt, persona })
       if (failed || giveUp) return still
       // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
       const showStill = !ready || exiting
@@ -167,7 +167,7 @@
             'dsh-pet-video' +
             (ready && !exiting ? ' is-ready' : '') +
             (exiting ? ' is-leaving' : ''),
-          src: assetUrl(clip),
+          src: assetUrl(clip, persona),
           autoPlay: true,
           muted: true,
           loop: false,
@@ -213,8 +213,8 @@
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting })
-              : h(CrossImage, { src: stillSrc, alt: p.name }),
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting, persona: p })
+              : h(CrossImage, { src: stillSrc, alt: p.name, persona: p }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )

@@ -6,7 +6,7 @@
   "image": "pet-azure.webp",
   "voice": {
     "pitch": 1.06,
-    "rate": 1.0,
+    "rate": 1,
     "voiced": {
       "zh": "xiaoyi",
       "en": "michelle",
@@ -22,7 +22,7 @@
       },
       "idle": {
         "pitch": 0,
-        "rate": 1.0
+        "rate": 1
       },
       "dance": {
         "pitch": 4,
@@ -419,5 +419,6 @@
       "नींद नहीं आ रही। बस आँखें छिपा रही हूँ।",
       "गहरे पानी का नियम है धीरे चलना। मुझे जल्दी नहीं।"
     ]
-  }
+  },
+  "license": "MIT"
 }

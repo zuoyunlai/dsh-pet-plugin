@@ -17,11 +17,11 @@
     "moods": {
       "appear": {
         "pitch": 1,
-        "rate": 1.0
+        "rate": 1
       },
       "idle": {
         "pitch": 0,
-        "rate": 1.0
+        "rate": 1
       },
       "dance": {
         "pitch": 2,
@@ -338,5 +338,6 @@
     "walk": "pet-violet-walk.webm",
     "hair": "pet-violet-hair.webm",
     "stage": "pet-violet-stage.webm"
-  }
+  },
+  "license": "MIT"
 }

@@ -198,6 +198,7 @@
           chatAck: ["Bolo, sun rahi hoon.", "Hmm? Batao."],
           error: ["Dhyaan bhatak gaya. Phir se bolo.", "Yeh nahi aaya. Ruko."],
         },
+        license: "MIT",
       },
       crimson: {
         id: "crimson",
@@ -372,6 +373,7 @@
           chatAck: ["Bolo. Sun rahi hoon.", "Hmm? Sidhi baat karo."],
           error: ["Samjhi nahi. Phir bolo.", "Yeh nahi chala. Dobara."],
         },
+        license: "MIT",
       },
       indigo: {
         id: "indigo",
@@ -529,6 +531,7 @@
           chatAck: ["Hmm. Aaraam se.", "Main yahan hoon."],
           error: ["Suna nahi. Phir bolo.", "Ruko, suljhaane do."],
         },
+        license: "MIT",
       },
       silver: {
         id: "silver",
@@ -674,6 +677,7 @@
           chatAck: ["Bolo.", "Aage bolo."],
           error: ["Samjhi nahi.", "Dobara bolo."],
         },
+        license: "MIT",
       },
       azure: {
         id: "azure",
@@ -1000,6 +1004,9 @@
             "गहरे पानी का नियम है धीरे चलना। मुझे जल्दी नहीं।",
           ],
         },
+        license: "MIT",
       },
     }
+
+    const PERSONA_REG = { map: PERSONAS }
 

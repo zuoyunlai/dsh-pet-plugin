@@ -140,6 +140,25 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - **立绘**：透明底 WebP 丢进 `assets/`，在 `pets/<id>/pack.json` 里引用，再 `node build.mjs`
   （它会先从 `pets/` 生成 `src/30-personas.js`）。宿主路由 `/dsh-pet/assets/` 只放行图片扩展名。
 
+## 运行期扩展（1.21.0）
+
+- **免重构建的自定义形象**：把 `$DSH_HOME/dsh-pet/pets/<id>/pack.json`（素材放同目录，
+  `license` 必填）丢进宿主目录——启动时扫描、与内置五只合并，经 `GET /dsh-pet/personas`
+  下发；资产走 `/dsh-pet/pets/<id>/…`（realpath 包含检查 + 扩展名白名单 + 超限 413）。
+  客户端拿不到列表时回落内置表。
+- **台词覆盖**：`$DSH_HOME/dsh-pet/voice.json`——
+  `{"<personaId>|*": {"lines|linesEn|linesEs|linesPt|linesHi": {"<mood>": ["…≤300字, ≤200条"]}}}`，
+  按 mood 合并，坏片段 warn 后丢弃；整个文件坏掉则警告并忽略，不影响启动。
+- **让桌宠开口**：`POST /dsh-pet/announce` `{"text":"…"}`（≤300 字、限流 30/分）。
+  `/dsh-pet/ping` 新增 `phase`（working|tool|review|done，15 秒新鲜窗口）与 `announce`
+  （seq 防重放）——agent 工作时桌宠会走位/撩发。
+- **状态落宿主盘**：`GET/POST /dsh-pet/state`（settings ≤64 键、history ≤200 条 ×8000 字）。
+  客户端启动时宿主优先合并，否则把 localStorage 上云——换浏览器/清缓存不丢形象和历史。
+- **关掉自动碎碎念**：设置 `statusBubbles: auto|off`——off 时心情/问候/闲聊自动台词静默，
+  点按/拖拽/announce 播报不受影响。
+- **分发合规**：每个 pack 声明 `license`，`THIRD_PARTY_NOTICES.md` 随包分发，
+  资产测试两道都锁。
+
 ## Security model
 
 - 宿主路由三道准入，都不绑定端口或域名：`Host` 必须是回环地址、宿主自身 origin，或

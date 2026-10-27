@@ -28,6 +28,7 @@ const ORDER = [
   'linesEs',
   'linesPt',
   'linesHi',
+  'license',
 ]
 /** 固定形象顺序：内置四只按这个顺序排，其它 pack 按字母序追加在后 */
 const PREFERRED = ['violet', 'crimson', 'indigo', 'silver']
@@ -85,6 +86,9 @@ function generate() {
     out += '      },\n'
   }
   out += '    }\n\n'
+  // R-01：运行期注册表出口。宿主 /personas 成功时整表替换 map；
+  // 失败/为空时客户端继续用内置表（setPersonas 拒收空表）。
+  out += '    const PERSONA_REG = { map: PERSONAS }\n\n'
   return out
 }
 

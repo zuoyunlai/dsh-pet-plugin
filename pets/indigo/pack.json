@@ -22,7 +22,7 @@
       },
       "idle": {
         "pitch": 0,
-        "rate": 1.0
+        "rate": 1
       },
       "dance": {
         "pitch": 3,
@@ -336,5 +336,6 @@
     "walk": "pet-indigo-walk.webm",
     "hair": "pet-indigo-hair.webm",
     "stage": "pet-indigo-stage.webm"
-  }
+  },
+  "license": "MIT"
 }

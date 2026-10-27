@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.21.0 — 2026-10-27
+
+本轮是竞品（@linxin666/dsh-pet）反哺：逐条核实竞品实现后采纳 R-01～R-10 修订
+（R-05 经回填判定不实施）。完整核实与处置记录在
+`FANFEED-competitor-review-2026-10-27.md`。
+
+- **新：形象注册表从构建期搬到运行期**（R-01）。`src/30-personas.js` 仍是内置兜底，
+  宿主启动时扫描 `$DSH_HOME/dsh-pet/pets/<id>/pack.json`（`license` 必填，R-10 门禁），
+  与内置五只合并后经 `GET /dsh-pet/personas` 下发；客户端 `setPersonas()` 空表拒收、
+  当前形象失效自动回落，`assetUrl()` 支持每形象独立资产基址（内置 `/dsh-pet/assets`、
+  用户 `/dsh-pet/pets/<id>`）。换形象不再需要重新构建 client.js。
+- **新：事件投影补全**（R-02）。宿主侧 `turn/start`/`step/start`/`tool/call`/
+  `assistant/message`/`turn/end`（含新版 `tools/result` 与旧版 `tool/result`）投影为
+  `working/tool/review/done` 相位，`/ping` 直出 `phase`（15s 新鲜窗口）；客户端
+  `computePhase()` 融合宿主相位——thinking/working→走位、review→撩发（回答正在流）、
+  done 前 4s 保持庆祝。
+- **新：外部播报 + 自动台词开关**（R-03）。`POST /dsh-pet/announce`（限流 30/分，
+  文本 ≤300 字，seq 防重放）让脚本/其他插件让桌宠开口；机会主义探测宿主进程内
+  `ctx.pet?.announce`。设置新增 `statusBubbles: auto|off`——off 时心情/问候/闲聊自动
+  台词静默，点按/拖拽/announce 播报不受影响。
+- **新：状态落宿主盘 + 一次性迁移**（R-04）。`GET/POST /dsh-pet/state`（settings ≤64 键、
+  history ≤200 条 ×8000 字符，白名单校验）；客户端启动时宿主优先合并，无宿主状态则把
+  localStorage 上云，换浏览器/清缓存不再丢形象和历史。
+- **新：台词运行期覆盖**（R-07）。`$DSH_HOME/dsh-pet/voice.json`
+  （`{"<personaId>|*": {"lines": {"<mood>": [...]}}}`，五语键 lines/linesEn/linesEs/
+  linesPt/linesHi）按 mood warn-and-drop 合并，坏包整体忽略不拒载；经 /personas 下发，
+  客户端零改动。
+- **新：jsdom 组件级测试**（R-08）。`tests/overlay.dom.test.mjs` 在真 DOM 里跑 client.js：
+  菜单项全部为 `button[role=menuitem]`（键盘可达）、Escape 关闭菜单、视频 error 事件
+  撤 `<video>` 回静帧且 `clipFailed` 记忆。菜单遮罩补 onKeyDown Escape。devDeps 加
+  react/react-dom/jsdom（不进包）。
+- **新：用户目录资产防线**（R-06，R-01 前置）。`/dsh-pet/pets/*` 走 realpath 双侧包含
+  检查 + 扩展名白名单 + 注册表准入 + 413；`/dsh-pet/assets` 静态文件超 20MB 返回 413。
+- **新：peer 声明补正**（R-09）。peerDependencies 补 `"react": ">=18.2.0"`——运行时
+  `require('react')` 早是事实 peer。
+- **新：分发合规**（R-10）。每个 `pets/*/pack.json` 声明 `license`；根目录
+  `THIRD_PARTY_NOTICES.md` 随包分发；assets.test 增 license 存在性门禁。
+- 测试 95/95（新增 jsdom 3 项、voice 覆盖 6 项、assets license 门禁 1 项）。
+
 ## 1.20.1 — 2026-10-26
 
 本轮是 1.20.0 的审查反哺：先把全部结论对着当前源码核实，再按报告顺序修，

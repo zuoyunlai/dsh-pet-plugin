@@ -114,6 +114,28 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   `pets/<id>/pack.json`, then `node build.mjs` (it regenerates `src/30-personas.js`).
   The `/dsh-pet/assets/` route only serves image extensions.
 
+## Extending at runtime (1.21.0)
+
+- **Custom persona packs without a rebuild**: drop `$DSH_HOME/dsh-pet/pets/<id>/pack.json`
+  (with its assets next to it, `license` required) — the host scans it at startup, merges it
+  with the built-in five, and serves it under `/dsh-pet/pets/<id>/…` (realpath containment +
+  extension whitelist + 413 oversize). The client picks the list up via `GET /dsh-pet/personas`
+  and falls back to the built-in table when absent.
+- **Line overrides**: `$DSH_HOME/dsh-pet/voice.json` —
+  `{"<personaId>|*": {"lines|linesEn|linesEs|linesPt|linesHi": {"<mood>": ["…≤300 chars, ≤200 lines"]}}}`.
+  Merged per mood, warn-and-drop on any malformed piece; a broken file is ignored with a warning,
+  never a crash.
+- **Make the pet speak**: `POST /dsh-pet/announce` `{"text": "…"}` (≤300 chars, 30/min rate
+  limit). Poll `/dsh-pet/ping` for `phase` (`working|tool|review|done`, 15s freshness) and
+  `announce` (seq-guarded) — phase drives walk/hair micro-actions while the agent works.
+- **State on the host**: `GET/POST /dsh-pet/state` (settings ≤64 keys, history ≤200 items
+  ×8000 chars). On startup the client merges host state first, otherwise uploads its
+  localStorage once — personas and chat history survive a browser wipe.
+- **Silence auto chatter**: settings `statusBubbles: "auto" | "off"` mutes mood/greeting/idle
+  bubbles; taps, drags and announce still speak.
+- **Licensing**: every pack declares `license`; third-party notices ship in
+  `THIRD_PARTY_NOTICES.md`; the asset test enforces both.
+
 ## Security model
 
 - The host routes are gated three ways, none of them tied to a fixed port or domain:

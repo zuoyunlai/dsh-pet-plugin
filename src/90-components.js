@@ -84,10 +84,14 @@
           setTimeout(() => warmVoice(), 50)
         }
       }
-      const personaOpts = Object.keys(PERSONAS).map((k) => ({
-        value: k,
-        label: PERSONAS[k].name + ' · ' + (PET_LANG === 'zh' || !PERSONAS[k].tagEn ? PERSONAS[k].tag : PERSONAS[k].tagEn),
-      }))
+      // R-01：下拉读运行期注册表（宿主 /personas 换表后这里跟着变），不再钉死内置四只
+      const personaMap = PERSONA_REG.map
+      const personaOpts = Object.keys(personaMap).map((k) => {
+        const it = personaMap[k]
+        // 自定义形象可能没写 tag：有才拼「名字 · 标签」，没有就只显示名字
+        const tag = PET_LANG === 'zh' || !it.tagEn ? it.tag : it.tagEn
+        return { value: k, label: it.name + (tag ? ' · ' + tag : '') }
+      })
       // 'auto' = 跟随角色（每个形象自带一个嗓子）；其余是用户手选的固定音色。
       const voiceOpts = [
         { value: 'auto', label: t('voice.auto') },
@@ -106,7 +110,7 @@
       const pitchTrim = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
       const rateTrim = s.rateTrim == null ? 1 : Number(s.rateTrim)
       const eff = voiceParams('idle')
-      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
+      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice && p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
       const effLine = t('panel.voiceEff').replace('{voice}', voiceLabel).replace('{pitch}', (eff.pitch - 1 >= 0 ? '+' : '') + Math.round((eff.pitch - 1) * 100) + '%').replace('{rate}', Math.round(eff.rate * 100) + '%')
       const sep = () => h('div', { className: 'dsh-pet-sep' })
       const sec = (t) => h('div', { className: 'dsh-pet-sec' }, t)

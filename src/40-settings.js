@@ -21,11 +21,13 @@
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
       // 默认位置：右下角但抬高一截，避开同样钉在右下角的其它挂件（比如余额小鲸鱼）
+      statusBubbles: 'auto', // 'auto' 阶段机自动台词 | 'off' 关掉（点按/拖拽/announce 不受影响）
       pos: null, // { x, y } 左上角像素，null = 用默认右下角锚点
     }
 
     const SETTINGS_LANGS = new Set(['auto', 'en', 'zh', 'es', 'pt', 'hi'])
     const SETTINGS_MODES = new Set(['always', 'random'])
+    const SETTINGS_BUBBLES = new Set(['auto', 'off'])
     const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
 
     function finiteNumber(value, fallback, min, max) {
@@ -44,7 +46,8 @@
     function normalizeSettings(input) {
       const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {}
       const out = { ...DEFAULT_SETTINGS }
-      if (typeof source.persona === 'string' && PERSONAS[source.persona]) out.persona = source.persona
+      // persona 校验对着「当前注册表」（R-01）：宿主表换入后，用户存的 id 仍有效
+      if (typeof source.persona === 'string' && PERSONA_REG.map[source.persona]) out.persona = source.persona
       if (typeof source.lang === 'string' && SETTINGS_LANGS.has(source.lang)) out.lang = source.lang
       if (typeof source.mode === 'string' && SETTINGS_MODES.has(source.mode)) out.mode = source.mode
       out.probability = finiteNumber(source.probability, out.probability, 0, 100)
@@ -61,6 +64,9 @@
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)
+      if (typeof source.statusBubbles === 'string' && SETTINGS_BUBBLES.has(source.statusBubbles)) {
+        out.statusBubbles = source.statusBubbles
+      }
       if (source.pos && typeof source.pos === 'object' && !Array.isArray(source.pos)) {
         const x = finiteNumber(source.pos.x, NaN, -100000, 100000)
         const y = finiteNumber(source.pos.y, NaN, -100000, 100000)

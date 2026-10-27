@@ -61,7 +61,7 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 
 ## Customize
 
-- Characters, lines aur temper `client.js` ke `PERSONAS` mein hain.
+- Characters, lines aur temper `pets/<id>/pack.json` mein hain (`node build.mjs` se `client.js` mein regenerate hote hain); 1.21.0 se runtime par bhi `$DSH_HOME/dsh-pet/pets/<id>/pack.json` se add ho sakte hain — dekhein `README.md` / `README-zh.md` («Extending at runtime» / «运行期扩展»).
 - Naye moods: `CSS` block mein keyframes jodein aur class ko `Face`/`PetArt` mein map karein.
 - `provider`, `model`, `maxTokens`, `temperature` plugin config hain.
 

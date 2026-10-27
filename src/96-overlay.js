@@ -402,7 +402,18 @@
       }
       return h(
         'div',
-        { className: 'dsh-pet-menu-mask', onPointerDown: close, onContextMenu: (e) => { try { e.preventDefault() } catch (err) {} close() } },
+        {
+          className: 'dsh-pet-menu-mask',
+          onPointerDown: close,
+          onContextMenu: (e) => { try { e.preventDefault() } catch (err) {} close() },
+          // 键盘可达（R-08）：Escape 直接关掉，不用非得点一下遮罩
+          onKeyDown: (e) => {
+            if (e.key === 'Escape') {
+              try { e.stopPropagation() } catch (err) {}
+              close()
+            }
+          },
+        },
         h(
           'div',
           {

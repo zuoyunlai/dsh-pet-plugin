@@ -123,6 +123,7 @@
 **R-05 低强度相位轻量序列（可选优化，上轮 P1-5 降级修订）**
 - 事实前提（A7 核正）：idle 已是 webp 静帧 + CSS 微动；视频只播 hero 动作。剩余优化点：thinking/review 相位若长期占屏，2-4 帧 webp 序列（<300KB/形象）比循环调用 5s 视频更省解码与电量。
 - 验收门：新增序列进 assets-manifest 门禁；A/B 实测 CPU 占用再决定是否默认启用。
+- **处置（2026-10-27 回填）：本轮不实施。** 理由：① R-02 落地后 thinking/review 相位的实际表现已由现有映射承担（thinking→working→walk 走位、review→hair 撩发），长期静止"占屏"场景不存在——working 相位本身有走位动画；② 视频只在动作触发时挂载、结束即卸载（`<video>` 元素移除后不占解码），idle 恒为 webp 静帧，A/B 的对照组缺少真实负载差异；③ 5 只 ×4 帧 ×多语场景收益上限 0-4MB/包体不省反增（当前 20 条视频总预算 19.4MB 已在门禁内）。待将来出现"用户反馈 working 相位耗电"的真实证据再重启。
 
 **R-07 文案/台词运行期覆盖（voice 三级）**
 - 来源：竞品 README.zh.md:42,105-107（宠物 > 全局 $DSH_HOME/pets/.voice.json > 内置，坏包 warn 不拒载）。
@@ -176,3 +177,25 @@ R-05（最后，实测数据决定做不做）
 ---
 
 *本报告为台账原件：断言、判定、修正均按核实当场记录，未做事后美化。修订实施时逐条回填状态。*
+
+---
+
+## 6 修订执行记录（2026-10-27 回填，v1.21.0）
+
+全部 R 项已按第 4 节顺序执行完毕，测试 96/96（build+smoke+host/assets/runtime/push-api/voice+jsdom overlay）。
+不发 npm、不打 tag（用户指令）；版本号本地 bump 1.21.0。
+
+| 项 | 状态 | 落点 |
+| --- | --- | --- |
+| R-09 | ✅ 已实施 | package.json peerDependencies + `"react": ">=18.2.0"` |
+| R-06 | ✅ 已实施 | `/dsh-pet/pets/*` realpath 双侧包含 + ASSET_TYPES 白名单 + 注册表准入 + 413；`/dsh-pet/assets` 单文件 >20MB → 413 |
+| R-01 | ✅ 已实施 | 宿主 `lib/registry.js` 扫描 `$DSH_HOME/dsh-pet/pets/<id>/pack.json` 与内置合并（后注册覆盖、非法跳过），`GET /dsh-pet/personas` 下发；客户端 `setPersonas()` 空表拒收/失效回落，`assetUrl()` 每形象基址 |
+| R-02 | ✅ 已实施 | 宿主 lifecycle 事件投影 working/tool/review/done（`tools/result` 与旧 `tool/result` 双注册），`/ping` 直出 `phase`/`phaseAt`（15s 新鲜窗）；客户端 `computePhase()` 融合（thinking/working→walk、review→hair、done 前 4s） |
+| R-03 | ✅ 已实施 | `POST /dsh-pet/announce`（30/分限流、≤300 字、seq 防重放、机会主义 `ctx.pet?.announce`）；设置 `statusBubbles auto|off` 只闸自动台词 |
+| R-04 | ✅ 已实施 | `GET/POST /dsh-pet/state`（settings ≤64 键 / history ≤200×8000 字符白名单）；客户端启动宿主优先合并、否则一次性上云 |
+| R-05 | ⏸ 不实施（理由见 R-05 节回填） | — |
+| R-07 | ✅ 已实施 | `$DSH_HOME/dsh-pet/voice.json` 按 mood warn-and-drop 合并（实施中纠正了计划稿的 shape bug：覆盖对象是 `{mood: [lines]}` 而非扁平数组）；voice.test 6 用例 |
+| R-08 | ✅ 已实施 | `tests/overlay.dom.test.mjs`（JSDOM 真跑 client.js）：菜单键盘可达（全 button[role=menuitem]）、Escape 关闭（源码补 onKeyDown）、视频 error→静帧回退+clipFailed；devDeps react/react-dom/jsdom 不进包 |
+| R-10 | ✅ 已实施 | 6 个 `pets/*/pack.json` 全部 `"license": "MIT"`；根 `THIRD_PARTY_NOTICES.md` 随包（files 已加）；assets.test 门禁（pack license + notices 存在，runtime-only 副本 skip） |
+
+验证：`npm test` 96/96；`npm run gen:check` 逐字节一致（5 pack）；`npm pack --dry-run` 1.21.0 / 138 files / packed 19,698,095 B（NOTICES 已入包）。`dsh-plugin-dev check --strict` 在当前宿主已不存在（1.20.0 报告已核实），沿用「宿主加载期校验 + 实跑」替代证据链。

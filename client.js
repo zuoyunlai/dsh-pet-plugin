@@ -374,6 +374,7 @@ window.__ModuleLoader__.load({
           chatAck: ["Bolo, sun rahi hoon.", "Hmm? Batao."],
           error: ["Dhyaan bhatak gaya. Phir se bolo.", "Yeh nahi aaya. Ruko."],
         },
+        license: "MIT",
       },
       crimson: {
         id: "crimson",
@@ -548,6 +549,7 @@ window.__ModuleLoader__.load({
           chatAck: ["Bolo. Sun rahi hoon.", "Hmm? Sidhi baat karo."],
           error: ["Samjhi nahi. Phir bolo.", "Yeh nahi chala. Dobara."],
         },
+        license: "MIT",
       },
       indigo: {
         id: "indigo",
@@ -705,6 +707,7 @@ window.__ModuleLoader__.load({
           chatAck: ["Hmm. Aaraam se.", "Main yahan hoon."],
           error: ["Suna nahi. Phir bolo.", "Ruko, suljhaane do."],
         },
+        license: "MIT",
       },
       silver: {
         id: "silver",
@@ -850,6 +853,7 @@ window.__ModuleLoader__.load({
           chatAck: ["Bolo.", "Aage bolo."],
           error: ["Samjhi nahi.", "Dobara bolo."],
         },
+        license: "MIT",
       },
       azure: {
         id: "azure",
@@ -1176,8 +1180,11 @@ window.__ModuleLoader__.load({
             "गहरे पानी का नियम है धीरे चलना। मुझे जल्दी नहीं।",
           ],
         },
+        license: "MIT",
       },
     }
+
+    const PERSONA_REG = { map: PERSONAS }
 
 
     /* ================= 设置（localStorage） ================= */
@@ -1203,11 +1210,13 @@ window.__ModuleLoader__.load({
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
       // 默认位置：右下角但抬高一截，避开同样钉在右下角的其它挂件（比如余额小鲸鱼）
+      statusBubbles: 'auto', // 'auto' 阶段机自动台词 | 'off' 关掉（点按/拖拽/announce 不受影响）
       pos: null, // { x, y } 左上角像素，null = 用默认右下角锚点
     }
 
     const SETTINGS_LANGS = new Set(['auto', 'en', 'zh', 'es', 'pt', 'hi'])
     const SETTINGS_MODES = new Set(['always', 'random'])
+    const SETTINGS_BUBBLES = new Set(['auto', 'off'])
     const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
 
     function finiteNumber(value, fallback, min, max) {
@@ -1226,7 +1235,8 @@ window.__ModuleLoader__.load({
     function normalizeSettings(input) {
       const source = input && typeof input === 'object' && !Array.isArray(input) ? input : {}
       const out = { ...DEFAULT_SETTINGS }
-      if (typeof source.persona === 'string' && PERSONAS[source.persona]) out.persona = source.persona
+      // persona 校验对着「当前注册表」（R-01）：宿主表换入后，用户存的 id 仍有效
+      if (typeof source.persona === 'string' && PERSONA_REG.map[source.persona]) out.persona = source.persona
       if (typeof source.lang === 'string' && SETTINGS_LANGS.has(source.lang)) out.lang = source.lang
       if (typeof source.mode === 'string' && SETTINGS_MODES.has(source.mode)) out.mode = source.mode
       out.probability = finiteNumber(source.probability, out.probability, 0, 100)
@@ -1243,6 +1253,9 @@ window.__ModuleLoader__.load({
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)
+      if (typeof source.statusBubbles === 'string' && SETTINGS_BUBBLES.has(source.statusBubbles)) {
+        out.statusBubbles = source.statusBubbles
+      }
       if (source.pos && typeof source.pos === 'object' && !Array.isArray(source.pos)) {
         const x = finiteNumber(source.pos.x, NaN, -100000, 100000)
         const y = finiteNumber(source.pos.y, NaN, -100000, 100000)
@@ -1495,18 +1508,44 @@ window.__ModuleLoader__.load({
     }
 
     function persona() {
-      return PERSONAS[runtime.settings.persona] || PERSONAS.violet
+      const map = PERSONA_REG.map
+      return map[runtime.settings.persona] || map[Object.keys(map)[0]]
     }
 
-    /** 贴图地址：桌面壳里相对路径不通，用宿主注入的绝对 origin。 */
-    function assetUrl(name) {
+    /**
+     * 运行期注册表替换（R-01）：宿主 /personas 成功返回非空表时整表换入。
+     * 空表/坏表一律拒收（宿主扫描失败时保持内置表）；换表后当前 persona
+     * 若不在新表里，回落到新表第一只，避免渲染一个查无此人的形象。
+     */
+    function setPersonas(list) {
+      if (!Array.isArray(list) || !list.length) return false
+      const map = {}
+      for (const p of list) {
+        if (p && typeof p === 'object' && p.id) map[p.id] = p
+      }
+      if (!Object.keys(map).length) return false
+      PERSONA_REG.map = map
+      if (!map[runtime.settings.persona]) {
+        runtime.settings.persona = Object.keys(map)[0]
+      }
+      notify()
+      return true
+    }
+
+    /**
+     * 贴图地址：桌面壳里相对路径不通，用宿主注入的绝对 origin。
+     * R-01：贴图不一定还在包内 assets/ —— 用户包走 /dsh-pet/pets/<id>/，
+     * 由 pack 的 assetBase 指路；内置包没有该字段，回落默认路径。
+     */
+    function assetUrl(name, p) {
       let base = ''
       try {
         base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
       } catch (e) {
         base = ''
       }
-      return base + '/dsh-pet/assets/' + name
+      const assetBase = (p && p.assetBase) || '/dsh-pet/assets'
+      return base + assetBase + '/' + name
     }
 
     /* ================= 语音（TTS） ================= */
@@ -1859,6 +1898,19 @@ window.__ModuleLoader__.load({
       const now = nowMs()
       if (runtime.speaking) return 'speak'
       if (runtime.lastErrorAt && now - runtime.lastErrorAt < ERROR_WINDOW) return 'error'
+      // —— 宿主直出（R-02，反哺报告 2026-10-27）：新鲜窗口内优先采用宿主投影 ——
+      // thinking → working（模型推理中，她在屏幕上溜达等结果）
+      // review → speak（回答文本在流，正好借说话的口型）
+      // tool / working 原样；done 只认前 DONE_WINDOW 秒——一轮回答结束后不能
+      // 在 15s 新鲜窗口里一直「庆祝」。过期或宿主没有 phase 就回落本地推导。
+      const hp = runtime.hostPhase
+      const hpAt = runtime.hostPhaseAt || 0
+      if (hp && hp !== 'idle' && hpAt && now - hpAt < 15000) {
+        if (hp === 'thinking' || hp === 'working') return 'working'
+        if (hp === 'tool') return 'tool'
+        if (hp === 'review') return 'speak'
+        if (hp === 'done' && now - hpAt < DONE_WINDOW) return 'done'
+      }
       if (runtime.lastToolAt && now - runtime.lastToolAt < TOOL_WINDOW) return 'tool'
       if (runtime.running) return 'working'
       if (runtime.doneUntil && now < runtime.doneUntil) return 'done'
@@ -1871,6 +1923,16 @@ window.__ModuleLoader__.load({
       if (next === runtime.phase) return ''
       runtime.phase = next
       return next
+    }
+
+    /**
+     * 自动台词闸（R-03）：statusBubbles='off' 时关掉「自言自语」类的气泡
+     * （心情台词 / 阶段台词 / 闲聊 / 出现问候）。点按、拖拽、announce 公告
+     * 这类「有明确触发」的仍然走 bubble()，不受这个开关影响。
+     */
+    function statusBubble(text, ttl, mood) {
+      if (runtime.settings.statusBubbles === 'off') return
+      bubble(text, ttl, mood)
     }
 
     function bubble(text, ttl, mood) {
@@ -2029,7 +2091,7 @@ window.__ModuleLoader__.load({
       runtime.moodUntil = nowMs() + randInt(4000, 9000)
       if (runtime.settings.chatter && m !== 'talk' && m !== 'idle') {
         const line = randomLine(m)
-        if (line && Math.random() < 0.55) bubble(line, null, m)
+        if (line && Math.random() < 0.55) statusBubble(line, null, m)
       }
       // 心情没变就不用重渲染（bubble 自己会 notify）
       if (m !== prev) notify()
@@ -2049,10 +2111,17 @@ window.__ModuleLoader__.load({
         } else if (runtime.phase === 'done' && runtime.settings.celebrate !== false) {
           runtime.mood = 'happy'
           runtime.moodUntil = now + 3500
-        } else if (runtime.phase === 'tool' && runtime.mood === 'idle' && runtime.visible) {
-          // 在调工具时轻轻踱两步，别一直僵着
+        } else if (
+          (runtime.phase === 'tool' || runtime.phase === 'working') &&
+          runtime.mood === 'idle' &&
+          runtime.visible
+        ) {
+          // 在调工具 / 模型推理时轻轻踱两步，别一直僵着（working 来自 R-02 宿主 thinking 投影）
           runtime.mood = 'walk'
-          runtime.moodUntil = now + Math.min(TOOL_WINDOW, 3000)
+          runtime.moodUntil = now + 3000
+        } else if (runtime.phase === 'speak' && runtime.hostPhase === 'review' && runtime.visible && !runtime.action && !runtime.speaking) {
+          // 回答在流（宿主 review）：让她撩着头发等字出来（R-02）
+          playAction('hair')
         }
       }
 
@@ -2063,7 +2132,7 @@ window.__ModuleLoader__.load({
         } else if (!runtime.visible) {
           runtime.visible = true
           runtime.visibleUntil = 0
-          if (s.chatter) bubble(randomLine('appear'), null, 'appear')
+          if (s.chatter) statusBubble(randomLine('appear'), null, 'appear')
           notify()
         }
       } else {
@@ -2105,7 +2174,7 @@ window.__ModuleLoader__.load({
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
         lastChatterAt = now
         const line = randomLine('idle')
-        if (line) bubble(line, null, 'idle')
+        if (line) statusBubble(line, null, 'idle')
       }
 
       // 偶尔撩一下头发（白天的「活人感」主要靠这个）
@@ -2160,6 +2229,34 @@ window.__ModuleLoader__.load({
         }
       } catch (e) {
         runtime.history = []
+      }
+    }
+
+    /**
+     * 宿主状态合并（R-04，反哺报告 2026-10-27）：宿主侧 $DSH_HOME 的状态文件
+     * 是跨设备真相源——宿主有 → 宿主优先覆盖本地（同键才覆盖，本地多出来的键保留），
+     * 并归一化后落回 localStorage。history 直接替换（本就只留最近 8 条）。
+     */
+    function mergeHostState(host) {
+      try {
+        if (host.settings && typeof host.settings === 'object' && !Array.isArray(host.settings)) {
+          runtime.settings = normalizeSettings({ ...runtime.settings, ...host.settings })
+          saveSettings()
+        }
+        if (Array.isArray(host.history) && host.history.length) {
+          runtime.history = host.history
+            .filter((m) => m && typeof m.content === 'string')
+            .slice(-8)
+            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+          try {
+            window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history))
+          } catch (e) {
+            /* 隐私模式/配额满，忽略 */
+          }
+        }
+        notify()
+      } catch (e) {
+        /* ignore */
       }
     }
 
@@ -2678,7 +2775,7 @@ window.__ModuleLoader__.load({
     }
 
     /** 换表情/换动作帧时做一次带方向的交叉淡入淡出，硬切在照片上会很跳。 */
-    function CrossImage({ src, alt }) {
+    function CrossImage({ src, alt, persona }) {
       const [cur, setCur] = useState(src)
       const [prev, setPrev] = useState(null)
       const swap = useRef(0)
@@ -2698,8 +2795,8 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur), alt, draggable: false }),
+        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
+        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
       )
     }
 
@@ -2714,7 +2811,7 @@ window.__ModuleLoader__.load({
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen, exiting }) {
+    function ClipLayer({ clip, poster, alt, gen, exiting, persona }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -2724,7 +2821,7 @@ window.__ModuleLoader__.load({
         return () => clearTimeout(t)
       }, [failed, giveUp, ready])
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
-      const still = h(CrossImage, { src: poster, alt })
+      const still = h(CrossImage, { src: poster, alt, persona })
       if (failed || giveUp) return still
       // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
       const showStill = !ready || exiting
@@ -2738,7 +2835,7 @@ window.__ModuleLoader__.load({
             'dsh-pet-video' +
             (ready && !exiting ? ' is-ready' : '') +
             (exiting ? ' is-leaving' : ''),
-          src: assetUrl(clip),
+          src: assetUrl(clip, persona),
           autoPlay: true,
           muted: true,
           loop: false,
@@ -2784,8 +2881,8 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting })
-              : h(CrossImage, { src: stillSrc, alt: p.name }),
+              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting, persona: p })
+              : h(CrossImage, { src: stillSrc, alt: p.name, persona: p }),
             variant ? null : h(FigureMarks, { mood }),
           ),
         )
@@ -2897,10 +2994,14 @@ window.__ModuleLoader__.load({
           setTimeout(() => warmVoice(), 50)
         }
       }
-      const personaOpts = Object.keys(PERSONAS).map((k) => ({
-        value: k,
-        label: PERSONAS[k].name + ' · ' + (PET_LANG === 'zh' || !PERSONAS[k].tagEn ? PERSONAS[k].tag : PERSONAS[k].tagEn),
-      }))
+      // R-01：下拉读运行期注册表（宿主 /personas 换表后这里跟着变），不再钉死内置四只
+      const personaMap = PERSONA_REG.map
+      const personaOpts = Object.keys(personaMap).map((k) => {
+        const it = personaMap[k]
+        // 自定义形象可能没写 tag：有才拼「名字 · 标签」，没有就只显示名字
+        const tag = PET_LANG === 'zh' || !it.tagEn ? it.tag : it.tagEn
+        return { value: k, label: it.name + (tag ? ' · ' + tag : '') }
+      })
       // 'auto' = 跟随角色（每个形象自带一个嗓子）；其余是用户手选的固定音色。
       const voiceOpts = [
         { value: 'auto', label: t('voice.auto') },
@@ -2919,7 +3020,7 @@ window.__ModuleLoader__.load({
       const pitchTrim = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
       const rateTrim = s.rateTrim == null ? 1 : Number(s.rateTrim)
       const eff = voiceParams('idle')
-      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
+      const voiceLabel = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : (p.voice && p.voice.voiced && p.voice.voiced[PET_LANG]) || 'auto'
       const effLine = t('panel.voiceEff').replace('{voice}', voiceLabel).replace('{pitch}', (eff.pitch - 1 >= 0 ? '+' : '') + Math.round((eff.pitch - 1) * 100) + '%').replace('{rate}', Math.round(eff.rate * 100) + '%')
       const sep = () => h('div', { className: 'dsh-pet-sep' })
       const sec = (t) => h('div', { className: 'dsh-pet-sec' }, t)
@@ -3952,7 +4053,18 @@ window.__ModuleLoader__.load({
       }
       return h(
         'div',
-        { className: 'dsh-pet-menu-mask', onPointerDown: close, onContextMenu: (e) => { try { e.preventDefault() } catch (err) {} close() } },
+        {
+          className: 'dsh-pet-menu-mask',
+          onPointerDown: close,
+          onContextMenu: (e) => { try { e.preventDefault() } catch (err) {} close() },
+          // 键盘可达（R-08）：Escape 直接关掉，不用非得点一下遮罩
+          onKeyDown: (e) => {
+            if (e.key === 'Escape') {
+              try { e.stopPropagation() } catch (err) {}
+              close()
+            }
+          },
+        },
         h(
           'div',
           {
@@ -4089,7 +4201,8 @@ window.__ModuleLoader__.load({
         if (petDebug) {
           globalThis.__dshPet = {
             runtime,
-            PERSONAS,
+            // R-01：debug 出口也读运行期注册表（与下拉一致）
+            PERSONAS: PERSONA_REG.map,
             inActiveWindow,
             toMinutes,
             weighted,
@@ -4271,6 +4384,20 @@ window.__ModuleLoader__.load({
                   if (j.lastToolAt) runtime.lastToolAt = j.lastToolAt
                   if (j.lastToolName) runtime.lastToolName = String(j.lastToolName).slice(0, 40)
                   if (j.toolEvents) runtime.toolEvents = j.toolEvents
+                  // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
+                  if (j.phase) runtime.hostPhase = String(j.phase)
+                  if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // —— 公告（R-03）：序号变大才播，轮询重复拿到同一条不重放 ——
+                  if (
+                    j.announce &&
+                    j.announce.seq > (runtime.lastAnnounceSeq || 0) &&
+                    typeof j.announce.text === 'string' &&
+                    j.announce.text
+                  ) {
+                    runtime.lastAnnounceSeq = j.announce.seq
+                    // announce 是外部触发（脚本/其它插件点名要她说），不走 statusBubbles 闸
+                    bubble(String(j.announce.text).slice(0, 300), null, 'announce')
+                  }
                   // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
                   if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
                     runtime.lastCommandSeq = j.commandSeq
@@ -4315,6 +4442,61 @@ window.__ModuleLoader__.load({
             } catch (e) {
               /* ignore */
             }
+          }
+        })
+
+        // —— personas / 跨设备状态（R-01 / R-04，反哺报告 2026-10-27）：启动各拉一次 ——
+        // personas：宿主扫描到的形象整表下发；失败/空表保持内置表（setPersonas 拒收空表）。
+        // state：宿主有 → 宿主优先合并；宿主空 → 本地状态推上云（$DSH_HOME），换浏览器/设备不失忆。
+        ctx.effect(() => {
+          let stop = false
+          const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+          const withTimeout = (url, ms, init) => {
+            if (typeof AbortController !== 'function') return fetch(url, init)
+            const c = new AbortController()
+            const t = setTimeout(() => {
+              try {
+                c.abort()
+              } catch (e) {
+                /* ignore */
+              }
+            }, ms)
+            return fetch(url, { credentials: 'include', ...init, signal: c.signal }).finally(() => clearTimeout(t))
+          }
+          ;(async () => {
+            try {
+              const res = await withTimeout(base + '/dsh-pet/personas', 8000)
+              if (!stop && res.ok) {
+                const j = await res.json()
+                if (j && j.ok && Array.isArray(j.personas)) setPersonas(j.personas)
+              }
+            } catch (e) {
+              /* 老宿主没有这个端点：保持内置表 */
+            }
+            try {
+              const res = await withTimeout(base + '/dsh-pet/state', 8000)
+              if (!stop && res.ok) {
+                const j = await res.json()
+                const host = (j && j.state) || {}
+                const hasHost =
+                  (host.settings && Object.keys(host.settings).length) || (host.history && host.history.length)
+                if (hasHost) {
+                  mergeHostState(host)
+                } else {
+                  // 宿主还没有状态文件：把本地的推上去当初始真相
+                  await withTimeout(base + '/dsh-pet/state', 8000, {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify({ settings: runtime.settings, history: runtime.history }),
+                  }).catch(() => {})
+                }
+              }
+            } catch (e) {
+              /* 老宿主没有这个端点：本地 localStorage 照旧 */
+            }
+          })()
+          return () => {
+            stop = true
           }
         })
 
