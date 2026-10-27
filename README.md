@@ -26,10 +26,10 @@ own temper.
 - **Settings panel**: grouped (look / voice / display / actions / effects), custom dropdowns
   (native `<select>` popups are system-white and unreadable in dark themes) and custom
   switches; it is pinned to the viewport and does not follow the pet.
-- **Five personas** (photo-realistic, same lighting; the four originals ship 5 expressions
+- **Five personas** (photo-realistic, same lighting; **all five** ship 5 expressions
   each: default / happy / shy / angry / sleepy): 薇 (violet), 绯 (crimson), 靛 (indigo),
-  雪 (silver), plus 鲸鱼娘 (azure) — a whale-fin maid rendered from a single photo-real
-  still, with its own walk / dance / hair clips. Expression changes cross-fade (240 ms)
+  雪 (silver), plus 鲸鱼娘 (azure) — a whale-fin maid whose expression set was added in
+  1.23.0, with its own walk / dance / hair clips. Expression changes cross-fade (240 ms)
   instead of hard-cutting.
 - **Action sequences**: a persona may declare `actions: { dance: [...], hair: [...],
   walk: [...] }`; each set is 3 frames played as a 340 ms flip-book. All four originals have
@@ -48,8 +48,10 @@ own temper.
 | Active hours | Start/end time, supports crossing midnight (22:00 → 03:00) |
 | Proactive lines | Per-mood line packs, bubble + speech |
 | Voice | **Optional**: if the host has any python with `edge-tts`, `/dsh-pet/tts` synthesises (cached) and `/dsh-pet/tts/status` probes it; otherwise it falls back to the system `speechSynthesis`. The plugin itself has zero runtime dependencies |
-| Small input box | Chat with the pet only; one-shot model call, nothing is written to any DSH session |
+| Small input box | **Hidden by default; slides out when you hover the character** (since 1.22.0, and moving from the character onto the box does not dismiss it). Turn off "Only on hover" in settings to pin it. Messages go to the pet only; one-shot model call, nothing is written to any DSH session |
 | Moods | idle / walk / dance / shy / angry / sleep / talk / happy |
+| Dragging | 60% chance of a `drag` line once you drop it; all five personas have them (completed in 1.24.0), five languages |
+| Inner voice | A low-frequency (7%) grey aside — a thought, never spoken; only for personas that declare `lines.aside`; all five have them (1.24.0) |
 | Gaze | Pupils follow the mouse (CSS variables only, no re-render) |
 | Effects | Ink / confetti / cloud / fog (wipable) / bomb + cracked screen |
 | Event hooks | Confetti after a turn longer than 4 s; a cloud appears after a failed tool call |

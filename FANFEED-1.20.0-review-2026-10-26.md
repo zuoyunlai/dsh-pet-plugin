@@ -99,3 +99,25 @@
 ### 另两个清单：只剩过期描述
 
 `#147` 与 `#732` 原文写「四个形象 / four personas」（1.20.0 之前的事实），已各推一个修订提交改成五个形象并补上舞台片段与 24fps 说法；`#732` 的 `awesome-lint` 在改后仍 success。
+
+## 待办：三个开放 PR 的事实刷新（2026-10-27 用户决定）
+
+复核四个目录（2026-10-27，全部用 REST API 实测，非引用旧结论）：
+
+| 目录 | PR | 状态 |
+| --- | --- | --- |
+| `dshworks/awesome-dsh-plugins` | #197 → **#198** | ✅ **已合并**（维护者原话「Rebuilt on current main as #198 (merged, you're credited as co-author)」；描述已是 five personas + stage clip） |
+| `awesome-dsh-plugin/awesome-dsh-plugin` | #9610 | 🟡 open，`clean`，内容停在 **1.20.1** |
+| `kejixiaoliang/awesome-dsh-plugins` | #147 | 🟡 open，`unstable`，形象数已对但写 **1.20.1** |
+| `0xsline/awesome-deepseek-harness` | #732 | 🟡 open，`clean`，形象数已对但写 **1.20.1** |
+
+**决定（用户 2026-10-27）**：这三个 PR 先等合并，**之后再统一提一次「事实刷新」**，
+现在不逐条去改描述。理由：PR 开着没响应，此刻改维护者看到的仍是旧 diff。
+
+**届时需要更新的过期事实**（相对 1.24.0）：
+- 版本号 `1.20.1` → `1.24.0`
+- 小输入框不再是「常驻」，而是**悬停人物才滑出**（1.22.0）
+- 鲸鱼娘已有独立表情立绘，**五只各 5 张**（1.23.0）
+- 新增「被拖动」与「心声」台词，五只齐备、五语（1.21.0 / 1.24.0）
+
+**触发条件**：任一 PR 变为 merged/closed 时，回来同步其余两个；三个都合并后统一提刷新。

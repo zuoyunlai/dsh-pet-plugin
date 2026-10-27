@@ -30,8 +30,10 @@ photo-realistic characters, har ek kaa apanaa mizaaj.
 | Active hours | Start/end, aadhi raat paar kar saktaa hai |
 | Proactive lines | Mood-wise line packs, bubble + aawaaz |
 | Voice | **Optional**: host ke python mein `edge-tts` ho to neural voice, warna system `speechSynthesis` |
-| Chhotaa input box | Sirf pet se baat; ek baar model call, kuchh bhi save nahi hotaa |
+| Chhotaa input box | **Default mein chhupaa rehtaa hai; character par mouse le jaane par khulta hai** (1.22.0 se; character se box tak jaane par band nahi hotaa). Hamesha dikhaane ke liye settings mein «Only on hover» band karein. Sirf pet se baat; ek baar model call, kuchh bhi save nahi hotaa |
 | Moods | idle / walk / dance / shy / angry / sleep / talk / happy |
+| Dragging | Chhodne par 60% chance par ek `drag` line; paanchon ke paas hai (1.24.0), paanch bhaashaaon mein |
+| Inner voice | Kam frequency (7%) par ek grey aside — bolaa nahi jaataa; sirf un characters mein jo `lines.aside` declare karte hain; paanchon ke paas hai (1.24.0) |
 | Gaze | Pupils mouse follow karte hain (sirf CSS variables) |
 | Effects | Ink / confetti / cloud / fog / bomb |
 

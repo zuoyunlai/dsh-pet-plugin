@@ -31,8 +31,10 @@ con su propio temperamento.
 | Horario activo | Hora de inicio y fin, admite cruzar medianoche |
 | Frases proactivas | Paquetes de frases por estado de ánimo, burbuja + voz |
 | Voz | **Opcional**: si el host tiene un python con `edge-tts` se usa voz neuronal; si no, el `speechSynthesis` del sistema |
-| Cajita de texto | Chat solo con la mascota; llamada puntual al modelo, no escribe en ninguna sesión |
+| Cajita de texto | **Oculta por defecto; se despliega al pasar el ratón por el personaje** (desde 1.22.0, y pasar del personaje a la cajita no la cierra). Desactiva «Solo al pasar el ratón» para fijarla. Chat solo con la mascota; llamada puntual al modelo, no escribe en ninguna sesión |
 | Estados | idle / walk / dance / shy / angry / sleep / talk / happy |
+| Arrastre | 60 % de probabilidad de decir una frase `drag` al soltarla; las cinco la tienen (1.24.0), en cinco idiomas |
+| Voz interior | Aparte gris de baja frecuencia (7 %), nunca se pronuncia; solo si el personaje declara `lines.aside`; las cinco la tienen (1.24.0) |
 | Mirada | Las pupilas siguen el ratón (solo variables CSS) |
 | Efectos | Tinta / confeti / nube / niebla / bomba |
 

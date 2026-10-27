@@ -29,8 +29,10 @@ seu temperamento.
 | Horário ativo | Início e fim, aceita atravessar a meia-noite |
 | Falas proativas | Pacotes de falas por humor, balão + voz |
 | Voz | **Opcional**: com `edge-tts` num python do host usa voz neural; senão usa `speechSynthesis` |
-| Caixinha de texto | Conversa só com a mascote; chamada pontual ao modelo, nada é gravado |
+| Caixinha de texto | **Oculta por padrão; surge ao passar o mouse sobre o personagem** (desde 1.22.0, e ir do personagem até a caixinha não a fecha). Desligue «Só ao passar o mouse» para fixá-la. Conversa só com a mascote; chamada pontual ao modelo, nada é gravado |
 | Humores | idle / walk / dance / shy / angry / sleep / talk / happy |
+| Arrastar | 60% de chance de dizer uma fala `drag` ao soltar; as cinco têm (1.24.0), em cinco idiomas |
+| Voz interior | Aparte cinza de baixa frequência (7%), nunca falada; só se o personagem declarar `lines.aside`; as cinco têm (1.24.0) |
 | Olhar | As pupilas seguem o mouse (apenas variáveis CSS) |
 | Efeitos | Tinta / confete / nuvem / névoa / bomba |
 
