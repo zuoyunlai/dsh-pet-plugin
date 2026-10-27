@@ -1,8 +1,12 @@
 {
   "generatedAt": "baseline",
-  "count": 83,
-  "totalBytes": 19432671,
+  "count": 87,
+  "totalBytes": 19637019,
   "files": {
+    "pet-azure-angry.webp": {
+      "bytes": 51832,
+      "sha256": "7ab9dd4d7bd40b4f53cd78acda45159ca2dafce55f9edd79503d00ba0d6158dc"
+    },
     "pet-azure-dance.webm": {
       "bytes": 1490649,
       "sha256": "0792d7a78c128b98cb938dccca7c22348b57aa40471d816e4f1005350f17bcbd",
@@ -24,6 +28,18 @@
       "codec": "vp9",
       "pixelFormat": "yuv420p",
       "alphaMode": "1"
+    },
+    "pet-azure-happy.webp": {
+      "bytes": 51708,
+      "sha256": "52194616617f484a4c51207fadf110c723882a6efb93272126ccc0bed54c09fb"
+    },
+    "pet-azure-shy.webp": {
+      "bytes": 50272,
+      "sha256": "1e33c22e0d204ca91242cf0541e2c6ccb0d9a71a5290aa115d2c05949a8d788f"
+    },
+    "pet-azure-sleep.webp": {
+      "bytes": 50536,
+      "sha256": "7970b7b46dfbb8c9d40a610d7e55ecbb5c6ce811eafdcb4df43f4b46203f2e42"
     },
     "pet-azure-stage.webm": {
       "bytes": 1833528,

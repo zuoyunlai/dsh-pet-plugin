@@ -432,12 +432,25 @@ test('F3 心声：只有写了 lines.aside 的形象才冒，且不出声', () =
   R.aside = null
   R.speaking = false
 
-  // 薇没有 aside 这类台词：不该冒心声（也不能回落到 idle 台词）
-  R.settings.persona = 'violet'
-  assert.equal(env.api.asideLine(), '', '没有 aside 台词的形象不该有可抽的心声')
-  assert.equal(env.api.maybeAside(1), '', '没有 aside 台词时强制概率也不冒')
+  // 1.23.0：五只都补齐了 aside，不能再靠「某个形象没写」来验证降级。
+  // 改为人为挖掉**五语**的 aside（只删中文会被 linesEn 兜住），
+  // 证明缺这类台词时安静、且绝不回落 idle。
+  const p = env.api.PERSONAS.violet
+  const KEYS = ['lines', 'linesEn', 'linesEs', 'linesPt', 'linesHi']
+  const saved = KEYS.map((k) => p[k] && p[k].aside)
+  try {
+    for (const k of KEYS) if (p[k]) delete p[k].aside
+    R.settings.persona = 'violet'
+    assert.equal(env.api.asideLine(), '', '没有 aside 台词的形象不该有可抽的心声')
+    assert.equal(env.api.maybeAside(1), '', '没有 aside 台词时强制概率也不冒')
+    assert.ok(env.api.linesOf('idle').length > 0, 'idle 仍然可用——证明不是靠清空全部台词才安静的')
+  } finally {
+    KEYS.forEach((k, i) => {
+      if (p[k] && saved[i] !== undefined) p[k].aside = saved[i]
+    })
+  }
 
-  // 鲸鱼娘有 aside：强制概率必中，且只出字不出声
+  // 有 aside：强制概率必中，且只出字不出声
   R.settings.persona = 'azure'
   const text = env.api.maybeAside(1)
   assert.ok(text, 'azure 应当有心声可抽')
@@ -547,8 +560,93 @@ test('F3 被拖动台词：有 drag 才说，没有就安静（不回落 idle）
   const R = env.api.runtime
   R.settings.persona = 'azure'
   assert.ok(env.api.dragLine(), 'azure 应当有拖动台词')
-  R.settings.persona = 'violet'
-  assert.equal(env.api.dragLine(), '', '薇没有 drag 台词时不能拿 idle 台词顶上')
-  R.settings.persona = 'violet'
-  assert.ok(env.api.linesOf('idle').length > 0, 'idle 仍然正常可用')
+
+  // 1.23.0：五只都补齐了 drag，改用人为挖掉**五语**的 drag 来验证降级机制
+  // （只删中文会被 linesEn 兜住，那样测不到降级）
+  const p = env.api.PERSONAS.violet
+  const KEYS = ['lines', 'linesEn', 'linesEs', 'linesPt', 'linesHi']
+  const saved = KEYS.map((k) => p[k] && p[k].drag)
+  try {
+    for (const k of KEYS) if (p[k]) delete p[k].drag
+    R.settings.persona = 'violet'
+    assert.equal(env.api.dragLine(), '', '没有 drag 台词时不能拿 idle 台词顶上')
+    assert.ok(env.api.linesOf('idle').length > 0, 'idle 仍然正常可用')
+  } finally {
+    KEYS.forEach((k, i) => {
+      if (p[k] && saved[i] !== undefined) p[k].drag = saved[i]
+    })
+  }
+
+  // 补齐后五只都必须有 drag/aside（防回归：新增形象漏写会立刻红）
+  for (const id of Object.keys(env.api.PERSONAS)) {
+    R.settings.persona = id
+    assert.ok(env.api.dragLine(), id + ' 缺少 drag 台词')
+    assert.ok(env.api.asideLine(), id + ' 缺少 aside 台词')
+  }
+})
+
+test('1.22.0 面板顶部让开顶栏（用户报：X 被顶栏盖住点不到）', () => {
+  // 宠物拖到屏幕最上方：旧实现只保证 top>=8，面板顶部会钻进顶栏，
+  // 右上角的 × 正好被盖住。现在顶部至少让出 headerSafeArea（测不到时 44px）+ 边距。
+  const env = makeEnv({
+    innerWidth: 1280,
+    innerHeight: 800,
+    actorRect: { left: 600, top: 0, right: 704, bottom: 104, width: 104, height: 104 },
+  })
+  env.api.placePanel()
+  const pos = env.api.runtime.panelPos
+  const top = 800 - parseFloat(pos.bottom) - parseFloat(pos.maxHeight)
+  assert.ok(top >= 52, `面板顶部 ${top} 未让开顶栏安全区 52`)
+})
+
+test('1.22.0 低分辨率下面板按可用高度收缩，不超出屏幕', () => {
+  for (const vh of [600, 768, 900]) {
+    const env = makeEnv({
+      innerWidth: 1024,
+      innerHeight: vh,
+      actorRect: { left: 860, top: vh - 150, right: 964, bottom: vh - 46, width: 104, height: 104 },
+    })
+    env.api.placePanel()
+    const pos = env.api.runtime.panelPos
+    const H = parseFloat(pos.maxHeight)
+    const top = vh - parseFloat(pos.bottom) - H
+    assert.ok(top >= 7.5, `vh=${vh}：顶部越界 top=${top}`)
+    assert.ok(top + H <= vh, `vh=${vh}：底部越界`)
+    assert.ok(H < vh, `vh=${vh}：面板比屏幕还高`)
+  }
+})
+
+test('1.22.0 输入框默认是悬停模式，不常显', () => {
+  const env = makeEnv()
+  const s = env.api.runtime.settings
+  assert.equal(s.inputMode, 'hover', '默认应为悬停模式')
+  assert.equal(s.showInput, true, 'showInput 仍为 true（只控制是否渲染，不控制常显）')
+  assert.equal(env.api.runtime.hovering, false, '初始不处于 hover')
+})
+
+test('1.22.0 悬停人物会展开输入框，移开（延迟后）收起', () => {
+  const env = makeEnv()
+  const A = env.api
+  const R = A.runtime
+  A.setHover(true)
+  assert.equal(R.hovering, true, '悬停应立即展开')
+  A.setHover(false)
+  // 关键：宽限期内必须仍展开。这里断言「100ms 时还开着」，
+  // 把延迟改成 0 会立刻抓红（只断言「最终收起」是抓不到的）。
+  env.advance(100)
+  assert.equal(R.hovering, true, '移开后 100ms 内应保持展开（给鼠标穿过间隙的时间）')
+  env.advance(200)
+  assert.equal(R.hovering, false, '宽限期过后应收起')
+})
+
+test('1.22.0 鼠标快速移回会取消收起（不会闪一下）', () => {
+  const env = makeEnv()
+  const A = env.api
+  const R = A.runtime
+  A.setHover(true)
+  A.setHover(false) // 触发延迟
+  env.advance(100) // 还没到 200ms
+  A.setHover(true) // 又移回来了
+  env.advance(400)
+  assert.equal(R.hovering, true, '移回后应保持展开，不能被挂起的收起定时器关掉')
 })

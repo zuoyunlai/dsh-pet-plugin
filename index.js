@@ -220,20 +220,20 @@ export function apply(ctx, config) {
         commands.register({
           definitionId: 'dsh-pet.toggle',
           name: 'dsh-pet',
-          description: '桌宠：叫出来 / hide 藏 1 小时',
+          description: '桌面伴侣：叫出来 / hide 藏 1 小时',
           handler: (invocation) => {
             const arg = String((invocation && invocation.rawInput) || '').trim().toLowerCase()
             if (arg === 'hide') {
               petCommand = 'hide'
               petCommandSeq++
-              return { kind: 'success', text: '桌宠藏起来了，1 小时后回来。' }
+              return { kind: 'success', text: '桌面伴侣藏起来了，1 小时后回来。' }
             }
             if (arg && arg !== 'show') {
               return { kind: 'error', text: '用法：/dsh-pet [show|hide]' }
             }
             petCommand = 'show'
             petCommandSeq++
-            return { kind: 'success', text: '桌宠叫出来了。' }
+            return { kind: 'success', text: '桌面伴侣叫出来了。' }
           },
         }),
       )

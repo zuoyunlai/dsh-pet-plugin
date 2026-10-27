@@ -1,7 +1,7 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.21.0",
-  "description": "DSH 桌宠插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
+  "version": "1.24.0",
+  "description": "DSH 桌面伴侣插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
   "exports": {
@@ -78,6 +78,11 @@
   "author": {
     "name": "zuoyunlai",
     "url": "https://github.com/zuoyunlai"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "repository": {
     "type": "git",

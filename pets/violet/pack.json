@@ -143,6 +143,23 @@
     "error": [
       "刚才走神了，再说一遍。",
       "这会儿没接上，等等。"
+    ],
+    "drag": [
+      "这么急？我可是很沉的。",
+      "放得稳一点，别把我颠散了。",
+      "你抱得比你想的要紧呢。",
+      "去哪儿我都跟着，别慌。",
+      "再晃一下，我就记住这一次了。"
+    ],
+    "aside": [
+      "他刚才那下抓得挺稳，可以夸一句。",
+      "其实我很想让他再拉一会儿。",
+      "这个姿势别扭，但不想提醒他。",
+      "刚才差点笑出来，忍住了。",
+      "他手心的温度比想象中高。",
+      "要不要装作被拉疼了，看他反应。",
+      "再拖远一点，就可以赖着不走了。",
+      "算了，这次就不计较了。"
     ]
   },
   "linesEn": {
@@ -190,6 +207,23 @@
     "error": [
       "I drifted off. Say that again.",
       "That didn't land. Hold on."
+    ],
+    "drag": [
+      "In such a hurry? And I'm rather heavy.",
+      "Set me down gently, not like a parcel.",
+      "You're holding me tighter than you think.",
+      "Anywhere's fine. No need to panic.",
+      "One more shake and I will remember this."
+    ],
+    "aside": [
+      "That grip was steady. Worth a compliment.",
+      "I sort of want him to keep pulling.",
+      "Awkward pose, but I won't point it out.",
+      "Almost laughed. Caught myself.",
+      "His palm is warmer than I expected.",
+      "Should I pretend it hurt, to see him react?",
+      "Drag me further and I could stay put.",
+      "Never mind. I'll let this one go."
     ]
   },
   "linesEs": {
@@ -237,6 +271,23 @@
     "error": [
       "Me distraje. Repítelo.",
       "Eso no me llegó. Espera."
+    ],
+    "drag": [
+      "¿Con tanta prisa? Y peso lo mío.",
+      "Bájame con cuidado, no soy un paquete.",
+      "Me agarras más fuerte de lo que crees.",
+      "Donde sea. No hay que correr.",
+      "Una sacudida más y lo recordaré."
+    ],
+    "aside": [
+      "Ese agarre fue firme. Merece un elogio.",
+      "En realidad quiero que siga tirando.",
+      "Postura incómoda, pero no pienso decirlo.",
+      "Casi me río. Me contuve.",
+      "Su palma está más caliente de lo que creía.",
+      "¿Finjo que me dolió para ver su reacción?",
+      "Si me arrastras más, me quedo.",
+      "Da igual. Esta vez lo dejo pasar."
     ]
   },
   "linesPt": {
@@ -284,6 +335,23 @@
     "error": [
       "Me distraí. Repete.",
       "Isso não chegou. Espera."
+    ],
+    "drag": [
+      "Tanta pressa? E eu não sou leve.",
+      "Me põe no chão devagar, não sou encomenda.",
+      "Você me segura mais forte do que pensa.",
+      "Qualquer lugar serve. Não precisa correr.",
+      "Me sacode de novo e eu vou lembrar disso."
+    ],
+    "aside": [
+      "Essa pegada foi firme. Merece elogio.",
+      "Na verdade quero que ele continue puxando.",
+      "Postura estranha, mas não vou falar.",
+      "Quase ri. Me segurei.",
+      "A palma dele é mais quente do que eu pensava.",
+      "Finjo que doeu só para ver a reação?",
+      "Me arrasta mais e eu não saio daqui.",
+      "Deixa. Desta vez eu relevo."
     ]
   },
   "linesHi": {
@@ -331,6 +399,23 @@
     "error": [
       "Dhyaan bhatak gaya. Phir se bolo.",
       "Yeh nahi aaya. Ruko."
+    ],
+    "drag": [
+      "Itni jaldi? Aur main halki bhi nahi hoon.",
+      "Dheere se utaaro, parcel nahi hoon.",
+      "Tum soch se zyada kas ke pakde ho.",
+      "Kahin bhi le chalo, ghabrao mat.",
+      "Ek baar aur hilaya to yaad rakhungi."
+    ],
+    "aside": [
+      "Uska pakad kaafi mazboot tha. Taareef banti hai.",
+      "Dil se chahti hoon woh aur kheenche.",
+      "Ajeeb pose hai, par batana nahi.",
+      "Hasi aa gayi thi. Rok li.",
+      "Uska haath soch se zyada garam hai.",
+      "Dard ka natak karun, reaction dekhne ke liye?",
+      "Aur door le chalo, main yahin ruk jaungi.",
+      "Chhod do. Is baar maaf kiya."
     ]
   },
   "clips": {

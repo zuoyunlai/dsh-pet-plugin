@@ -448,26 +448,26 @@ Refusing to write: the edited package.json would not parse. Nothing changed.
 
 | # | 现象 | 根因 | 影响 | 处置 | 状态 |
 |---|---|---|---|---|---|
-| 1 | 工具活动时宠物无「在调工具」表情 | 监听 `tool/result`，宿主发 `tools/result(exec,result)` | F1 六态退化为四态；error 时生气/乌云全死 | 改事件名与参数；单测改契约 | 待修（P1） |
-| 2 | 连点同一动作后动作变快、闪 | 无 action 代际令牌，旧 `later` 链继续推进新 action | 单步推进 8 帧、8 次 notify；跨人设串扰 | 单一 ActionController + gen + 覆盖清 timer | 待修（P1） |
-| 3 | 撩发到一半忽然停下、跳回静立 | clip 5.167s，动作 `ms` 写 1300/2400；`loop:true`；尾帧非静止姿态 | 观感断裂；dance 6s 会 loop 回跳 | clip 加 durationMs；一次性走 onEnded | 待修（P1） |
-| 4 | 极端情况下宠物整只消失 | clip 存在即只渲染 video，无 onError/poster/超时 | 人物不可见且无法自愈（webm 被缓存 1h） | poster + 超时回退帧序列 + no-store | 待修（P1） |
-| 5 | 发布脚本问 y 之前已推 main/tag/Release | 副作用写在确认之前；tag 触发 release.yml | 无法「取消发布」；可能触发 CI npm 发布 | 计划-确认-执行；默认只读 | 待修（P1） |
-| 6 | 远端网页上改的文件被推没 | tree 无 base_tree + force:true | 覆盖远端独有文件且无提示 | base_tree + force:false + 差异 dry-run | 待修（P1） |
-| 7 | 上游 502 原文出现在页面响应 | failure.message / e.message 直接回传 | 同源可读的上游细节（endpoint/账号标识） | 只回稳定错误码 + 关联 ID | 待修（P2） |
-| 8 | 网络半死时阶段机停止更新；卸载后仍写状态 | fetch 无超时/无 AbortController；卸载无 generation 检查 | 轮询链悬挂且可累积；脏写已卸载 runtime | 超时 + abort + gen 检查 | 待修（P2） |
-| 9 | 宠物贴左边缘时设置面板跑到屏幕外 | 只夹 right/bottom 下界，未夹左/上 | 面板不可用（-184px） | 四向夹取 + 重排 | 待修（P2） |
-| 10 | `-ProfileDir` 安装测试失败 | `Copy-Item $src -Destination $destDir` 建出 `dsh-pet`，post-check 找 `dsh-pet-plugin` | 测试模式不可用（不影响 pnpm 真实安装） | `Copy-Item …\*` 或改用 pnpm 分支语义 | 待修（P2，已复现） |
-| 11 | 新用户照 README 装出旧包名 | 8 处 `@local/dsh-pet` 未随改名同步 | 装到会被迁移的旧行；测试命令路径不存在 | 五语同改；只留 registry 一条 | 待修（P2） |
-| 12 | 客户端历史可进 system prompt | 字符串拼接 + 行前缀，无结构隔离 | 同源页面/插件可注入 | 结构化低信任字段 | 待修（P2） |
-| 13 | 测试全绿但功能是死的 | React 桩空实现；host 测把错误事件名当正例 | 回归网漏掉最贵的缺陷 | 契约测试以宿主源码为准 | 待修（P2） |
-| 14 | reduced-motion 下仍有强动效 | `@media` 块按类名逐条列举，漏 6 类 | 前庭敏感用户仍看到闪电/雨/震屏/贴纸/位移/视频 | 统一策略 + 显式白名单 | 待修（P2） |
-| 15 | Release 指向不存在于 npm 的版本 | 先建 Release 后 publish | 版本事实三处不一致 | 先 publish，后建 Release / 先 draft | 待修（P2，新增） |
-| 16 | 空 profile 上安装器报「JSON 不合法」 | 正则插行带尾逗号，空容器拼出 `[...,]` | 误导性错误，用户无从下手 | 对象化改写 | 待修（P3，新增） |
-| 17 | 菜单无 Esc、无焦点管理 | 只做了 pointerdown 关闭 | 键盘用户被困 | keydown + 焦点恢复 + menuitem | 待修（P3） |
-| 18 | 可访问名硬编码中文 | `title/aria-label` 用字面量 | 非中文界面的读屏体验 | 走 i18n | 待修（P3） |
-| 19 | 文档标 ✅ 的功能实际未生效 | 事件名错误 + 验收未真机执行 | 后续「已完成」标记不可信 | CHANGELOG 回填更正 | 待修（P3，新增） |
-| 20 | 官方 check/verify 全绿仍带病 | 工具面只验清单/元数据 | 作者误以为契约已验证 | 增加「事件是否被观测到」自检 | 机制建议（新增） |
+| 1 | 工具活动时宠物无「在调工具」表情 | 监听 `tool/result`，宿主发 `tools/result(exec,result)` | F1 六态退化为四态；error 时生气/乌云全死 | 改事件名与参数；单测改契约 | ✅ 已修（R06，host.test 契约用例） |
+| 2 | 连点同一动作后动作变快、闪 | 无 action 代际令牌，旧 `later` 链继续推进新 action | 单步推进 8 帧、8 次 notify；跨人设串扰 | 单一 ActionController + gen + 覆盖清 timer | ✅ 已修（R03，runtime.test 连点 20 次） |
+| 3 | 撩发到一半忽然停下、跳回静立 | clip 5.167s，动作 `ms` 写 1300/2400；`loop:true`；尾帧非静止姿态 | 观感断裂；dance 6s 会 loop 回跳 | clip 加 durationMs；一次性走 onEnded | ✅ 已修（R02，CLIP_DURATION_MS + onEnded） |
+| 4 | 极端情况下宠物整只消失 | clip 存在即只渲染 video，无 onError/poster/超时 | 人物不可见且无法自愈（webm 被缓存 1h） | poster + 超时回退帧序列 + no-store | ✅ 已修（R01，poster/onError/no-store） |
+| 5 | 发布脚本问 y 之前已推 main/tag/Release | 副作用写在确认之前；tag 触发 release.yml | 无法「取消发布」；可能触发 CI npm 发布 | 计划-确认-执行；默认只读 | ✅ 已修（R04，计划-确认-执行） |
+| 6 | 远端网页上改的文件被推没 | tree 无 base_tree + force:true | 覆盖远端独有文件且无提示 | base_tree + force:false + 差异 dry-run | ✅ 已修（R05，base_tree + 无 force） |
+| 7 | 上游 502 原文出现在页面响应 | failure.message / e.message 直接回传 | 同源可读的上游细节（endpoint/账号标识） | 只回稳定错误码 + 关联 ID | ✅ 已修（R07，稳定错误码 + ref） |
+| 8 | 网络半死时阶段机停止更新；卸载后仍写状态 | fetch 无超时/无 AbortController；卸载无 generation 检查 | 轮询链悬挂且可累积；脏写已卸载 runtime | 超时 + abort + gen 检查 | ✅ 已修（R08，AbortController + gen） |
+| 9 | 宠物贴左边缘时设置面板跑到屏幕外 | 只夹 right/bottom 下界，未夹左/上 | 面板不可用（-184px） | 四向夹取 + 重排 | ✅ 已修（R11，四向夹取） |
+| 10 | `-ProfileDir` 安装测试失败 | `Copy-Item $src -Destination $destDir` 建出 `dsh-pet`，post-check 找 `dsh-pet-plugin` | 测试模式不可用（不影响 pnpm 真实安装） | `Copy-Item …\*` 或改用 pnpm 分支语义 | ✅ 已修（R12，复制内容而非目录） |
+| 11 | 新用户照 README 装出旧包名 | 8 处 `@local/dsh-pet` 未随改名同步 | 装到会被迁移的旧行；测试命令路径不存在 | 五语同改；只留 registry 一条 | ✅ 已修（R13，五语同改） |
+| 12 | 客户端历史可进 system prompt | 字符串拼接 + 行前缀，无结构隔离 | 同源页面/插件可注入 | 结构化低信任字段 | ✅ 已修（R14，history 移出 system） |
+| 13 | 测试全绿但功能是死的 | React 桩空实现；host 测把错误事件名当正例 | 回归网漏掉最贵的缺陷 | 契约测试以宿主源码为准 | ✅ 已修（R15，harness + runtime.test） |
+| 14 | reduced-motion 下仍有强动效 | `@media` 块按类名逐条列举，漏 6 类 | 前庭敏感用户仍看到闪电/雨/震屏/贴纸/位移/视频 | 统一策略 + 显式白名单 | ✅ 已修（R10，统一 @media） |
+| 15 | Release 指向不存在于 npm 的版本 | 先建 Release 后 publish | 版本事实三处不一致 | 先 publish，后建 Release / 先 draft | ✅ 已修（R19，先 publish 后 Release/draft） |
+| 16 | 空 profile 上安装器报「JSON 不合法」 | 正则插行带尾逗号，空容器拼出 `[...,]` | 误导性错误，用户无从下手 | 对象化改写 | ✅ 已修（R20，空容器分情况插入） |
+| 17 | 菜单无 Esc、无焦点管理 | 只做了 pointerdown 关闭 | 键盘用户被困 | keydown + 焦点恢复 + menuitem | ✅ 已修（R16，menuitem + Esc + 焦点） |
+| 18 | 可访问名硬编码中文 | `title/aria-label` 用字面量 | 非中文界面的读屏体验 | 走 i18n | ✅ 已修（R18，a11y.* 五语键） |
+| 19 | 文档标 ✅ 的功能实际未生效 | 事件名错误 + 验收未真机执行 | 后续「已完成」标记不可信 | CHANGELOG 回填更正 | ✅ 已修（R21，CHANGELOG/ROADMAP 回填） |
+| 20 | 官方 check/verify 全绿仍带病 | 工具面只验清单/元数据 | 作者误以为契约已验证 | 增加「事件是否被观测到」自检 | ✅ 已实施（R22，/ping.toolEvents + 20s 未观测告警） |
 
 ---
 

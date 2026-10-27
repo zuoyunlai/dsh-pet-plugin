@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "Desk Pet",
+    "title": "Desktop Companion",
     "description": "A photo-real companion that drops by, talks, dances and chats through a tiny input box."
   },
   "pet": {
-    "panel.title": "Desk pet",
+    "panel.title": "Desktop companion",
     "panel.look": "Look",
     "panel.lang": "Language",
     "panel.langAuto": "Auto (follow DSH)",
@@ -25,6 +25,7 @@
     "panel.pitch": "Pitch",
     "panel.rate": "Rate",
     "panel.inputBox": "Input box",
+    "panel.inputHover": "Only on hover",
     "panel.chatter": "Chit-chat",
     "panel.celebrate": "Celebrate",
     "panel.chaos": "Mischief",
@@ -47,7 +48,7 @@
     "voice.xiaoxiao": "Xiaoxiao · gentle",
     "voice.xiaoyi": "Xiaoyi · sweet",
     "voice.xiaomo": "Xiaomo · cool",
-    "pet.toggle": "Desk pet",
+    "pet.toggle": "Desktop companion",
     "pet.toggleOff": "She is off-screen — click to bring her back",
     "hint.neuralOff": "Neural voice unavailable, using the system voice",
     "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",

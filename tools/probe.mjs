@@ -1,4 +1,4 @@
-// DSH 桌宠的端到端探测工具：无头 Chrome + CDP，一个入口、多个场景。
+// DSH 桌面伴侣的端到端探测工具：无头 Chrome + CDP，一个入口、多个场景。
 //
 // 用法：
 //   node tools/probe.mjs <dsh-url> --scenario=video   [--shot=out.png]

@@ -2,7 +2,7 @@
 
 Uma companheira que vive no canto inferior direito da **interface web do DSH**: fica por
 perto ou aparece de forma aleatória, fala (com voz), anda, dança, fica tímida ou irritada, e
-traz uma caixinha de texto para conversar. Quatro personagens fotorrealistas, cada uma com o
+traz uma caixinha de texto para conversar. Cinco personagens fotorrealistas, cada uma com o
 seu temperamento.
 
 > Escopo: a mascote só vive dentro da janela do DSH (monta no slot de overlay do framework).

@@ -212,7 +212,10 @@ petApi.runtime.panelOpen = true
     return out
   }
   const text = collect(pet({ ...baseProps }), []).join(' ')
-  assert.ok(text.includes('Desk pet'), 'i18n 回落英文时应渲染英文标题')
+  // 产品名 1.21.0 起为「桌面伴侣 / Desktop companion」；断言读 locale/en.json 的真值，
+  // 避免下次改名再出现「改了文案忘改断言」的假红。
+  const enPanelTitle = JSON.parse(readFileSync(join(here, '..', 'locale', 'en.json'), 'utf8')).pet['panel.title']
+  assert.ok(text.includes(enPanelTitle), 'i18n 回落英文时应渲染英文标题: ' + JSON.stringify(enPanelTitle))
   const keyLeak = new RegExp('panel\\.|pet\\.toggle|voice\\.xiao').exec(text)
   assert.ok(!keyLeak, '不该把 i18n key 漏到界面上: ' + (keyLeak && keyLeak[0]))
 }
@@ -387,7 +390,75 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
       assert.ok(typeof pet[k] === 'string' && pet[k].trim().length > 0, `${l}.${k} is empty`)
     }
   }
+  // 根因防回归（2026-10-27 事故）：tools/gen-locales.cjs 的覆盖表漏项时，生成器会
+  // 静默回落到 en 的值，结果 zh 面板里出现 "Stay a while" / "Cheer up" 这类英文。
+  // 这里把「非 en 语言的值与 en 完全相同」视为漏译。ALLOWED_SHARED 是**有意保留原文**
+  // 的键：语言名/「自动」这类技术项、被各语直接借用的外来词、以及带括号注的技术短语。
+  // 新增白名单必须写明理由——漏译正是从这里溜进来的。
+  const ALLOWED_SHARED = new Set([
+    'panel.lang',     // 语言切换项，各语统一写 "Language"
+    'panel.langAuto', // "Auto (follow DSH)" 里的 DSH 是产品名，各语保留
+    'panel.settings', // 齿轮按钮，各语统一用英文 Settings
+    'hint.privacy',   // 隐私说明里 Neural voice / Microsoft / DSH 等术语各语不译
+  ])
+  // 各语直接借用的外来词（音色技术术语与 UI 通名），按语言分别许可
+  const LOANWORDS = {
+    es: new Set(['panel.neural', 'panel.voiceName']),
+    pt: new Set(['panel.neural', 'panel.voiceName', 'panel.volume']),
+    hi: new Set([
+      'panel.effects', 'panel.random', 'panel.neural', 'panel.volume', 'panel.pitch',
+      'panel.inputBox', 'panel.size', 'panel.ink', 'panel.confetti', 'panel.bomb',
+    ]),
+  }
+  for (const l of langs) {
+    if (l === 'en') continue
+    const pet = read(l).pet
+    const loan = LOANWORDS[l] || new Set()
+    for (const k of enKeys) {
+      if (ALLOWED_SHARED.has(k) || loan.has(k)) continue
+      assert.notEqual(
+        pet[k], en[k],
+        `${l}.${k} 与 en 完全相同（生成器覆盖表漏项导致回落英文）: ${JSON.stringify(pet[k])}`
+      )
+    }
+  }
   console.log('OK  i18n: 5 langs × ' + enKeys.length + ' keys, all non-empty')
+}
+
+/* ---------- 1.22.0：输入框与人物必须在同一个悬停容器里 ---------- */
+// 用户 2026-10-27 报「鼠标从人物移向输入框，刚离开人物输入框就消失，很难命中」。
+// 根因：悬停事件只挂在人物本体上，输入框是它的兄弟节点，鼠标一离开人物就 pointerleave。
+// 这里直接钉住 DOM 结构：输入框与人物必须共享同一个 .dsh-pet-hoverzone 祖先，
+// 否则就是结构退化（光测 setHover 的逻辑是抓不到的）。
+{
+  const walkWithAncestors = (node, fn, ancestors = [], depth = 0) => {
+    if (!node || typeof node !== 'object' || depth > 40) return
+    if (typeof node.type === 'function') {
+      walkWithAncestors(node.type(node.props || {}), fn, ancestors, depth + 1)
+      return
+    }
+    fn(node, ancestors)
+    const next = ancestors.concat([node])
+    for (const c of node.children || []) walkWithAncestors(c, fn, next, depth + 1)
+  }
+  petApi.runtime.panelOpen = false
+  const tree = pet({ ...baseProps })
+  let zone = null
+  let inputInZone = false
+  let actorInZone = false
+  walkWithAncestors(tree, (n, ancestors) => {
+    const cls = String((n.props && n.props.className) || '')
+    if (cls.includes('dsh-pet-hoverzone')) zone = n
+    const inside = ancestors.some((a) => String((a.props && a.props.className) || '').includes('dsh-pet-hoverzone'))
+    if (cls.includes('dsh-pet-input')) inputInZone = inside
+    if (cls.includes('dsh-pet-actor ')) actorInZone = inside
+  })
+  assert.ok(zone, '应存在 .dsh-pet-hoverzone 悬停容器')
+  assert.ok(typeof zone.props.onPointerEnter === 'function', '悬停容器必须自己接管 onPointerEnter')
+  assert.ok(typeof zone.props.onPointerLeave === 'function', '悬停容器必须自己接管 onPointerLeave')
+  assert.ok(actorInZone, '人物必须在悬停容器内')
+  assert.ok(inputInZone, '输入框必须与人物同属悬停容器（否则鼠标离开人物就会收起）')
+  console.log('OK  hover zone: input + actor share .dsh-pet-hoverzone')
 }
 
 /* ---------- 结论 ---------- */

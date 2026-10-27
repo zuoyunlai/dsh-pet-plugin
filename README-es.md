@@ -2,7 +2,7 @@
 
 Una mascota que vive en la esquina inferior derecha de la **interfaz web de DSH**: aparece
 de forma permanente o aleatoria, habla (con voz), camina, baila, se pone tímida o enfadada,
-y trae una cajita de texto para charlar con ella. Cuatro personajes fotorrealistas, cada uno
+y trae una cajita de texto para charlar con ella. Cinco personajes fotorrealistas, cada uno
 con su propio temperamento.
 
 > Alcance: la mascota solo vive dentro de la ventana de DSH (se monta en el slot de overlay

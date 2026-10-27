@@ -214,8 +214,20 @@ if (dirtyFiles.length && !allowCommit) {
 }
 
 // 3) 测试绿闸：同一次执行的 SHA 在本地必须先过
-const testCmd = ['node', ['--test', 'tests/host.test.mjs', 'tests/assets.test.mjs', 'tests/runtime.test.mjs']]
-console.log('tests  : ' + (dry ? '(计划模式下仍会真跑)' : '') + ' node --check + smoke + ' + testCmd[1].join(' '))
+//
+// 清单必须与 package.json 的 test 脚本一致。曾经这里只列了 3 个文件，
+// 漏掉 push-api / voice / overlay.dom —— 发版前的门比 npm test 还弱，
+// 等于把 R-08 的 jsdom 回归留在门外。改这里时请同步 package.json。
+const testFiles = [
+  'tests/host.test.mjs',
+  'tests/assets.test.mjs',
+  'tests/runtime.test.mjs',
+  'tests/push-api.test.mjs',
+  'tests/voice.test.mjs',
+  'tests/overlay.dom.test.mjs',
+]
+const testCmd = ['node', ['--test', ...testFiles]]
+console.log('tests  : ' + (dry ? '(计划模式下仍会真跑)' : '') + ' node --check + smoke + ' + testFiles.join(' '))
 if (!argv.includes('--skip-tests')) {
   read('node', ['--check', 'client.js'])
   read('node', ['--check', 'index.js'])

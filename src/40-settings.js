@@ -16,7 +16,10 @@
       neuralVoice: true, // 用 edge-tts 的神经音色（失败自动退回系统 SAPI）
       ttsVoice: 'auto', // 'auto' = 跟随角色（pack.voice.voiced）| 其余是手选固定音色
       chatter: true, // 主动蹦话
-      showInput: true, // 宠物旁边的小输入框
+      showInput: true, // 宠物旁边的小输入框（保留旧语义：false = 完全不出现）
+      // 1.22.0：输入框显示方式。'hover' = 平时收起、鼠标移到人物上才滑出（默认）；
+      // 'always' = 一直显示。showInput=false 时无论如何都不渲染。
+      inputMode: 'hover',
       scale: 1.15,
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
@@ -28,6 +31,7 @@
     const SETTINGS_LANGS = new Set(['auto', 'en', 'zh', 'es', 'pt', 'hi'])
     const SETTINGS_MODES = new Set(['always', 'random'])
     const SETTINGS_BUBBLES = new Set(['auto', 'off'])
+    const SETTINGS_INPUT = new Set(['hover', 'always'])
     const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
 
     function finiteNumber(value, fallback, min, max) {
@@ -61,6 +65,9 @@
       if (typeof source.ttsVoice === 'string' && source.ttsVoice.length <= 120) out.ttsVoice = source.ttsVoice
       out.chatter = booleanSetting(source.chatter, out.chatter)
       out.showInput = booleanSetting(source.showInput, out.showInput)
+      if (typeof source.inputMode === 'string' && SETTINGS_INPUT.has(source.inputMode)) {
+        out.inputMode = source.inputMode
+      }
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)

@@ -1,10 +1,10 @@
 {
   "meta": {
-    "title": "桌宠",
-    "description": "一只超写实立绘的桌宠：偶尔冒出来说话、跳舞，旁边挂个小输入框可以单聊。"
+    "title": "桌面伴侣",
+    "description": "一只超写实立绘的桌面伴侣：偶尔冒出来说话、跳舞，旁边挂个小输入框可以单聊。"
   },
   "pet": {
-    "panel.title": "桌宠",
+    "panel.title": "桌面伴侣",
     "panel.look": "形象",
     "panel.lang": "Language",
     "panel.langAuto": "Auto (follow DSH)",
@@ -25,6 +25,7 @@
     "panel.pitch": "音高",
     "panel.rate": "语速",
     "panel.inputBox": "小输入框",
+    "panel.inputHover": "悬停才显示",
     "panel.chatter": "主动搭话",
     "panel.celebrate": "完成庆祝",
     "panel.chaos": "恶作剧",
@@ -47,7 +48,7 @@
     "voice.xiaoxiao": "晓晓 · 温柔",
     "voice.xiaoyi": "晓伊 · 甜",
     "voice.xiaomo": "晓墨 · 清冷",
-    "pet.toggle": "桌宠",
+    "pet.toggle": "桌面伴侣",
     "pet.toggleOff": "她在屏幕外，点一下拉回来",
     "hint.neuralOff": "神经音色不可用，改用系统语音",
     "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",

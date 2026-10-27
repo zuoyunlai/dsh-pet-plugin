@@ -155,6 +155,47 @@
     const PANEL_GAP = 8
     const VIEW_MARGIN = 8
 
+    /**
+     * 顶栏（DSH 标题栏/工具栏）的安全区高度：面板与气泡都不许压到它上面。
+     *
+     * 起因（2026-10-27 用户反馈）：宠物被拖到屏幕上方时，面板贴到视口顶部，
+     * 标题栏里右上角的 × 正好被顶栏盖住——看得见、点不到，关不掉面板。
+     *
+     * 为什么是探测而不是写死常量：DSH 顶栏高度随主题/密度/缩放变化，
+     * 写死必然在下一个主题里失效。优先量覆盖层父容器的 top 偏移，
+     * 测不到再依次尝试常见选择器，最后给保守默认值。
+     */
+    const DEFAULT_HEADER_SAFE = 44
+
+    function headerSafeArea() {
+      try {
+        if (typeof document === 'undefined') return DEFAULT_HEADER_SAFE
+        // ① overlay 的父容器：它是插件真正可用的那块区域
+        const host = runtime.rootEl && runtime.rootEl.parentElement
+        if (host && host.getBoundingClientRect) {
+          const hr = host.getBoundingClientRect()
+          // 父容器若被贴到 (0,0)，说明它铺满全屏（顶栏是浮在上面的兄弟节点），量不到信息
+          if (hr.top > 0 && hr.top < 200) return Math.round(hr.top)
+        }
+        // ② 常见顶栏选择器
+        const sel = [
+          'header[role=banner]',
+          '.dsh-titlebar',
+          '.dsh-header',
+          '.dsh-topbar',
+          '[data-dsh-titlebar]',
+        ].join(',')
+        const nodes = document.querySelectorAll ? document.querySelectorAll(sel) : []
+        for (const n of nodes) {
+          const nr = n.getBoundingClientRect && n.getBoundingClientRect()
+          if (nr && nr.height > 0 && nr.top <= 1 && nr.height < 200) return Math.round(nr.bottom)
+        }
+      } catch (e) {
+        /* 量不到就走默认值 */
+      }
+      return DEFAULT_HEADER_SAFE
+    }
+
     function placePanel() {
       try {
         const el = (typeof document !== 'undefined' && document.querySelector('.dsh-pet-actor-wrap')) || runtime.rootEl
@@ -165,7 +206,10 @@
           runtime.panelPos = null
           return
         }
-        const spaceAbove = r.top - 16
+        // 可用区域的上下边界：顶部让出顶栏，底部留边距
+        const safeTop = headerSafeArea() + VIEW_MARGIN
+        const availH = Math.max(160, vh - safeTop - VIEW_MARGIN)
+        const spaceAbove = r.top - safeTop
         let right
         let bottom
         let maxHeight
@@ -181,10 +225,11 @@
           maxHeight = Math.min(Math.max(r.height + 60, 260), 520)
         }
         // 夹取：right ∈ [8, vw-W-8] 保证左右都在视口内；
-        // bottom 的上界由 maxHeight 反推（面板真实高度 ≤ maxHeight），保证顶部不越界。
-        const maxH = Math.max(160, Math.min(maxHeight, vh - VIEW_MARGIN * 2))
+        // bottom 的上界由 maxHeight 反推，且不得超过「顶栏安全区」，
+        // 否则面板顶部（含右上角 ×）会钻到顶栏底下。
+        const maxH = Math.max(160, Math.min(maxHeight, availH))
         const rightMax = Math.max(VIEW_MARGIN, vw - PANEL_W - VIEW_MARGIN)
-        const bottomMax = Math.max(VIEW_MARGIN, vh - maxH - VIEW_MARGIN)
+        const bottomMax = Math.max(VIEW_MARGIN, vh - safeTop - maxH)
         runtime.panelPos = {
           right: clamp(right, VIEW_MARGIN, rightMax) + 'px',
           bottom: clamp(bottom, VIEW_MARGIN, bottomMax) + 'px',
@@ -194,6 +239,37 @@
       } catch (e) {
         runtime.panelPos = null
       }
+    }
+
+    /* ================= 输入框悬停展开（1.22.0） ================= */
+
+    /**
+     * 用户要求：输入框平时不可见，鼠标移到人物上才滑出。
+     *
+     * 移开时延迟收起——人物与输入框之间有几像素间隙，鼠标穿过去的那一瞬间会先触发
+     * actor 的 pointerleave、再进入输入框；不延迟就会闪一下再弹回来。200ms 够穿过去，
+     * 又不至于让「移开」显得迟钝。
+     */
+    const HOVER_HIDE_DELAY = 200
+
+    function setHover(on) {
+      if (runtime.hoverTimer) {
+        clearTimeout(runtime.hoverTimer)
+        runtime.hoverTimer = null
+      }
+      if (on) {
+        if (!runtime.hovering) {
+          runtime.hovering = true
+          notify()
+        }
+        return
+      }
+      runtime.hoverTimer = setTimeout(() => {
+        runtime.hoverTimer = null
+        if (!runtime.hovering) return
+        runtime.hovering = false
+        notify()
+      }, HOVER_HIDE_DELAY)
     }
 
     /* ================= 心情循环 ================= */

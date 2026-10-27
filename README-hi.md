@@ -2,7 +2,7 @@
 
 ek chhotaa-saa saathi jo **DSH web UI** ke neeche-daayein kone mein rehtaa hai: hameshaa
 yaa kabhi-kabhi aataa hai, boltaa hai (aawaaz ke saath), chalataa hai, naachataa hai,
-sharmaataa hai yaa naraz hotaa hai, aur ek chhotaa input box saath laataa hai. Chaar
+sharmaataa hai yaa naraz hotaa hai, aur ek chhotaa input box saath laataa hai. Paanch
 photo-realistic characters, har ek kaa apanaa mizaaj.
 
 > Scope: yeh sirf DSH window ke andar rehtaa hai (framework ke overlay slot mein mount hotaa

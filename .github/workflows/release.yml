@@ -26,13 +26,19 @@ jobs:
       - name: Install peer dependency (schemastery)
         run: npm install --no-save @deepseek-ai/schemastery
 
+      # 组件级测试的依赖（devDependencies 里的 jsdom/react/react-dom）。
+      # 发布前必须跑，否则 R-08 的键盘可达性与视频回退回归在发版链上无保护。
+      - name: Install dev dependencies (jsdom for component tests)
+        run: npm install --no-save jsdom react react-dom
+
       # The bundle is plain ES modules and the smoke test stubs React itself.
+      # 这份清单必须与 test.yml 保持一致——曾经漏掉 overlay.dom 与后面的新用例。
       - name: Checks
         run: |
           node --check client.js
           node --check index.js
           node tests/smoke.mjs
-          node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs
+          node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs
 
       # Safe by default: skips when the token is missing, skips when the version is already
       # on npm (so a manual `node tools/release.cjs` run is never fought over).

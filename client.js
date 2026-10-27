@@ -68,7 +68,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desk pet","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desk pet","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}"},"zh":{"panel.title":"桌宠","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌宠","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}"},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -245,6 +245,17 @@ window.__ModuleLoader__.load({
           poked: ["戳哪儿呢。", "手放规矩点。", "再戳一下，我可要还手了。"],
           chatAck: ["说吧，我听着。", "嗯？讲。"],
           error: ["刚才走神了，再说一遍。", "这会儿没接上，等等。"],
+          drag: ["这么急？我可是很沉的。", "放得稳一点，别把我颠散了。", "你抱得比你想的要紧呢。", "去哪儿我都跟着，别慌。", "再晃一下，我就记住这一次了。"],
+          aside: [
+            "他刚才那下抓得挺稳，可以夸一句。",
+            "其实我很想让他再拉一会儿。",
+            "这个姿势别扭，但不想提醒他。",
+            "刚才差点笑出来，忍住了。",
+            "他手心的温度比想象中高。",
+            "要不要装作被拉疼了，看他反应。",
+            "再拖远一点，就可以赖着不走了。",
+            "算了，这次就不计较了。",
+          ],
         },
         linesEn: {
           appear: [
@@ -275,6 +286,23 @@ window.__ModuleLoader__.load({
           poked: ["Where are you poking?", "Hands to yourself.", "One more and I poke back."],
           chatAck: ["Go on, I am listening.", "Hm? Tell me."],
           error: ["I drifted off. Say that again.", "That didn't land. Hold on."],
+          drag: [
+            "In such a hurry? And I'm rather heavy.",
+            "Set me down gently, not like a parcel.",
+            "You're holding me tighter than you think.",
+            "Anywhere's fine. No need to panic.",
+            "One more shake and I will remember this.",
+          ],
+          aside: [
+            "That grip was steady. Worth a compliment.",
+            "I sort of want him to keep pulling.",
+            "Awkward pose, but I won't point it out.",
+            "Almost laughed. Caught myself.",
+            "His palm is warmer than I expected.",
+            "Should I pretend it hurt, to see him react?",
+            "Drag me further and I could stay put.",
+            "Never mind. I'll let this one go.",
+          ],
         },
         linesEs: {
           appear: [
@@ -309,6 +337,23 @@ window.__ModuleLoader__.load({
           ],
           chatAck: ["Dime, te escucho.", "¿Mm? Cuéntame."],
           error: ["Me distraje. Repítelo.", "Eso no me llegó. Espera."],
+          drag: [
+            "¿Con tanta prisa? Y peso lo mío.",
+            "Bájame con cuidado, no soy un paquete.",
+            "Me agarras más fuerte de lo que crees.",
+            "Donde sea. No hay que correr.",
+            "Una sacudida más y lo recordaré.",
+          ],
+          aside: [
+            "Ese agarre fue firme. Merece un elogio.",
+            "En realidad quiero que siga tirando.",
+            "Postura incómoda, pero no pienso decirlo.",
+            "Casi me río. Me contuve.",
+            "Su palma está más caliente de lo que creía.",
+            "¿Finjo que me dolió para ver su reacción?",
+            "Si me arrastras más, me quedo.",
+            "Da igual. Esta vez lo dejo pasar.",
+          ],
         },
         linesPt: {
           appear: [
@@ -339,6 +384,23 @@ window.__ModuleLoader__.load({
           poked: ["Onde você está cutucando?", "As mãos no lugar.", "Mais uma vez e eu cutuco de volta."],
           chatAck: ["Fala, estou ouvindo.", "Hum? Conta."],
           error: ["Me distraí. Repete.", "Isso não chegou. Espera."],
+          drag: [
+            "Tanta pressa? E eu não sou leve.",
+            "Me põe no chão devagar, não sou encomenda.",
+            "Você me segura mais forte do que pensa.",
+            "Qualquer lugar serve. Não precisa correr.",
+            "Me sacode de novo e eu vou lembrar disso.",
+          ],
+          aside: [
+            "Essa pegada foi firme. Merece elogio.",
+            "Na verdade quero que ele continue puxando.",
+            "Postura estranha, mas não vou falar.",
+            "Quase ri. Me segurei.",
+            "A palma dele é mais quente do que eu pensava.",
+            "Finjo que doeu só para ver a reação?",
+            "Me arrasta mais e eu não saio daqui.",
+            "Deixa. Desta vez eu relevo.",
+          ],
         },
         linesHi: {
           appear: [
@@ -373,6 +435,23 @@ window.__ModuleLoader__.load({
           poked: ["Kahan chubha rahe ho?", "Haath sambhal ke.", "Ek baar aur, to main bhi chubhaungi."],
           chatAck: ["Bolo, sun rahi hoon.", "Hmm? Batao."],
           error: ["Dhyaan bhatak gaya. Phir se bolo.", "Yeh nahi aaya. Ruko."],
+          drag: [
+            "Itni jaldi? Aur main halki bhi nahi hoon.",
+            "Dheere se utaaro, parcel nahi hoon.",
+            "Tum soch se zyada kas ke pakde ho.",
+            "Kahin bhi le chalo, ghabrao mat.",
+            "Ek baar aur hilaya to yaad rakhungi.",
+          ],
+          aside: [
+            "Uska pakad kaafi mazboot tha. Taareef banti hai.",
+            "Dil se chahti hoon woh aur kheenche.",
+            "Ajeeb pose hai, par batana nahi.",
+            "Hasi aa gayi thi. Rok li.",
+            "Uska haath soch se zyada garam hai.",
+            "Dard ka natak karun, reaction dekhne ke liye?",
+            "Aur door le chalo, main yahin ruk jaungi.",
+            "Chhod do. Is baar maaf kiya.",
+          ],
         },
         license: "MIT",
       },
@@ -444,6 +523,17 @@ window.__ModuleLoader__.load({
           poked: ["你胆子不小。", "碰我可以，要负责的。", "再碰一下试试？"],
           chatAck: ["说吧，听着呢。", "嗯？说重点。"],
           error: ["刚才没听清，再说。", "这算什么，重来。"],
+          drag: ["抓这么紧，是怕我跑吗？", "喂，我可不是能随便拎走的。", "再往前一点，我就靠上去了。", "你心跳好快，我听得见。", "抱稳了，摔了我可要闹的。"],
+          aside: [
+            "他抱得这么自然，有点受不了。",
+            "刚才那下很稳，我假装没在意。",
+            "再这样下去，我会当真的。",
+            "其实我很喜欢这样被带着走。",
+            "他手抖了一下，我看见了。",
+            "要不要故意往他怀里靠一点。",
+            "这样被拎着，比坐着开心多了。",
+            "别松手，这句我说不出口。",
+          ],
         },
         linesEn: {
           appear: [
@@ -466,6 +556,23 @@ window.__ModuleLoader__.load({
           poked: ["Bold of you.", "Touch me and take responsibility.", "Try that again?"],
           chatAck: ["Say it. Listening.", "Hm? The point."],
           error: ["Didn't catch that. Again.", "That does not count. Redo it."],
+          drag: [
+            "Holding on tight—afraid I'll run?",
+            "Hey, I'm not something you just carry off.",
+            "One step closer and I lean right in.",
+            "Your heart is racing. I can hear it.",
+            "Hold on properly. Drop me and I will make a scene.",
+          ],
+          aside: [
+            "He carries me so casually. It gets to me.",
+            "Steady hold. I pretend not to notice.",
+            "Keep this up and I'll take it seriously.",
+            "Honestly, I like being carried like this.",
+            "His hand trembled. I saw that.",
+            "Should I lean in on purpose?",
+            "Being carried beats sitting there.",
+            "Don't let go. I can't say that out loud.",
+          ],
         },
         linesEs: {
           appear: [
@@ -492,6 +599,23 @@ window.__ModuleLoader__.load({
           poked: ["Qué atrevido.", "Tócame y hazte cargo.", "¿Otra vez? A ver."],
           chatAck: ["Dilo. Escucho.", "¿Mm? Al grano."],
           error: ["No te entendí. Otra vez.", "Eso no cuenta. Repite."],
+          drag: [
+            "¿Me agarras fuerte por miedo a que escape?",
+            "Oye, no soy algo que se lleva así.",
+            "Un paso más y me acerco yo.",
+            "Tu corazón va rápido. Lo oigo.",
+            "Sujétame bien. Si me caes, armo un escándalo.",
+          ],
+          aside: [
+            "Me lleva con tanta naturalidad que me afecta.",
+            "Buen agarre. Fingo no darme cuenta.",
+            "Si sigue así, me lo tomaré en serio.",
+            "La verdad, me gusta que me lleve así.",
+            "Le tembló la mano. Lo vi.",
+            "¿Me acerco a propósito?",
+            "Que me lleven es mejor que quedarme quieta.",
+            "No me sueltes. Eso no puedo decirlo.",
+          ],
         },
         linesPt: {
           appear: [
@@ -518,6 +642,23 @@ window.__ModuleLoader__.load({
           poked: ["Que atrevido.", "Me toca e assume.", "De novo? Vamos ver."],
           chatAck: ["Fala. Estou ouvindo.", "Hum? Direto ao ponto."],
           error: ["Não entendi. De novo.", "Isso não vale. Repete."],
+          drag: [
+            "Me segura assim com medo de eu fugir?",
+            "Ei, eu não sou coisa pra carregar.",
+            "Mais um passo e eu me encosto.",
+            "Seu coração está acelerado. Eu ouço.",
+            "Segura direito. Se me derrubar, eu faço drama.",
+          ],
+          aside: [
+            "Ele me carrega com tanta naturalidade. Mexe comigo.",
+            "Pegada firme. Finjo não notar.",
+            "Se continuar assim, vou levar a sério.",
+            "Sinceramente, gosto de ser carregada assim.",
+            "A mão dele tremeu. Eu vi.",
+            "Finjo me encostar de propósito?",
+            "Ser carregada é melhor do que ficar parada.",
+            "Não solta. Isso eu não consigo falar.",
+          ],
         },
         linesHi: {
           appear: [
@@ -548,6 +689,23 @@ window.__ModuleLoader__.load({
           poked: ["Kitne bahadur ho.", "Chhuo, aur zimmedari lo.", "Phir se? Dekhte hain."],
           chatAck: ["Bolo. Sun rahi hoon.", "Hmm? Sidhi baat karo."],
           error: ["Samjhi nahi. Phir bolo.", "Yeh nahi chala. Dobara."],
+          drag: [
+            "Itni kas ke pakda, bhaag jaane ke darr se?",
+            "Sun, main utha kar le jaane wali cheez nahi hoon.",
+            "Ek qadam aur, aur main sarrak jaungi.",
+            "Tumhara dil tez chal raha hai. Mujhe sunai deta hai.",
+            "Dhang se pakdo. Gira diya to shor machaungi.",
+          ],
+          aside: [
+            "Woh itni aasani se uthata hai, kuch ho gaya hai mujhe.",
+            "Pakad mazboot thi. Dikhaati nahi.",
+            "Aise hi chalta raha to main serious le lungi.",
+            "Sach kahun to aise uthaye jaana achha lagta hai.",
+            "Uska haath kaanp gaya. Maine dekha.",
+            "Jaan boojh kar usse chipak jaun?",
+            "Uthaye jaane mein baithe rehne se zyada maza hai.",
+            "Mat chhodo. Yeh bol nahi sakti.",
+          ],
         },
         license: "MIT",
       },
@@ -606,6 +764,17 @@ window.__ModuleLoader__.load({
           poked: ["轻一点。", "你这是想我了？", "手别乱放。"],
           chatAck: ["嗯，慢慢说。", "我在。"],
           error: ["刚才没听清，再说一次。", "稍等，我理一下。"],
+          drag: ["慢一点……不用这么赶。", "你把我拎起来了，不着急的。", "这样晃着，倒有点想睡。", "去哪里都好，我不催你。", "手稳一点，我信你。"],
+          aside: [
+            "他走得比平时快，可能是真的忙。",
+            "这样被拎着，其实很放心。",
+            "没什么想说的，就这样待着也好。",
+            "他呼吸有点乱，是累了还是紧张。",
+            "想让他慢一点，又觉得不必说。",
+            "靠一会儿，他应该不会介意。",
+            "这种时候安静一点最好。",
+            "刚才其实有点想笑。",
+          ],
         },
         linesEn: {
           appear: [
@@ -628,6 +797,23 @@ window.__ModuleLoader__.load({
           poked: ["Gently.", "Were you thinking of me?", "Hands, please."],
           chatAck: ["Mm. Take your time.", "I am here."],
           error: ["I didn't hear that. Once more.", "Hold on, let me sort it out."],
+          drag: [
+            "Slow down... there's no rush.",
+            "You've picked me up. No need to hurry.",
+            "Swaying like this makes me sleepy.",
+            "Anywhere is fine. I won't rush you.",
+            "Steady hands. I trust you.",
+          ],
+          aside: [
+            "He walks faster than usual. Maybe busy.",
+            "Being carried feels oddly safe.",
+            "Nothing to say. This is fine.",
+            "His breathing is uneven. Tired or nervous?",
+            "Wanted him to slow down, then thought better.",
+            "Lean a little. He probably will not mind.",
+            "Quiet works best right now.",
+            "I nearly smiled back there.",
+          ],
         },
         linesEs: {
           appear: [
@@ -650,6 +836,23 @@ window.__ModuleLoader__.load({
           poked: ["Con suavidad.", "¿Estabas pensando en mí?", "Las manos, por favor."],
           chatAck: ["Mm. Sin prisa.", "Aquí estoy."],
           error: ["No te oí. Otra vez.", "Espera, déjame ordenarlo."],
+          drag: [
+            "Más despacio... no hay prisa.",
+            "Ya me levantaste. No hace falta correr.",
+            "Con este vaivén me dan ganas de dormir.",
+            "Donde quieras. No te apuro.",
+            "Manos firmes. Confío en ti.",
+          ],
+          aside: [
+            "Camina más rápido que de costumbre. Estará ocupado.",
+            "Que me lleven da una calma rara.",
+            "No tengo nada que decir. Así está bien.",
+            "Respira irregular. ¿Cansado o nervioso?",
+            "Quise pedirle que fuera lento, pero ya no.",
+            "Me apoyo un poco. No le importará.",
+            "Ahora lo mejor es el silencio.",
+            "Casi sonrío hace un momento.",
+          ],
         },
         linesPt: {
           appear: [
@@ -676,6 +879,23 @@ window.__ModuleLoader__.load({
           poked: ["Com jeitinho.", "Estava pensando em mim?", "As mãos, por favor."],
           chatAck: ["Hum. Sem pressa.", "Estou aqui."],
           error: ["Não te ouvi. Outra vez.", "Espera, deixa eu organizar."],
+          drag: [
+            "Devagar... não precisa pressa.",
+            "Você já me levantou. Não precisa correr.",
+            "Com esse balanço dá sono.",
+            "Qualquer lugar. Não te apresso.",
+            "Mãos firmes. Eu confio em você.",
+          ],
+          aside: [
+            "Ele anda mais rápido que o normal. Deve estar ocupado.",
+            "Ser carregada dá uma calma estranha.",
+            "Nada a dizer. Está bom assim.",
+            "A respiração dele está irregular. Cansado ou nervoso?",
+            "Quis pedir calma, mas deixei passar.",
+            "Encosto um pouco. Ele não deve se importar.",
+            "O silêncio é melhor agora.",
+            "Quase sorri agora há pouco.",
+          ],
         },
         linesHi: {
           appear: [
@@ -706,6 +926,23 @@ window.__ModuleLoader__.load({
           poked: ["Aaram se.", "Mere baare mein soch rahe the?", "Haath, please."],
           chatAck: ["Hmm. Aaraam se.", "Main yahan hoon."],
           error: ["Suna nahi. Phir bolo.", "Ruko, suljhaane do."],
+          drag: [
+            "Dheere... koi jaldi nahi.",
+            "Tumne utha hi liya hai. Bhagane ki zaroorat nahi.",
+            "Aise hilne se neend aa rahi hai.",
+            "Kahin bhi. Main jaldi nahi kara rahi.",
+            "Haath sthir hain. Mujhe tum par bharosa hai.",
+          ],
+          aside: [
+            "Aaj woh tez chal raha hai. Shayad vyast hai.",
+            "Aise uthaye jaane mein ajeeb si sukoon hai.",
+            "Kehne ko kuch nahi. Yeh theek hai.",
+            "Saans beqaboo hai. Thaka ya nervous?",
+            "Dheere chalne ko kehna tha, phir chhod diya.",
+            "Thoda jhuk jaati hoon. Bura nahi manega.",
+            "Abhi chup rehna hi behtar hai.",
+            "Abhi muskurane ka mann tha.",
+          ],
         },
         license: "MIT",
       },
@@ -764,6 +1001,17 @@ window.__ModuleLoader__.load({
           poked: ["手拿开。", "……你胆子倒是大。", "再碰，我就记仇了。"],
           chatAck: ["说。", "讲吧。"],
           error: ["没听清。", "重说。"],
+          drag: ["放开。我自己会走。", "你哪来的胆子。", "……别晃，会分心。", "放下来。就现在。", "手。收回去。"],
+          aside: [
+            "他抱得比预想的稳，不说。",
+            "其实这样也不坏，不能说。",
+            "手有点凉，但不想让他知道。",
+            "再这样下去我会习惯的。",
+            "刚才那句太凶了，算了。",
+            "他手心出汗了，装没感觉到。",
+            "为什么心跳这么快，毫无道理。",
+            "希望他别这么快放下。",
+          ],
         },
         linesEn: {
           appear: [
@@ -786,6 +1034,23 @@ window.__ModuleLoader__.load({
           poked: ["Hands off.", "...You are bold.", "Touch me again and I hold a grudge."],
           chatAck: ["Speak.", "Go on."],
           error: ["Did not catch that.", "Say it again."],
+          drag: [
+            "Let go. I can walk.",
+            "Where did you get the nerve.",
+            "...Don't sway. I'll lose focus.",
+            "Put me down. Right now.",
+            "Your hand. Remove it.",
+          ],
+          aside: [
+            "Steadier than expected. Not saying so.",
+            "This isn't bad. Can't admit it.",
+            "My hands are cold. He need not know.",
+            "Keep this up and I'll get used to it.",
+            "That was too harsh. Never mind.",
+            "His palm is sweating. I won't react.",
+            "Why is my heart racing. No reason.",
+            "I hope he does not put me down yet.",
+          ],
         },
         linesEs: {
           appear: [
@@ -808,6 +1073,23 @@ window.__ModuleLoader__.load({
           poked: ["Las manos fuera.", "...Qué atrevido.", "Tócame otra vez y te guardo rencor."],
           chatAck: ["Habla.", "Sigue."],
           error: ["No te entendí.", "Repítelo."],
+          drag: [
+            "Suéltame. Sé caminar.",
+            "¿De dónde sacas el valor?",
+            "...No me balancees. Me distraigo.",
+            "Bájame. Ahora.",
+            "Tu mano. Quítala.",
+          ],
+          aside: [
+            "Más firme de lo esperado. No lo digo.",
+            "No está mal. No puedo admitirlo.",
+            "Tengo frío en las manos. Que no lo sepa.",
+            "Si sigue así, me acostumbraré.",
+            "Fui demasiado dura. Da igual.",
+            "Le suda la palma. No reacciono.",
+            "¿Por qué late tan rápido? Sin motivo.",
+            "Ojalá tarde en bajarme.",
+          ],
         },
         linesPt: {
           appear: [
@@ -830,6 +1112,23 @@ window.__ModuleLoader__.load({
           poked: ["As mãos fora.", "...Que atrevido.", "Me toca de novo e eu guardo rancor."],
           chatAck: ["Fala.", "Continua."],
           error: ["Não entendi.", "Repete."],
+          drag: [
+            "Me solta. Eu sei andar.",
+            "De onde vem essa coragem?",
+            "...Não me balança. Vou me distrair.",
+            "Me põe no chão. Agora.",
+            "Sua mão. Tira.",
+          ],
+          aside: [
+            "Mais firme do que eu esperava. Não vou dizer.",
+            "Não é ruim. Não posso admitir.",
+            "Minhas mãos estão frias. Ele não precisa saber.",
+            "Se continuar, vou me acostumar.",
+            "Fui dura demais. Deixa.",
+            "A palma dele está suando. Não reajo.",
+            "Por que o coração acelera? Sem motivo.",
+            "Tomara que ele demore a me soltar.",
+          ],
         },
         linesHi: {
           appear: [
@@ -852,6 +1151,23 @@ window.__ModuleLoader__.load({
           poked: ["Haath hatao.", "...Bahut himmat hai.", "Ek baar aur chhua, to main yaad rakhungi."],
           chatAck: ["Bolo.", "Aage bolo."],
           error: ["Samjhi nahi.", "Dobara bolo."],
+          drag: [
+            "Chhodo. Main khud chal sakti hoon.",
+            "Itni himmat kahan se aayi.",
+            "...Mujhe jhulaao mat. Dhyaan bhatega.",
+            "Neeche utaaro. Abhi.",
+            "Tumhara haath. Hatao.",
+          ],
+          aside: [
+            "Umeed se zyada mazboot. Bolungi nahi.",
+            "Bura nahi hai. Maan nahi sakti.",
+            "Haath thande hain. Usse pata na chale.",
+            "Aise hi chala to aadat ho jaayegi.",
+            "Bahut kadwa kaha. Chhod do.",
+            "Uska haath paseena hai. React nahi karungi.",
+            "Dil itna tez kyun. Koi wajah nahi.",
+            "Kaash woh abhi na utaare.",
+          ],
         },
         license: "MIT",
       },
@@ -865,12 +1181,12 @@ window.__ModuleLoader__.load({
           idle: "pet-azure.webp",
           walk: "pet-azure.webp",
           talk: "pet-azure.webp",
-          happy: "pet-azure.webp",
-          shy: "pet-azure.webp",
-          angry: "pet-azure.webp",
-          sleep: "pet-azure.webp",
-          dance: "pet-azure.webp",
-          poked: "pet-azure.webp",
+          happy: "pet-azure-happy.webp",
+          shy: "pet-azure-shy.webp",
+          angry: "pet-azure-angry.webp",
+          sleep: "pet-azure-sleep.webp",
+          dance: "pet-azure-happy.webp",
+          poked: "pet-azure-shy.webp",
         },
         clips: {
           dance: "pet-azure-dance.webm",
@@ -1205,7 +1521,10 @@ window.__ModuleLoader__.load({
       neuralVoice: true, // 用 edge-tts 的神经音色（失败自动退回系统 SAPI）
       ttsVoice: 'auto', // 'auto' = 跟随角色（pack.voice.voiced）| 其余是手选固定音色
       chatter: true, // 主动蹦话
-      showInput: true, // 宠物旁边的小输入框
+      showInput: true, // 宠物旁边的小输入框（保留旧语义：false = 完全不出现）
+      // 1.22.0：输入框显示方式。'hover' = 平时收起、鼠标移到人物上才滑出（默认）；
+      // 'always' = 一直显示。showInput=false 时无论如何都不渲染。
+      inputMode: 'hover',
       scale: 1.15,
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
@@ -1217,6 +1536,7 @@ window.__ModuleLoader__.load({
     const SETTINGS_LANGS = new Set(['auto', 'en', 'zh', 'es', 'pt', 'hi'])
     const SETTINGS_MODES = new Set(['always', 'random'])
     const SETTINGS_BUBBLES = new Set(['auto', 'off'])
+    const SETTINGS_INPUT = new Set(['hover', 'always'])
     const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
 
     function finiteNumber(value, fallback, min, max) {
@@ -1250,6 +1570,9 @@ window.__ModuleLoader__.load({
       if (typeof source.ttsVoice === 'string' && source.ttsVoice.length <= 120) out.ttsVoice = source.ttsVoice
       out.chatter = booleanSetting(source.chatter, out.chatter)
       out.showInput = booleanSetting(source.showInput, out.showInput)
+      if (typeof source.inputMode === 'string' && SETTINGS_INPUT.has(source.inputMode)) {
+        out.inputMode = source.inputMode
+      }
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)
@@ -1298,6 +1621,11 @@ window.__ModuleLoader__.load({
       mood: 'idle',
       moodUntil: 0,
       bubble: null, // { text, at, ttl }
+      // 1.22.0：输入框悬停展开。hovering=鼠标正停在人物上；
+      // hoverTimer=移开后的延迟收起定时器；inputPinned=输入框获得焦点后钉住不收起
+      hovering: false,
+      hoverTimer: null,
+      inputPinned: false,
       aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
       chatOpen: false,
       panelOpen: false,
@@ -2038,6 +2366,47 @@ window.__ModuleLoader__.load({
     const PANEL_GAP = 8
     const VIEW_MARGIN = 8
 
+    /**
+     * 顶栏（DSH 标题栏/工具栏）的安全区高度：面板与气泡都不许压到它上面。
+     *
+     * 起因（2026-10-27 用户反馈）：宠物被拖到屏幕上方时，面板贴到视口顶部，
+     * 标题栏里右上角的 × 正好被顶栏盖住——看得见、点不到，关不掉面板。
+     *
+     * 为什么是探测而不是写死常量：DSH 顶栏高度随主题/密度/缩放变化，
+     * 写死必然在下一个主题里失效。优先量覆盖层父容器的 top 偏移，
+     * 测不到再依次尝试常见选择器，最后给保守默认值。
+     */
+    const DEFAULT_HEADER_SAFE = 44
+
+    function headerSafeArea() {
+      try {
+        if (typeof document === 'undefined') return DEFAULT_HEADER_SAFE
+        // ① overlay 的父容器：它是插件真正可用的那块区域
+        const host = runtime.rootEl && runtime.rootEl.parentElement
+        if (host && host.getBoundingClientRect) {
+          const hr = host.getBoundingClientRect()
+          // 父容器若被贴到 (0,0)，说明它铺满全屏（顶栏是浮在上面的兄弟节点），量不到信息
+          if (hr.top > 0 && hr.top < 200) return Math.round(hr.top)
+        }
+        // ② 常见顶栏选择器
+        const sel = [
+          'header[role=banner]',
+          '.dsh-titlebar',
+          '.dsh-header',
+          '.dsh-topbar',
+          '[data-dsh-titlebar]',
+        ].join(',')
+        const nodes = document.querySelectorAll ? document.querySelectorAll(sel) : []
+        for (const n of nodes) {
+          const nr = n.getBoundingClientRect && n.getBoundingClientRect()
+          if (nr && nr.height > 0 && nr.top <= 1 && nr.height < 200) return Math.round(nr.bottom)
+        }
+      } catch (e) {
+        /* 量不到就走默认值 */
+      }
+      return DEFAULT_HEADER_SAFE
+    }
+
     function placePanel() {
       try {
         const el = (typeof document !== 'undefined' && document.querySelector('.dsh-pet-actor-wrap')) || runtime.rootEl
@@ -2048,7 +2417,10 @@ window.__ModuleLoader__.load({
           runtime.panelPos = null
           return
         }
-        const spaceAbove = r.top - 16
+        // 可用区域的上下边界：顶部让出顶栏，底部留边距
+        const safeTop = headerSafeArea() + VIEW_MARGIN
+        const availH = Math.max(160, vh - safeTop - VIEW_MARGIN)
+        const spaceAbove = r.top - safeTop
         let right
         let bottom
         let maxHeight
@@ -2064,10 +2436,11 @@ window.__ModuleLoader__.load({
           maxHeight = Math.min(Math.max(r.height + 60, 260), 520)
         }
         // 夹取：right ∈ [8, vw-W-8] 保证左右都在视口内；
-        // bottom 的上界由 maxHeight 反推（面板真实高度 ≤ maxHeight），保证顶部不越界。
-        const maxH = Math.max(160, Math.min(maxHeight, vh - VIEW_MARGIN * 2))
+        // bottom 的上界由 maxHeight 反推，且不得超过「顶栏安全区」，
+        // 否则面板顶部（含右上角 ×）会钻到顶栏底下。
+        const maxH = Math.max(160, Math.min(maxHeight, availH))
         const rightMax = Math.max(VIEW_MARGIN, vw - PANEL_W - VIEW_MARGIN)
-        const bottomMax = Math.max(VIEW_MARGIN, vh - maxH - VIEW_MARGIN)
+        const bottomMax = Math.max(VIEW_MARGIN, vh - safeTop - maxH)
         runtime.panelPos = {
           right: clamp(right, VIEW_MARGIN, rightMax) + 'px',
           bottom: clamp(bottom, VIEW_MARGIN, bottomMax) + 'px',
@@ -2077,6 +2450,37 @@ window.__ModuleLoader__.load({
       } catch (e) {
         runtime.panelPos = null
       }
+    }
+
+    /* ================= 输入框悬停展开（1.22.0） ================= */
+
+    /**
+     * 用户要求：输入框平时不可见，鼠标移到人物上才滑出。
+     *
+     * 移开时延迟收起——人物与输入框之间有几像素间隙，鼠标穿过去的那一瞬间会先触发
+     * actor 的 pointerleave、再进入输入框；不延迟就会闪一下再弹回来。200ms 够穿过去，
+     * 又不至于让「移开」显得迟钝。
+     */
+    const HOVER_HIDE_DELAY = 200
+
+    function setHover(on) {
+      if (runtime.hoverTimer) {
+        clearTimeout(runtime.hoverTimer)
+        runtime.hoverTimer = null
+      }
+      if (on) {
+        if (!runtime.hovering) {
+          runtime.hovering = true
+          notify()
+        }
+        return
+      }
+      runtime.hoverTimer = setTimeout(() => {
+        runtime.hoverTimer = null
+        if (!runtime.hovering) return
+        runtime.hovering = false
+        notify()
+      }, HOVER_HIDE_DELAY)
     }
 
     /* ================= 心情循环 ================= */
@@ -2363,6 +2767,11 @@ window.__ModuleLoader__.load({
   max-height:calc(100vh - 190px);
   font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--pet-fg);
   pointer-events:none;user-select:none;-webkit-user-select:none;touch-action:none}
+/* 1.22.0：人物 + 输入框的共同悬停区。
+   必须自己接收指针事件，事件才会沿父子链传上来；子元素原来的 pointer-events
+   保持不变（人物/输入框是 auto，行容器是 none），所以不会多挡任何东西。
+   间隙由根容器的 gap:6px 提供，这一层只做包裹，不影响原有排版。 */
+.dsh-pet-hoverzone{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .dsh-pet-toggle{pointer-events:auto;cursor:pointer;border:none;background:transparent;color:inherit;font-size:13px;line-height:1;
   padding:4px 6px;border-radius:8px;opacity:.65}
 .dsh-pet-toggle{display:inline-flex;align-items:center;justify-content:center;gap:2px}
@@ -2381,6 +2790,21 @@ window.__ModuleLoader__.load({
 .dsh-pet-aside:before{content:"( ")}
 .dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+/* 1.22.0：输入框默认收起，鼠标移到人物上才滑出（用户要求「平时不可见」）。
+   showInput=off 时整行不渲染；auto 模式下由 .is-hidden 收起。
+   收起用「位移+透明+不占指针」而不是 display:none —— 保留过渡，滑出才有方向感，
+   且键盘 Tab 聚焦时能通过 :focus-within 重新展开，不至于把键盘用户挡在外面。 */
+.dsh-pet-row.is-collapsible{transition:transform .22s ease,opacity .18s ease;transform-origin:right bottom}
+.dsh-pet-row.is-hidden{opacity:0;transform:translateY(8px) scale(.96);pointer-events:none}
+.dsh-pet-row.is-hidden .dsh-pet-input,
+.dsh-pet-row.is-hidden .dsh-pet-send,
+.dsh-pet-row.is-hidden .dsh-pet-dot{pointer-events:none}
+/* 键盘可达：焦点落进来或被 hover 时立刻展开 */
+.dsh-pet-row.is-hidden:focus-within{opacity:1;transform:none;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){
+  .dsh-pet-row.is-collapsible{transition:none}
+  .dsh-pet-row.is-hidden{transform:none}
+}
 .dsh-pet-input{pointer-events:auto;width:186px;font-size:12px;padding:6px 9px;border-radius:999px;outline:none;
   background:var(--pet-bg);color:inherit;
   border:1px solid var(--pet-border)}
@@ -3106,6 +3530,12 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'dsh-pet-grid2' },
           h(Toggle, { label: t('panel.inputBox'), checked: s.showInput, onChange: (v) => update({ showInput: v }) }),
+          // 1.22.0：输入框平时收起、悬停才滑出（默认）；也可切成常显
+          h(Toggle, {
+            label: t('panel.inputHover'),
+            checked: s.inputMode !== 'always',
+            onChange: (v) => update({ inputMode: v ? 'hover' : 'always' }),
+          }),
           h(Toggle, { label: t('panel.chatter'), checked: s.chatter, onChange: (v) => update({ chatter: v }) }),
           h(Toggle, { label: t('panel.celebrate'), checked: s.celebrate !== false, onChange: (v) => update({ celebrate: v }) }),
           h(Toggle, { label: t('panel.chaos'), checked: s.chaos !== false, onChange: (v) => update({ chaos: v }) }),
@@ -3747,6 +4177,12 @@ window.__ModuleLoader__.load({
 
       if (!runtime.visible) return null
 
+      // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
+      // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
+      const inputHoverMode = s.inputMode !== 'always'
+      const inputShown = !inputHoverMode || runtime.hovering || runtime.chatOpen || runtime.inputPinned
+      const rowClass = 'dsh-pet-row' + (inputHoverMode ? ' is-collapsible' : '') + (inputShown ? '' : ' is-hidden')
+
       const baseScale = clamp(s.scale, 0.6, 2)
       const style = { '--pet-scale': String(baseScale) }
       // 跳舞时只抬高层级；位移和放大都加在 actor 上，输入框不要跟着跑
@@ -3845,9 +4281,22 @@ window.__ModuleLoader__.load({
         runtime.aside
           ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
           : null,
+        // 1.22.0（用户 2026-10-27 反馈）：悬停区域必须同时覆盖「人物」和「输入框」。
+        // 首版只把事件挂在人物本体上 → 鼠标刚离开人物、还没到输入框，pointerleave 就
+        // 触发了，200ms 宽限也只是延迟这一下，所以「很难命中，偶尔能进去」。
+        // 现在把两者放同一个容器里，鼠标在「人物 ↔ 输入框」之间移动都不算离开。
         h(
           'div',
-          { className: 'dsh-pet-row' },
+          {
+            className: 'dsh-pet-hoverzone',
+            onPointerEnter: () => setHover(true),
+            onPointerLeave: () => setHover(false),
+          },
+        h(
+          'div',
+          // 1.22.0（用户要求）：输入框平时不可见，鼠标移到人物上才滑出。
+          // inputMode='always' 或 showInput=false 时退回旧行为（后者整行不渲染内容）。
+          { className: rowClass },
           s.showInput
             ? h('span', {
                 className:
@@ -3879,6 +4328,16 @@ window.__ModuleLoader__.load({
                     onSend()
                   }
                   if (e.key === 'Escape') e.currentTarget.blur()
+                },
+                // 1.22.0：聚焦即钉住——鼠标点进来的途中输入框不会先收起来；
+                // 失焦再交还给 hover 逻辑。键盘 Tab 进来同样有效。
+                onFocus: () => {
+                  runtime.inputPinned = true
+                  notify()
+                },
+                onBlur: () => {
+                  runtime.inputPinned = false
+                  notify()
                 },
                 'aria-label': t('a11y.talkTo', { name: p.name }),
               })
@@ -3958,6 +4417,7 @@ window.__ModuleLoader__.load({
           ),
         ),
         ),
+        ), // .dsh-pet-hoverzone
         h(FxLayer),
         h(PetMenu),
       )
@@ -4149,7 +4609,7 @@ window.__ModuleLoader__.load({
           className: 'dsh-pet-toggle' +
             (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
           // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
-          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌宠」。
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
           title: !runtime.visible
             ? t('panel.summon')
             : runtime.petOffscreen
@@ -4239,6 +4699,8 @@ window.__ModuleLoader__.load({
             showPet,
             playAction,
             placePanel,
+            headerSafeArea,
+            setHover,
           }
         }
       }
@@ -4522,7 +4984,7 @@ window.__ModuleLoader__.load({
               console.warn(
                 '[dsh-pet] 这个宿主没有 "' +
                   slot +
-                  '" 插槽，桌宠无法挂载。需要 dsh >= 0.2.1-alpha.2（本插件实测版本）。',
+                  '" 插槽，桌面伴侣无法挂载。需要 dsh >= 0.2.1-alpha.2（本插件实测版本）。',
               )
             } catch (e2) {
               /* ignore */

@@ -14,6 +14,11 @@
   max-height:calc(100vh - 190px);
   font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:var(--pet-fg);
   pointer-events:none;user-select:none;-webkit-user-select:none;touch-action:none}
+/* 1.22.0：人物 + 输入框的共同悬停区。
+   必须自己接收指针事件，事件才会沿父子链传上来；子元素原来的 pointer-events
+   保持不变（人物/输入框是 auto，行容器是 none），所以不会多挡任何东西。
+   间隙由根容器的 gap:6px 提供，这一层只做包裹，不影响原有排版。 */
+.dsh-pet-hoverzone{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .dsh-pet-toggle{pointer-events:auto;cursor:pointer;border:none;background:transparent;color:inherit;font-size:13px;line-height:1;
   padding:4px 6px;border-radius:8px;opacity:.65}
 .dsh-pet-toggle{display:inline-flex;align-items:center;justify-content:center;gap:2px}
@@ -32,6 +37,21 @@
 .dsh-pet-aside:before{content:"( ")}
 .dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
+/* 1.22.0：输入框默认收起，鼠标移到人物上才滑出（用户要求「平时不可见」）。
+   showInput=off 时整行不渲染；auto 模式下由 .is-hidden 收起。
+   收起用「位移+透明+不占指针」而不是 display:none —— 保留过渡，滑出才有方向感，
+   且键盘 Tab 聚焦时能通过 :focus-within 重新展开，不至于把键盘用户挡在外面。 */
+.dsh-pet-row.is-collapsible{transition:transform .22s ease,opacity .18s ease;transform-origin:right bottom}
+.dsh-pet-row.is-hidden{opacity:0;transform:translateY(8px) scale(.96);pointer-events:none}
+.dsh-pet-row.is-hidden .dsh-pet-input,
+.dsh-pet-row.is-hidden .dsh-pet-send,
+.dsh-pet-row.is-hidden .dsh-pet-dot{pointer-events:none}
+/* 键盘可达：焦点落进来或被 hover 时立刻展开 */
+.dsh-pet-row.is-hidden:focus-within{opacity:1;transform:none;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){
+  .dsh-pet-row.is-collapsible{transition:none}
+  .dsh-pet-row.is-hidden{transform:none}
+}
 .dsh-pet-input{pointer-events:auto;width:186px;font-size:12px;padding:6px 9px;border-radius:999px;outline:none;
   background:var(--pet-bg);color:inherit;
   border:1px solid var(--pet-border)}

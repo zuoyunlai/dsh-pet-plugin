@@ -141,6 +141,23 @@
     "error": [
       "刚才没听清，再说一次。",
       "稍等，我理一下。"
+    ],
+    "drag": [
+      "慢一点……不用这么赶。",
+      "你把我拎起来了，不着急的。",
+      "这样晃着，倒有点想睡。",
+      "去哪里都好，我不催你。",
+      "手稳一点，我信你。"
+    ],
+    "aside": [
+      "他走得比平时快，可能是真的忙。",
+      "这样被拎着，其实很放心。",
+      "没什么想说的，就这样待着也好。",
+      "他呼吸有点乱，是累了还是紧张。",
+      "想让他慢一点，又觉得不必说。",
+      "靠一会儿，他应该不会介意。",
+      "这种时候安静一点最好。",
+      "刚才其实有点想笑。"
     ]
   },
   "linesEn": {
@@ -188,6 +205,23 @@
     "error": [
       "I didn't hear that. Once more.",
       "Hold on, let me sort it out."
+    ],
+    "drag": [
+      "Slow down... there's no rush.",
+      "You've picked me up. No need to hurry.",
+      "Swaying like this makes me sleepy.",
+      "Anywhere is fine. I won't rush you.",
+      "Steady hands. I trust you."
+    ],
+    "aside": [
+      "He walks faster than usual. Maybe busy.",
+      "Being carried feels oddly safe.",
+      "Nothing to say. This is fine.",
+      "His breathing is uneven. Tired or nervous?",
+      "Wanted him to slow down, then thought better.",
+      "Lean a little. He probably will not mind.",
+      "Quiet works best right now.",
+      "I nearly smiled back there."
     ]
   },
   "linesEs": {
@@ -235,6 +269,23 @@
     "error": [
       "No te oí. Otra vez.",
       "Espera, déjame ordenarlo."
+    ],
+    "drag": [
+      "Más despacio... no hay prisa.",
+      "Ya me levantaste. No hace falta correr.",
+      "Con este vaivén me dan ganas de dormir.",
+      "Donde quieras. No te apuro.",
+      "Manos firmes. Confío en ti."
+    ],
+    "aside": [
+      "Camina más rápido que de costumbre. Estará ocupado.",
+      "Que me lleven da una calma rara.",
+      "No tengo nada que decir. Así está bien.",
+      "Respira irregular. ¿Cansado o nervioso?",
+      "Quise pedirle que fuera lento, pero ya no.",
+      "Me apoyo un poco. No le importará.",
+      "Ahora lo mejor es el silencio.",
+      "Casi sonrío hace un momento."
     ]
   },
   "linesPt": {
@@ -282,6 +333,23 @@
     "error": [
       "Não te ouvi. Outra vez.",
       "Espera, deixa eu organizar."
+    ],
+    "drag": [
+      "Devagar... não precisa pressa.",
+      "Você já me levantou. Não precisa correr.",
+      "Com esse balanço dá sono.",
+      "Qualquer lugar. Não te apresso.",
+      "Mãos firmes. Eu confio em você."
+    ],
+    "aside": [
+      "Ele anda mais rápido que o normal. Deve estar ocupado.",
+      "Ser carregada dá uma calma estranha.",
+      "Nada a dizer. Está bom assim.",
+      "A respiração dele está irregular. Cansado ou nervoso?",
+      "Quis pedir calma, mas deixei passar.",
+      "Encosto um pouco. Ele não deve se importar.",
+      "O silêncio é melhor agora.",
+      "Quase sorri agora há pouco."
     ]
   },
   "linesHi": {
@@ -329,6 +397,23 @@
     "error": [
       "Suna nahi. Phir bolo.",
       "Ruko, suljhaane do."
+    ],
+    "drag": [
+      "Dheere... koi jaldi nahi.",
+      "Tumne utha hi liya hai. Bhagane ki zaroorat nahi.",
+      "Aise hilne se neend aa rahi hai.",
+      "Kahin bhi. Main jaldi nahi kara rahi.",
+      "Haath sthir hain. Mujhe tum par bharosa hai."
+    ],
+    "aside": [
+      "Aaj woh tez chal raha hai. Shayad vyast hai.",
+      "Aise uthaye jaane mein ajeeb si sukoon hai.",
+      "Kehne ko kuch nahi. Yeh theek hai.",
+      "Saans beqaboo hai. Thaka ya nervous?",
+      "Dheere chalne ko kehna tha, phir chhod diya.",
+      "Thoda jhuk jaati hoon. Bura nahi manega.",
+      "Abhi chup rehna hi behtar hai.",
+      "Abhi muskurane ka mann tha."
     ]
   },
   "clips": {

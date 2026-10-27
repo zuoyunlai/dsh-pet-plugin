@@ -53,6 +53,8 @@
             showPet,
             playAction,
             placePanel,
+            headerSafeArea,
+            setHover,
           }
         }
       }
@@ -336,7 +338,7 @@
               console.warn(
                 '[dsh-pet] 这个宿主没有 "' +
                   slot +
-                  '" 插槽，桌宠无法挂载。需要 dsh >= 0.2.1-alpha.2（本插件实测版本）。',
+                  '" 插槽，桌面伴侣无法挂载。需要 dsh >= 0.2.1-alpha.2（本插件实测版本）。',
               )
             } catch (e2) {
               /* ignore */

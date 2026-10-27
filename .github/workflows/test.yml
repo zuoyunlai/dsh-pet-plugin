@@ -60,6 +60,13 @@ jobs:
       - name: Behavior regression (timers, clip fallback, layout, polling)
         run: node --test tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs
 
+      # 1.21.0 R-08：组件级测试（真 DOM 跑 client.js）。devDeps 里的 jsdom/react/react-dom
+      # 只装在 CI，不进包；缺了这一步，键盘可达性与视频回退就没有任何自动化保护。
+      - name: 'Component tests (jsdom - menu keyboard, Escape, video fallback)'
+        run: |
+          npm install --no-save jsdom react react-dom
+          node --test tests/overlay.dom.test.mjs
+
       - name: Syntax check index.js and lib
         run: node --check index.js && node --check lib/tts.js && node --check lib/prompt.js
 

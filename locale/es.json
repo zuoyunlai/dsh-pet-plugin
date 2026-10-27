@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Mascota de escritorio",
+    "title": "Compañera de escritorio",
     "description": "Una compañera fotorrealista que aparece, habla, baila y charla por una cajita de texto."
   },
   "pet": {
@@ -25,6 +25,7 @@
     "panel.pitch": "Tono",
     "panel.rate": "Velocidad",
     "panel.inputBox": "Cajita",
+    "panel.inputHover": "Solo al pasar el ratón",
     "panel.chatter": "Charlar",
     "panel.celebrate": "Celebrar",
     "panel.chaos": "Travesuras",

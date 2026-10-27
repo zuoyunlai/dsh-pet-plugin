@@ -141,6 +141,23 @@
     "error": [
       "没听清。",
       "重说。"
+    ],
+    "drag": [
+      "放开。我自己会走。",
+      "你哪来的胆子。",
+      "……别晃，会分心。",
+      "放下来。就现在。",
+      "手。收回去。"
+    ],
+    "aside": [
+      "他抱得比预想的稳，不说。",
+      "其实这样也不坏，不能说。",
+      "手有点凉，但不想让他知道。",
+      "再这样下去我会习惯的。",
+      "刚才那句太凶了，算了。",
+      "他手心出汗了，装没感觉到。",
+      "为什么心跳这么快，毫无道理。",
+      "希望他别这么快放下。"
     ]
   },
   "linesEn": {
@@ -188,6 +205,23 @@
     "error": [
       "Did not catch that.",
       "Say it again."
+    ],
+    "drag": [
+      "Let go. I can walk.",
+      "Where did you get the nerve.",
+      "...Don't sway. I'll lose focus.",
+      "Put me down. Right now.",
+      "Your hand. Remove it."
+    ],
+    "aside": [
+      "Steadier than expected. Not saying so.",
+      "This isn't bad. Can't admit it.",
+      "My hands are cold. He need not know.",
+      "Keep this up and I'll get used to it.",
+      "That was too harsh. Never mind.",
+      "His palm is sweating. I won't react.",
+      "Why is my heart racing. No reason.",
+      "I hope he does not put me down yet."
     ]
   },
   "linesEs": {
@@ -235,6 +269,23 @@
     "error": [
       "No te entendí.",
       "Repítelo."
+    ],
+    "drag": [
+      "Suéltame. Sé caminar.",
+      "¿De dónde sacas el valor?",
+      "...No me balancees. Me distraigo.",
+      "Bájame. Ahora.",
+      "Tu mano. Quítala."
+    ],
+    "aside": [
+      "Más firme de lo esperado. No lo digo.",
+      "No está mal. No puedo admitirlo.",
+      "Tengo frío en las manos. Que no lo sepa.",
+      "Si sigue así, me acostumbraré.",
+      "Fui demasiado dura. Da igual.",
+      "Le suda la palma. No reacciono.",
+      "¿Por qué late tan rápido? Sin motivo.",
+      "Ojalá tarde en bajarme."
     ]
   },
   "linesPt": {
@@ -282,6 +333,23 @@
     "error": [
       "Não entendi.",
       "Repete."
+    ],
+    "drag": [
+      "Me solta. Eu sei andar.",
+      "De onde vem essa coragem?",
+      "...Não me balança. Vou me distrair.",
+      "Me põe no chão. Agora.",
+      "Sua mão. Tira."
+    ],
+    "aside": [
+      "Mais firme do que eu esperava. Não vou dizer.",
+      "Não é ruim. Não posso admitir.",
+      "Minhas mãos estão frias. Ele não precisa saber.",
+      "Se continuar, vou me acostumar.",
+      "Fui dura demais. Deixa.",
+      "A palma dele está suando. Não reajo.",
+      "Por que o coração acelera? Sem motivo.",
+      "Tomara que ele demore a me soltar."
     ]
   },
   "linesHi": {
@@ -329,6 +397,23 @@
     "error": [
       "Samjhi nahi.",
       "Dobara bolo."
+    ],
+    "drag": [
+      "Chhodo. Main khud chal sakti hoon.",
+      "Itni himmat kahan se aayi.",
+      "...Mujhe jhulaao mat. Dhyaan bhatega.",
+      "Neeche utaaro. Abhi.",
+      "Tumhara haath. Hatao."
+    ],
+    "aside": [
+      "Umeed se zyada mazboot. Bolungi nahi.",
+      "Bura nahi hai. Maan nahi sakti.",
+      "Haath thande hain. Usse pata na chale.",
+      "Aise hi chala to aadat ho jaayegi.",
+      "Bahut kadwa kaha. Chhod do.",
+      "Uska haath paseena hai. React nahi karungi.",
+      "Dil itna tez kyun. Koi wajah nahi.",
+      "Kaash woh abhi na utaare."
     ]
   },
   "clips": {

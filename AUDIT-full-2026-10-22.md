@@ -184,8 +184,8 @@
 | P1 | 跳舞人物横向压扁 | 逐帧按内容 bbox 裁剪，帧宽 244–434 不等，编码器强行缩到第一帧 254 宽 | 手臂张开时被压 41% | batch-key 改为全片并集裁切框 + 统一缩放 | ✅ 1.16.1 |
 | P2 | 手指有毛边/绿边 | `MinFilter(3)` 腐蚀 1px + 线性 alpha 过渡带太窄 | 细手指被啃、边缘不干净 | 去腐蚀 + smoothstep + 保留 despill | ✅ batch-key v5 |
 | P3 | 反预乘后指尖泛黄绿 | unpremultiply 把低 alpha 像素算亮，绿色以亮度差形式浮出 | v3/v4 抠像比 v2 更差 | 回退到 v2 的 despill 方案，结论记入脚本 docstring | ✅ 已回退 |
-| P4 | 面板盖住整个人物 | `right:24px; bottom:170px` 固定定位 + 高 483px | 打开设置看不到宠物 | `placePanel()` 按实际位置算，上方够放上方，不够放左侧 | ✅ 待发 |
-| P5 | 跳舞被工具报错打断 | mood 效果清 action 时不区分"谁发起的" | 用户点"跳一段"被 angry mood 抢走 | 加 `moodDriven` 标记：心情只收回自己发起的动作 | ✅ 待发 |
+| P4 | 面板盖住整个人物 | `right:24px; bottom:170px` 固定定位 + 高 483px | 打开设置看不到宠物 | `placePanel()` 按实际位置算，上方够放上方，不够放左侧 | ✅ 1.17.0 已发（R11 四面夹取） |
+| P5 | 跳舞被工具报错打断 | mood 效果清 action 时不区分"谁发起的" | 用户点"跳一段"被 angry mood 抢走 | 加 `moodDriven` 标记：心情只收回自己发起的动作 | ✅ 1.17.0 已发 |
 | P6 | MiniMax 人物手臂出画 | 首帧 92% 高 + 模型自适构图会放大人物 | 50/124 帧手贴边切断 | 首帧改 80% 高 + 提示词加 wide shot 约束 | 🚧 部分缓解（薇/绯仍有贴边帧） |
 | P7 | VP9 `yuva444p` 编码失败 | ffmpeg 9 + libvpx 不支持 444 alpha（`-strict experimental` 也报 -22） | alpha 只能半分辨率 | 接受 `yuva420p`，靠高分辨率 + 锐化补偿 | ⚠️ 硬件限制 |
 | P8 | 1.16.2 在"暂停发版"指令前已发出 | release.cjs --publish 是同步的 | 用户要求暂停但改动已上 npm | 1.17.0 改进项只待用户确认后发 | ⚠️ 流程改进：加 `--confirm` flag |

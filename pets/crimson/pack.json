@@ -144,6 +144,23 @@
     "error": [
       "刚才没听清，再说。",
       "这算什么，重来。"
+    ],
+    "drag": [
+      "抓这么紧，是怕我跑吗？",
+      "喂，我可不是能随便拎走的。",
+      "再往前一点，我就靠上去了。",
+      "你心跳好快，我听得见。",
+      "抱稳了，摔了我可要闹的。"
+    ],
+    "aside": [
+      "他抱得这么自然，有点受不了。",
+      "刚才那下很稳，我假装没在意。",
+      "再这样下去，我会当真的。",
+      "其实我很喜欢这样被带着走。",
+      "他手抖了一下，我看见了。",
+      "要不要故意往他怀里靠一点。",
+      "这样被拎着，比坐着开心多了。",
+      "别松手，这句我说不出口。"
     ]
   },
   "linesEn": {
@@ -191,6 +208,23 @@
     "error": [
       "Didn't catch that. Again.",
       "That does not count. Redo it."
+    ],
+    "drag": [
+      "Holding on tight—afraid I'll run?",
+      "Hey, I'm not something you just carry off.",
+      "One step closer and I lean right in.",
+      "Your heart is racing. I can hear it.",
+      "Hold on properly. Drop me and I will make a scene."
+    ],
+    "aside": [
+      "He carries me so casually. It gets to me.",
+      "Steady hold. I pretend not to notice.",
+      "Keep this up and I'll take it seriously.",
+      "Honestly, I like being carried like this.",
+      "His hand trembled. I saw that.",
+      "Should I lean in on purpose?",
+      "Being carried beats sitting there.",
+      "Don't let go. I can't say that out loud."
     ]
   },
   "linesEs": {
@@ -238,6 +272,23 @@
     "error": [
       "No te entendí. Otra vez.",
       "Eso no cuenta. Repite."
+    ],
+    "drag": [
+      "¿Me agarras fuerte por miedo a que escape?",
+      "Oye, no soy algo que se lleva así.",
+      "Un paso más y me acerco yo.",
+      "Tu corazón va rápido. Lo oigo.",
+      "Sujétame bien. Si me caes, armo un escándalo."
+    ],
+    "aside": [
+      "Me lleva con tanta naturalidad que me afecta.",
+      "Buen agarre. Fingo no darme cuenta.",
+      "Si sigue así, me lo tomaré en serio.",
+      "La verdad, me gusta que me lleve así.",
+      "Le tembló la mano. Lo vi.",
+      "¿Me acerco a propósito?",
+      "Que me lleven es mejor que quedarme quieta.",
+      "No me sueltes. Eso no puedo decirlo."
     ]
   },
   "linesPt": {
@@ -285,6 +336,23 @@
     "error": [
       "Não entendi. De novo.",
       "Isso não vale. Repete."
+    ],
+    "drag": [
+      "Me segura assim com medo de eu fugir?",
+      "Ei, eu não sou coisa pra carregar.",
+      "Mais um passo e eu me encosto.",
+      "Seu coração está acelerado. Eu ouço.",
+      "Segura direito. Se me derrubar, eu faço drama."
+    ],
+    "aside": [
+      "Ele me carrega com tanta naturalidade. Mexe comigo.",
+      "Pegada firme. Finjo não notar.",
+      "Se continuar assim, vou levar a sério.",
+      "Sinceramente, gosto de ser carregada assim.",
+      "A mão dele tremeu. Eu vi.",
+      "Finjo me encostar de propósito?",
+      "Ser carregada é melhor do que ficar parada.",
+      "Não solta. Isso eu não consigo falar."
     ]
   },
   "linesHi": {
@@ -332,6 +400,23 @@
     "error": [
       "Samjhi nahi. Phir bolo.",
       "Yeh nahi chala. Dobara."
+    ],
+    "drag": [
+      "Itni kas ke pakda, bhaag jaane ke darr se?",
+      "Sun, main utha kar le jaane wali cheez nahi hoon.",
+      "Ek qadam aur, aur main sarrak jaungi.",
+      "Tumhara dil tez chal raha hai. Mujhe sunai deta hai.",
+      "Dhang se pakdo. Gira diya to shor machaungi."
+    ],
+    "aside": [
+      "Woh itni aasani se uthata hai, kuch ho gaya hai mujhe.",
+      "Pakad mazboot thi. Dikhaati nahi.",
+      "Aise hi chalta raha to main serious le lungi.",
+      "Sach kahun to aise uthaye jaana achha lagta hai.",
+      "Uska haath kaanp gaya. Maine dekha.",
+      "Jaan boojh kar usse chipak jaun?",
+      "Uthaye jaane mein baithe rehne se zyada maza hai.",
+      "Mat chhodo. Yeh bol nahi sakti."
     ]
   },
   "clips": {

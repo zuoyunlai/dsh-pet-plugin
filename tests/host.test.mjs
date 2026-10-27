@@ -6,6 +6,12 @@ import test from 'node:test'
 import assert from 'node:assert'
 import { readFileSync } from 'node:fs'
 import { apply } from '../index.js'
+import { killWorker } from '../lib/tts.js'
+
+// TTS 用例会真的走合成路径，可能拉起常驻的 Python worker（stdin 管道 + 30s 响应超时）。
+// 不回收的话，`node --test` 跑完用例仍会挂在 event loop 上不退出——表现为「偶发卡死」：
+// 单独跑某个文件时 worker 从未被拉起，合跑时才复现。测试收尾必须显式关掉。
+test.after(() => killWorker())
 
 function makeCtx(opts = {}) {
   const routes = new Map()

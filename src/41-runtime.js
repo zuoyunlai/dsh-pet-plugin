@@ -8,6 +8,11 @@
       mood: 'idle',
       moodUntil: 0,
       bubble: null, // { text, at, ttl }
+      // 1.22.0：输入框悬停展开。hovering=鼠标正停在人物上；
+      // hoverTimer=移开后的延迟收起定时器；inputPinned=输入框获得焦点后钉住不收起
+      hovering: false,
+      hoverTimer: null,
+      inputPinned: false,
       aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
       chatOpen: false,
       panelOpen: false,

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Mascote de mesa",
+    "title": "Companheira de mesa",
     "description": "Uma companheira fotorrealista que aparece, fala, dança e conversa por uma caixinha de texto."
   },
   "pet": {
@@ -25,6 +25,7 @@
     "panel.pitch": "Tom",
     "panel.rate": "Velocidade",
     "panel.inputBox": "Caixinha",
+    "panel.inputHover": "Só retrátil ao passar",
     "panel.chatter": "Puxar papo",
     "panel.celebrate": "Celebrar",
     "panel.chaos": "Travessuras",

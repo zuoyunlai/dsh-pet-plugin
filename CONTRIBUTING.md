@@ -1,6 +1,6 @@
 # Contributing to dsh-pet-plugin
 
-A photo-real desk pet for the DSH window. Four personas, five languages,
+A photo-real desktop companion for the DSH window. Five personas, five languages,
 24 fps alpha-video dance clips, neural TTS, and a settings panel that never
 covers the pet. Zero runtime dependencies.
 

@@ -96,6 +96,12 @@
 
       if (!runtime.visible) return null
 
+      // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
+      // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
+      const inputHoverMode = s.inputMode !== 'always'
+      const inputShown = !inputHoverMode || runtime.hovering || runtime.chatOpen || runtime.inputPinned
+      const rowClass = 'dsh-pet-row' + (inputHoverMode ? ' is-collapsible' : '') + (inputShown ? '' : ' is-hidden')
+
       const baseScale = clamp(s.scale, 0.6, 2)
       const style = { '--pet-scale': String(baseScale) }
       // 跳舞时只抬高层级；位移和放大都加在 actor 上，输入框不要跟着跑
@@ -194,9 +200,22 @@
         runtime.aside
           ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
           : null,
+        // 1.22.0（用户 2026-10-27 反馈）：悬停区域必须同时覆盖「人物」和「输入框」。
+        // 首版只把事件挂在人物本体上 → 鼠标刚离开人物、还没到输入框，pointerleave 就
+        // 触发了，200ms 宽限也只是延迟这一下，所以「很难命中，偶尔能进去」。
+        // 现在把两者放同一个容器里，鼠标在「人物 ↔ 输入框」之间移动都不算离开。
         h(
           'div',
-          { className: 'dsh-pet-row' },
+          {
+            className: 'dsh-pet-hoverzone',
+            onPointerEnter: () => setHover(true),
+            onPointerLeave: () => setHover(false),
+          },
+        h(
+          'div',
+          // 1.22.0（用户要求）：输入框平时不可见，鼠标移到人物上才滑出。
+          // inputMode='always' 或 showInput=false 时退回旧行为（后者整行不渲染内容）。
+          { className: rowClass },
           s.showInput
             ? h('span', {
                 className:
@@ -228,6 +247,16 @@
                     onSend()
                   }
                   if (e.key === 'Escape') e.currentTarget.blur()
+                },
+                // 1.22.0：聚焦即钉住——鼠标点进来的途中输入框不会先收起来；
+                // 失焦再交还给 hover 逻辑。键盘 Tab 进来同样有效。
+                onFocus: () => {
+                  runtime.inputPinned = true
+                  notify()
+                },
+                onBlur: () => {
+                  runtime.inputPinned = false
+                  notify()
                 },
                 'aria-label': t('a11y.talkTo', { name: p.name }),
               })
@@ -307,6 +336,7 @@
           ),
         ),
         ),
+        ), // .dsh-pet-hoverzone
         h(FxLayer),
         h(PetMenu),
       )
@@ -498,7 +528,7 @@
           className: 'dsh-pet-toggle' +
             (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
           // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
-          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌宠」。
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
           title: !runtime.visible
             ? t('panel.summon')
             : runtime.petOffscreen

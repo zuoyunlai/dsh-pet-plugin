@@ -196,6 +196,12 @@
           'div',
           { className: 'dsh-pet-grid2' },
           h(Toggle, { label: t('panel.inputBox'), checked: s.showInput, onChange: (v) => update({ showInput: v }) }),
+          // 1.22.0：输入框平时收起、悬停才滑出（默认）；也可切成常显
+          h(Toggle, {
+            label: t('panel.inputHover'),
+            checked: s.inputMode !== 'always',
+            onChange: (v) => update({ inputMode: v ? 'hover' : 'always' }),
+          }),
           h(Toggle, { label: t('panel.chatter'), checked: s.chatter, onChange: (v) => update({ chatter: v }) }),
           h(Toggle, { label: t('panel.celebrate'), checked: s.celebrate !== false, onChange: (v) => update({ celebrate: v }) }),
           h(Toggle, { label: t('panel.chaos'), checked: s.chaos !== false, onChange: (v) => update({ chaos: v }) }),

@@ -72,12 +72,12 @@
     "idle": "pet-azure.webp",
     "walk": "pet-azure.webp",
     "talk": "pet-azure.webp",
-    "happy": "pet-azure.webp",
-    "shy": "pet-azure.webp",
-    "angry": "pet-azure.webp",
-    "sleep": "pet-azure.webp",
-    "dance": "pet-azure.webp",
-    "poked": "pet-azure.webp"
+    "happy": "pet-azure-happy.webp",
+    "shy": "pet-azure-shy.webp",
+    "angry": "pet-azure-angry.webp",
+    "sleep": "pet-azure-sleep.webp",
+    "dance": "pet-azure-happy.webp",
+    "poked": "pet-azure-shy.webp"
   },
   "clips": {
     "dance": "pet-azure-dance.webm",

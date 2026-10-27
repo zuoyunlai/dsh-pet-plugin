@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Desk Pet",
+    "title": "Desktop Companion",
     "description": "Ek photo-real saathi jo kabhi-kabhi aataa hai, boltaa hai, naachataa hai aur chhote box se baat karta hai."
   },
   "pet": {
@@ -25,6 +25,7 @@
     "panel.pitch": "Pitch",
     "panel.rate": "Raftaar",
     "panel.inputBox": "Input box",
+    "panel.inputHover": "Hover par hi dikhe",
     "panel.chatter": "Baat-cheet",
     "panel.celebrate": "Jashn",
     "panel.chaos": "Sharaarat",

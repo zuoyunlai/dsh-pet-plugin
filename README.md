@@ -2,7 +2,7 @@
 
 A little companion that lives in the bottom-right corner of the **DSH web UI**: it stays
 around or drops in at random, talks (with voice), walks, dances, gets shy or annoyed, and
-carries a tiny input box you can chat with. Four photo-realistic personas, each with its
+carries a tiny input box you can chat with. Five photo-realistic personas, each with its
 own temper.
 
 > Scope: the pet only lives inside the DSH window (it mounts into the framework's overlay
