@@ -1,11 +1,11 @@
 {
   "generatedAt": "baseline",
   "count": 87,
-  "totalBytes": 19668834,
+  "totalBytes": 19706868,
   "files": {
     "pet-azure-angry.webp": {
-      "bytes": 51832,
-      "sha256": "7ab9dd4d7bd40b4f53cd78acda45159ca2dafce55f9edd79503d00ba0d6158dc"
+      "bytes": 89866,
+      "sha256": "2e7ec64c3ff0156ed69c39986095e92b9f0c48f855b7951edec042707d4d853a"
     },
     "pet-azure-dance.webm": {
       "bytes": 1080823,
