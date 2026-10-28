@@ -75,17 +75,57 @@ remove the despill step (see the v3/v4 failure note in its docstring).
 ```bash
 # 1. Bump version in package.json
 # 2. Add a CHANGELOG.md entry (include verification data)
-# 3. Build + test
-node build.mjs && node tests/smoke.mjs && node --test tests/host.test.mjs
+# 3. Run the full suite — must be exactly the same list as `npm test`
+npm test
 
-# 4. Commit and push
-# 5. Publish (with confirmation prompt):
-node tools/release.cjs --publish
+# 4. Commit and PUSH main; wait for the `Test` workflow on main to go green
+# 5. Only then tag (tools/release.cjs does the main push + tag + draft release):
+node tools/release.cjs --dry     # plan only; runs the gates but writes nothing
+node tools/release.cjs --apply
 ```
 
-For CI-based publishing (with provenance), just push the tag and let GitHub
-Actions handle it. Use `--publish` only when you need to publish from this
-machine; it will ask for confirmation unless you pass `--yes`.
+### Let CI go green on `main` BEFORE pushing the tag
+
+A tag triggers `release.yml`, and that workflow runs in **its own environment**,
+which you cannot reproduce locally. A test that passes on your machine can still
+fail there, and once the tag exists the failed run is pinned to that commit —
+re-running the same tag re-runs the *old* tree, so the usual fix is to delete
+the tag and create it again.
+
+This is not hypothetical: v1.24.0's first tag (`bc7281f2`) went red within 48s
+because `tests/overlay.dom.test.mjs` waited a fixed `tick(40)` for React 18's
+concurrent `createRoot` to commit. It passed 5/5 locally and failed on the
+runner, where the mount log, the subtest start and the failing assertion all
+landed inside the **same millisecond** (`15:56:12.153`). Push `main` first,
+watch `Test` pass, then tag.
+
+### Rule of thumb for anything time-dependent in a test
+
+Never assert after a fixed delay when the thing you are waiting for is a
+*schedule*, not a *duration*. Poll for the condition instead (see `waitFor()` in
+`tests/overlay.dom.test.mjs`, 3s budget) and keep the delay only as the poll
+interval. Prove the wait is real by breaking it (reduce it to a single check)
+and watching the test go red.
+
+### Publishing
+
+`release.cjs` pushes `main`, creates the tag and opens a **draft** Release; the
+`release.yml` workflow is what actually publishes to npm. Note that the publish
+step is a no-op unless the repo has an `NPM_TOKEN` secret — without it the log
+says `NPM_TOKEN secret is not set — skipping npm publish` and the job still
+reports success. Historically this plugin was published **from a workstation**,
+so if npm does not have the version after CI runs, publish locally and then
+promote the draft:
+
+```bash
+# local npm points at a mirror by default; the publish must go to npmjs.org
+npm publish --registry=https://registry.npmjs.org/ --access public
+gh release upload  v<X.Y.Z> dsh-pet-plugin-<X.Y.Z>.tgz --clobber
+gh release edit    v<X.Y.Z> --draft=false --latest
+```
+
+Verify all three agree before calling it done: `npm view` `dist.shasum`,
+the uploaded tarball's sha1, and `git rev-parse v<X.Y.Z>`.
 
 ## Reporting issues
 
