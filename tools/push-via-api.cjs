@@ -44,9 +44,23 @@ function api(method, path, body) {
 
 /* ---------- 1) 目录与 remote 校验 ---------- */
 
+// Windows 的 TEMP 可能是 8.3 短路径（GitHub runner 上是 C:\Users\RUNNER~1\...），
+// process.cwd() 跟着短、git rev-parse --show-toplevel 返回长名（runneradmin），
+// 字符串比较会把「同一个目录」误判成不一致。比较前用 realpath 把两侧都解析成
+// 最终长名（windows job 首跑就抓到了这个——2026-10-28，此前本机 TEMP 是长路径从未暴露）。
+function sameDir(a, b) {
+  const norm = (p) => {
+    try {
+      return require('node:fs').realpathSync.native(p).replace(/\\/g, '/').toLowerCase()
+    } catch (e) {
+      return p.replace(/\\/g, '/').toLowerCase()
+    }
+  }
+  return norm(a) === norm(b)
+}
 const top = read('git', ['rev-parse', '--show-toplevel']).trim().replace(/\\/g, '/')
 const cwd = process.cwd().replace(/\\/g, '/')
-if (top.toLowerCase() !== cwd.toLowerCase()) {
+if (!sameDir(top, cwd)) {
   throw new Error('必须在仓库根目录运行：cwd=' + cwd + ' toplevel=' + top)
 }
 let remoteUrl = ''
