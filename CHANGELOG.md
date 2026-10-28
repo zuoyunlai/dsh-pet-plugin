@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.25.0 — 2026-10-28
+
+> 审计挂账四项落地批次（`AUDIT-2026-10-28-fixplan.md` §2 中被评为最有价值的 ①③④ 与 ②）。
+
+- **瘦身：20 条动作片段同分辨率重编码，包体 19.9MB → 15.5MB（−22%）**。分辨率/帧率/时长
+  一个没动（640px / 24fps / VP9+alpha），只按片自适应 CRF 44→42→40 挤码率。每条过两道
+  质量闸：原生分辨率 libvmaf ≥ 93 + alpha 平面 SSIM ≥ 0.95；alpha 边缘复杂的两条 walk
+  用 CRF 40 补救，`pet-violet-walk` 连 40 都到不了 alpha 闸、保留原样——19/20 成功，资产
+  19.64MB → 14.51MB（20MB 门禁恢复余量）。工具 `tools/slim-clips.sh`（一次性：重复跑产生
+  代际损失）。曾试加「0.5× 缩放 VMAF」第三道闸后撤掉——VMAF 模型对小分辨率不稳定，
+  同片全分辨率 93 分、缩半 75 分的矛盾值只会误杀。真 Chromium 播放验证见 browser 冒烟；
+  新旧中帧对比图 `preview-slim-compare.png`（工作区本地生成，不入库）。
+- **CI 补盲区（test.yml 三 job）**：新增 browser job——Playwright + 真 Chromium 里立绘
+  真加载、三条代表片段（两条瘦身 + 一条原样对照）真能播、prefers-reduced-motion 下三方向
+  断言（宿主探针动画必须在 / 宠物在 `.dsh-pet-layer` 外必须还在动 / 在 layer 内必须关掉
+  ——R-03 泄漏的端到端回归），截图存 artifact；新增 windows job（npm test 全套首次跑在
+  主平台，此前 CI 只有 ubuntu）。`tests/browser.mjs` 用库模式不起 test runner。
+- **文档数字单一源（tests/readme.test.mjs，9 条口径）**：交叉淡入毫秒 / 默认缩放 / drag
+  60% / 心声 7% / 撩发 0.8%/tick / 帧步长两档 / 走路步幅 / 形象数 / 包体声称——每条
+  「从代码提取真值 → 断言 README 写的就是它」，改码不改文档（或反之）直接红。清单同步进
+  package.json ×2 / release.cjs / test.yml / release.yml（这个五处同步坑本身就是审计踩过
+  一次的，这次全部对齐）。
+- **读屏：闲聊气泡不再打断屏幕阅读器**。`bubble` 记录类别；单聊回复/错误/外部播报
+  （chatAck/chatErr/announce）保持 `role=status` + `aria-live=polite`，心情台词、出现问候、
+  被戳被拖这类装饰性气泡改 `aria-hidden`。
+- **视线跟随短路**：五只内置全是照片立绘、没有瞳孔层（`.dsh-pet-pupils` 是 SVG 形象
+  专用），原先每次 mousemove 都 `getBoundingClientRect`（强制 reflow）写没人消费的 CSS
+  变量——照片形象现在直接跳过。
+- **修 preview 工作流（静默坏已久）**：`tests/preview.mjs` 的 localStorage 桩全返回 null，
+  1.19.3 起 `__dshPet` 自检口要 `dsh-pet.debug=1` 才挂，生成必炸；第二张挂件预览还硬编码
+  远古形象 `gremlin`。两处修复后 README 里的预览命令重新可用（顺带：标题的「三种形象」
+  改为动态数）。
+- 测试 106 → 115；`npm pack` 19.9 → 15.5MB / 146 files；构建两次 sha1 一致、`gen:check`
+  逐字节一致。
+
 ## 1.24.1 — 2026-10-28
 
 > 本版为 2026-10-28 全量审计的修订批次，逐项依据与核实证据见 `AUDIT-2026-10-28-fixplan.md`。

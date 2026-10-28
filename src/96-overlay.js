@@ -195,7 +195,18 @@
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
         runtime.bubble
-          ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
+          // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
+        // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
+        ? h(
+            'div',
+            {
+              className: 'dsh-pet-bubble',
+              ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
+                ? { role: 'status', 'aria-live': 'polite' }
+                : { 'aria-hidden': 'true' }),
+            },
+            runtime.bubble.text,
+          )
           : null,
         runtime.aside
           ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)

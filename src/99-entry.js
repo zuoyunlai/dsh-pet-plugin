@@ -140,10 +140,14 @@
           }
         })
 
-        // 视线跟随：只写 CSS 变量，不触发 React 重渲染
+        // 视线跟随：只写 CSS 变量，不触发 React 重渲染。
+        // 照片形象（五只内置全是）没有瞳孔层 .dsh-pet-pupils——那是 SVG 形象专用的；
+        // 对它们来说每次 mousemove 的 getBoundingClientRect 是纯开销，还是强制 reflow
+        //（2026-10-28 审计④b）。先查形象再动手。
         ctx.effect(() => {
           const onMove = (e) => {
             try {
+              if (persona().image) return
               const el = runtime.rootEl
               if (!el) return
               const r = el.getBoundingClientRect()

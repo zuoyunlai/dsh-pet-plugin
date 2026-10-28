@@ -52,6 +52,10 @@ jobs:
       - name: Asset tests
         run: node --test tests/assets.test.mjs
 
+      # 挂账③（2026-10-28 审计）：文档数字与代码单一源对表——240ms/2MB 这类漂移直接红
+      - name: README facts (docs match code)
+        run: node --test tests/readme.test.mjs
+
       - name: Smoke (renders personas/moods/panel, asserts video element + i18n)
         run: node tests/smoke.mjs
 
@@ -72,3 +76,46 @@ jobs:
 
       - name: npm pack dry run
         run: npm pack --dry-run 2>&1 | tee /dev/stderr | grep -q "package size" || exit 1
+
+  # 挂账②（2026-10-28 审计）：jsdom 证明不了的事——真 Chromium 里素材真的渲染、
+  # VP9+alpha 片段真的能播（瘦身重编码后的最要紧回归）、prefers-reduced-motion 下
+  # 宿主元素动画不被插件 CSS 关掉（R-03 泄漏的端到端回归）。
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install playwright (library mode, no test runner)
+        run: npm install --no-save playwright
+
+      - name: Install chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Browser smoke (preview.html + clip decode + reduced-motion probe)
+        run: node tests/browser.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-preview
+          path: tests/.browser-preview.png
+          if-no-files-found: ignore
+
+  # 本产品是 Windows 桌面优先（install.ps1 / SAPI 兜底），主平台从未进过 CI。
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install peer + dev deps
+        run: npm install --no-save @deepseek-ai/schemastery jsdom react react-dom
+
+      - name: Full test suite on Windows
+        run: npm test

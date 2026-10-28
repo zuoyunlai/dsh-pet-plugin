@@ -25,7 +25,9 @@ const React = {
 
 const ctx = createContext({ console, Date, Math, JSON, String, Number, Object, Array, Set, Map, RegExp, parseInt, setInterval: () => 0, clearInterval: () => {}, requestAnimationFrame: (f) => f() })
 ctx.window = ctx
-ctx.window.localStorage = { getItem: () => null, setItem() {} }
+// dsh-pet.debug=1：1.19.3 起 __dshPet 自检口默认不挂（安全收口），
+// 这里的静态渲染要读 PERSONAS/PetArt——不亮开关就跑不动（2026-10-28 修复：曾静默坏掉）
+ctx.window.localStorage = { getItem: (k) => (k === 'dsh-pet.debug' ? '1' : null), setItem() {} }
 ctx.window.speechSynthesis = { cancel() {}, getVoices: () => [], speak() {} }
 ctx.window.SpeechSynthesisUtterance = class {}
 ctx.window.__ModuleLoader__ = { load: (spec) => (ctx.__factory = spec.factory) }
@@ -78,7 +80,7 @@ p.sub{margin:0;padding:0 22px 10px;font-size:12px;opacity:.55}
 .cell i{font-style:normal;font-size:10.5px;opacity:.45;margin-top:-6px}
 ${api.CSS.replace(/\.dsh-pet-body\{/g, 'body .dsh-pet-body{')}
 </style>
-<h1>dsh-pet · 三种形象 × 八种心情</h1>
+<h1>dsh-pet · ${Object.keys(api.PERSONAS).length} 只形象 × 八种心情</h1>
 <p class="sub">真实渲染结果（client.js 里的 PetArt + CSS），不是示意图。</p>
 ${grid}
 `
@@ -88,7 +90,8 @@ writeFileSync(out, html, 'utf8')
 console.log('wrote', out)
 
 /* ---------- 第二张：右下角挂件实况（气泡 + 小输入框 + 宠物） ---------- */
-const gremlin = api.PERSONAS.gremlin
+// 曾硬编码 gremlin（远古演示形象，violet 世代之前就删了）——2026-10-28 修复：动态取第一只
+const gremlin = api.PERSONAS[Object.keys(api.PERSONAS)[0]]
 const widgetArt = toHtml(api.PetArt({ persona: gremlin, mood: 'talk' }))
 
 const widgetHtml = `<!doctype html><meta charset="utf-8"><title>dsh-pet widget</title>

@@ -2273,7 +2273,10 @@ window.__ModuleLoader__.load({
       if (!runtime.visible || runtime.petOffscreen) return
       const s = runtime.settings
       const t = String(text)
-      runtime.bubble = { text: t, at: nowMs(), ttl: ttl || clamp(2200 + t.length * 90, 2600, 9000) }
+      // 第三参是该句所属的类别（appear/dance/poked/drag/chatAck…）：交给导演层查演绎方向，
+      // 也决定读屏语义——只有「用户发起、等回复」的那几类（chatAck/chatErr/announce）
+      // 才是 polite 实时区，闲聊台词对读屏是噪声（2026-10-28 审计④a）
+      runtime.bubble = { text: t, at: nowMs(), ttl: ttl || clamp(2200 + t.length * 90, 2600, 9000), kind: mood || '' }
       // 第三参是该句所属的类别（appear/dance/poked/drag…），交给导演层查演绎方向
       if (s.voiceOn) speak(t, mood)
       maybeAside()
@@ -2732,7 +2735,7 @@ window.__ModuleLoader__.load({
       const p = persona()
       pushHistory('user', text)
       runtime.ai = 'busy'
-      bubble('……', 60000)
+      bubble('……', 60000, 'chatHold')
       notify()
       chatWithPet(text)
         .then((reply) => {
@@ -2753,7 +2756,7 @@ window.__ModuleLoader__.load({
           }
           petLog('chat failed', { msg, origin, api })
           if (/SIGN_IN|ACCOUNT|auth/i.test(msg)) {
-            bubble(t('chat.needSignIn'), 6000)
+            bubble(t('chat.needSignIn'), 6000, 'chatErr')
           } else {
             bubble(
               (pick(p.lines.error) || t('chat.stuck')) +
@@ -2764,6 +2767,7 @@ window.__ModuleLoader__.load({
                 ']\n' +
                 msg.slice(0, 160),
               15000,
+              'chatErr',
             )
           }
         })
@@ -4300,7 +4304,18 @@ window.__ModuleLoader__.load({
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
         runtime.bubble
-          ? h('div', { className: 'dsh-pet-bubble', role: 'status', 'aria-live': 'polite' }, runtime.bubble.text)
+          // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
+        // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
+        ? h(
+            'div',
+            {
+              className: 'dsh-pet-bubble',
+              ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
+                ? { role: 'status', 'aria-live': 'polite' }
+                : { 'aria-hidden': 'true' }),
+            },
+            runtime.bubble.text,
+          )
           : null,
         runtime.aside
           ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
@@ -4810,10 +4825,14 @@ window.__ModuleLoader__.load({
           }
         })
 
-        // 视线跟随：只写 CSS 变量，不触发 React 重渲染
+        // 视线跟随：只写 CSS 变量，不触发 React 重渲染。
+        // 照片形象（五只内置全是）没有瞳孔层 .dsh-pet-pupils——那是 SVG 形象专用的；
+        // 对它们来说每次 mousemove 的 getBoundingClientRect 是纯开销，还是强制 reflow
+        //（2026-10-28 审计④b）。先查形象再动手。
         ctx.effect(() => {
           const onMove = (e) => {
             try {
+              if (persona().image) return
               const el = runtime.rootEl
               if (!el) return
               const r = el.getBoundingClientRect()

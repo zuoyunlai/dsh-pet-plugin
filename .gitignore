@@ -20,3 +20,6 @@ Thumbs.db
 
 # scratch
 _*
+
+# browser.mjs 的截图产物（CI artifact，不入库）
+tests/.browser-preview.png
