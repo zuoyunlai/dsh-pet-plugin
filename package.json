@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.24.0",
+  "version": "1.24.1",
   "description": "DSH 桌面伴侣插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
@@ -28,6 +28,8 @@
     "README-hi.md",
     "tests/*.mjs",
     "tests/fixtures/*.cjs",
+    "tests/assets-manifest.json",
+    "tests/voices.json",
     "!tests/_*.mjs",
     "src/*.js",
     "build.mjs",

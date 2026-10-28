@@ -18,8 +18,8 @@ seu temperamento.
 - **Ícone**: `icon.svg` e o botão do compositor usam o mesmo traçado.
 - **Painel de ajustes** agrupado e fixo na viewport, com selects e switches próprios.
 - **Cinco personagens** fotorrealistas: 薇, 绯, 靛, 雪 (5 expressões cada) e 鲸鱼娘
-  (azure), uma empregada com orelhas e cauda de baleia, com um único retrato realista e
-  seus próprios clipes de andar, dançar e ajeitar o cabelo.
+  (azure), uma empregada com orelhas e cauda de baleia, com 5 retratos realistas (desde a
+  1.23.0) e seus próprios clipes de andar, dançar e ajeitar o cabelo.
 
 ## Behavior
 

@@ -47,7 +47,6 @@
     "panel.close": "Close",
     "voice.xiaoxiao": "Xiaoxiao · gentle",
     "voice.xiaoyi": "Xiaoyi · sweet",
-    "voice.xiaomo": "Xiaomo · cool",
     "pet.toggle": "Desktop companion",
     "pet.toggleOff": "She is off-screen — click to bring her back",
     "hint.neuralOff": "Neural voice unavailable, using the system voice",
@@ -61,6 +60,13 @@
     "voice.xiaobei": "Xiaobei · lively (NE)",
     "panel.pitchTrim": "Pitch trim",
     "panel.rateTrim": "Rate trim",
-    "panel.voiceEff": "Now: {voice} · pitch {pitch} · rate {rate}"
+    "panel.voiceEff": "Now: {voice} · pitch {pitch} · rate {rate}",
+    "chat.needSignIn": "You need to sign in to DeepSeek in DSH before I can use the model.",
+    "chat.stuck": "My head is a little stuck right now.",
+    "dot.thinking": "thinking…",
+    "dot.ok": "chat link OK",
+    "dot.fail": "last attempt failed (see [dsh-pet] chat failed in the console)",
+    "dot.idle": "no chat yet",
+    "actor.tip": " (drag me / right-click for a menu)"
   }
 }

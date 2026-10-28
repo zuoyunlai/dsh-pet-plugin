@@ -4,6 +4,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { TEMPLATE_IDS } from '../lib/registry.js'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..')
@@ -82,7 +83,11 @@ test('every persona referenced in a pack exists on disk', (t) => {
     return
   }
   const present = new Set(readdirSync(join(root, 'assets')))
-  const ids = ['violet', 'crimson', 'indigo', 'silver']
+  // R-02 教训（2026-10-28 审计）：1.23.0 加鲸鱼娘时这张表还是硬编码四只，
+  // 「pack 引用素材必须存在」对新形象失效。改为扫目录（排除模板），
+  // 以后新增形象自动进覆盖。
+  const ids = readdirSync(petsDir).filter((d) => !TEMPLATE_IDS.has(d)).sort()
+  assert.ok(ids.length >= 5, '内置形象至少五只，实际 ' + ids.length)
   for (const id of ids) {
     const pack = JSON.parse(readFileSync(join(petsDir, id, 'pack.json'), 'utf8'))
     const refs = new Set()

@@ -30,8 +30,8 @@ const ORDER = [
   'linesHi',
   'license',
 ]
-/** 固定形象顺序：内置四只按这个顺序排，其它 pack 按字母序追加在后 */
-const PREFERRED = ['violet', 'crimson', 'indigo', 'silver']
+/** 固定形象顺序（⚠ 必须与 lib/registry.js 的 PREFERRED_IDS 同步改）：内置形象按这个顺序排，其它 pack 按字母序追加在后 */
+const PREFERRED = ['violet', 'crimson', 'indigo', 'silver', 'azure']
 
 const q = (v) => JSON.stringify(String(v))
 

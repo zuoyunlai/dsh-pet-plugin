@@ -25,6 +25,8 @@ const source = readFileSync(join(here, '..', 'client.js'), 'utf8')
 export function makeEnv(opts = {}) {
   const storage = new Map()
   storage.set('dsh-pet.debug', '1')
+  // 预置 localStorage（R-01 设置往返测试用）：在 client.js 求值前就得就位
+  for (const [k, v] of Object.entries(opts.storage || {})) storage.set(k, v)
 
   const timers = [] // {id, fn, at, seq, kind}
   let seq = 0

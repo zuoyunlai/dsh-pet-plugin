@@ -6,7 +6,7 @@
   "pet": {
     "panel.title": "Mascote",
     "panel.look": "Aparência",
-    "panel.lang": "Language",
+    "panel.lang": "Idioma",
     "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "Voz",
     "panel.display": "Exibição",
@@ -36,7 +36,7 @@
     "panel.stay": "Fique mais um pouco",
     "panel.cheer": "Fica feliz",
     "panel.hide": "Ocultar 1h",
-    "panel.settings": "Settings",
+    "panel.settings": "Configurações",
     "panel.ink": "Tinta",
     "panel.confetti": "Confete",
     "panel.cloud": "Nuvem",
@@ -47,11 +47,10 @@
     "panel.close": "Fechar",
     "voice.xiaoxiao": "Xiaoxiao · suave",
     "voice.xiaoyi": "Xiaoyi · doce",
-    "voice.xiaomo": "Xiaomo · fria",
     "pet.toggle": "Mascote",
     "pet.toggleOff": "Ela está fora da tela, clique para trazê-la",
     "hint.neuralOff": "Voz neural indisponível, usando a do sistema",
-    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
+    "hint.privacy": "A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.",
     "placeholder.chat": "Diga algo para {name}…",
     "a11y.talkTo": "Fale com {name}",
     "a11y.send": "Enviar",
@@ -61,6 +60,13 @@
     "voice.xiaobei": "Xiaobei · vivaz (NE)",
     "panel.pitchTrim": "Ajuste de tom",
     "panel.rateTrim": "Ajuste de velocidade",
-    "panel.voiceEff": "Agora: {voice} · tom {pitch} · velocidade {rate}"
+    "panel.voiceEff": "Agora: {voice} · tom {pitch} · velocidade {rate}",
+    "chat.needSignIn": "Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.",
+    "chat.stuck": "Minha cabeça travou um pouco agora.",
+    "dot.thinking": "pensando…",
+    "dot.ok": "chat funcionando",
+    "dot.fail": "a última tentativa falhou (veja [dsh-pet] chat failed no console)",
+    "dot.idle": "ainda sem conversa",
+    "actor.tip": " (arraste-me / clique direito para o menu)"
   }
 }

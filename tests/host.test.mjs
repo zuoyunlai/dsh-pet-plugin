@@ -7,6 +7,7 @@ import assert from 'node:assert'
 import { readFileSync } from 'node:fs'
 import { apply } from '../index.js'
 import { killWorker } from '../lib/tts.js'
+import { personaById, systemPrompt } from '../lib/prompt.js'
 
 // TTS 用例会真的走合成路径，可能拉起常驻的 Python worker（stdin 管道 + 30s 响应超时）。
 // 不回收的话，`node --test` 跑完用例仍会挂在 event loop 上不退出——表现为「偶发卡死」：
@@ -554,4 +555,34 @@ test('history 不进 system，改走 <history> 用户轮', async () => {
   const text = captured.messages[0].content[0].text
   assert.ok(text.indexOf('<history>') >= 0 && text.indexOf('INJECTED-MARKER-42') >= 0, 'history 应该在 <history> 块里')
   assert.ok(text.indexOf('<message>') >= 0 && text.indexOf('在吗') >= 0, '本轮文本应该在 <message> 块里')
+})
+
+/* ---------- 2026-10-28 审计 R-02：鲸鱼娘（及用户包）单聊人设不再是薇 ---------- */
+
+test('personaById：五只内置都有条目，鲸鱼娘不再回落成薇', () => {
+  assert.equal(personaById('azure').name, '鲸鱼娘')
+  assert.equal(personaById('azure').tagEn, 'Azure — coy, sweet allure')
+  const zh = systemPrompt(personaById('azure'), 'zh')
+  assert.ok(zh.includes('鲸鱼娘'), 'zh prompt 应是鲸鱼娘的人设')
+  assert.ok(!zh.includes('「薇」'), '不能再回落成薇')
+  // 未知 id（含原型链键名）仍回落默认
+  assert.equal(personaById('nobody').name, '薇')
+  assert.equal(personaById('__proto__').name, '薇')
+})
+
+test('chat e2e：personaId=azure 时 system prompt 是鲸鱼娘的人设', async () => {
+  let sawSystem = ''
+  const llm = fakeLlm([{ type: 'text-delta', text: '好哦。' }], (args) => {
+    sawSystem = args.system
+  })
+  const ctx = makeCtx({ llm })
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/chat'), {
+    method: 'POST',
+    url: '/dsh-pet/chat',
+    body: JSON.stringify({ text: '在吗', personaId: 'azure', lang: 'zh' }),
+  })
+  assert.equal(res.statusCode, 200)
+  assert.ok(sawSystem.includes('鲸鱼娘'), 'system 应包含鲸鱼娘人设')
+  assert.ok(!sawSystem.includes('「薇」'), 'system 不应再是薇的人设')
 })

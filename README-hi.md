@@ -19,8 +19,8 @@ photo-realistic characters, har ek kaa apanaa mizaaj.
 - **Settings panel**: groups ke saath (look / voice / display / actions / effects) aur
   apane custom dropdowns/switch, viewport par fixed.
 - **Paanch characters**, photo-realistic: 薇, 绯, 靛, 雪 (har ek ke 5 expressions) aur
-  鲸鱼娘 (azure) — whale-fin ears aur tail wali maid, ek hi realistic still aur apne
-  walk/dance/hair clips ke saath.
+  鲸鱼娘 (azure) — whale-fin ears aur tail wali maid, 1.23.0 se 5 realistic stills aur
+  apne walk/dance/hair clips ke saath.
 
 ## Behavior
 

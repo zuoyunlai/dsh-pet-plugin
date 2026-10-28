@@ -14,7 +14,6 @@
       hoverTimer: null,
       inputPinned: false,
       aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
-      chatOpen: false,
       panelOpen: false,
       ai: 'unknown', // 'unknown' | 'busy' | 'ok' | 'fail'
       fx: [], // 正在播的特效
@@ -22,7 +21,6 @@
       action: null, // 正在播的动作序列 { name, frames, i, step, until }
       rootEl: null, // 宠物根节点，给视线跟随用
       history: [], // 跟它单聊的最近几轮（落 localStorage，刷新不失忆）
-      input: null, // 兼容旧字段
       speaking: false,
       speakUntil: 0,
       subs: new Set(),
@@ -61,7 +59,7 @@
 
     /**
      * 媒体 metadata 到手：记下真实时长，并把这一代的收尾时间按它重排。
-     * 首次播放时用的是 20s 兜底，若真的等到 20s 才收尾，片段播完（ended）本来就会
+     * 首次播放时用的是 12s 兜底（CLIP_MAX_MS），若真的等到 12s 才收尾，片段播完（ended）本来就会
      * 更早结束动作——这里补的是「兜底比片段短」的反向情况（旧片段 5.167s）。
      */
     function noteClipDuration(clip, seconds) {

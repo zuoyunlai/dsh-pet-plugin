@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.24.1 — 2026-10-28
+
+> 本版为 2026-10-28 全量审计的修订批次，逐项依据与核实证据见 `AUDIT-2026-10-28-fixplan.md`。
+
+- **修：活跃时段设置每次重载被静默重置**。`CLOCK_RE` 曾误写成 `\\d`（正则字面量里那是
+  「字面反斜杠 + 字母 d」），任何合法时间都校验失败，重载后回落默认 09:00–23:00——用户设的
+  「22:00→03:00」一直存不住且无任何报错。附两条回归测试（从构建产物提取正则实测 + 预置
+  localStorage 的设置往返）。（审计 R-01）
+- **修：鲸鱼娘与用户自定义形象单聊时被当成「薇」**。宿主侧 `PERSONA_INFO` 只登记了四只，
+  1.23.0 加第五只时漏了同步，`personaById('azure')` 静默回落 violet，用户 pack 同理。
+  现在单聊人设优先读运行期注册表（宿主侧扫描的 pack 数据，服务端可信输入），内置表兜底并
+  补上 azure；`PREFERRED_IDS` 两处（registry / gen-personas）同步补齐。素材存在性测试从
+  硬编码四只改为扫目录（排除模板），新形象自动进覆盖。附 personaById + chat e2e 两条测试。
+  （审计 R-02）
+- **修：减弱动效的通配选择器泄漏到宿主**。`@media (prefers-reduced-motion)` 里用了裸
+  `*`，而这份 CSS 是 `<style>` 直接注入主文档的（无 shadow DOM）——OS 开「减弱动效」时，
+  整个 DSH 应用的动画/过渡都会被插件关掉。已加 `.dsh-pet-layer` 作用域（菜单/面板/特效层
+  都是它的 DOM 子孙，覆盖完整）。（审计 R-03）
+- 小修一批：`/ping` 轮询 URL 去重（`base` 为空时同地址失败会白跑一轮 8s 预算）；右键菜单
+  边框引用未定义的 `--pet-bd`（改 `--pet-border`）；`checkNeural` 一次网络抖动就永久降级
+  （改「置未知 + 下次说话重试」，明确 `available:false` 才降级）；单聊加 90s 客户端超时
+  （原先挂起的 fetch 能让「……」气泡挂到浏览器超时）；`chatTimeoutMs` 进 `Config` schema
+  （原是读得到配不上的死配置）；「重置全部」软复位（不再 `location.reload()` 重载整个
+  DSH）；片段兜底注释「20s」对齐实际 12s；内置 `/assets` 路由不走准入的理由写进注释。
+- 死代码清扫：`runtime.chatOpen`（1.22.0 前残尸，从未置 true）、`runtime.input`、设置面板
+  残留的 `voicePitch/voiceRate` 条件、死音色键 `xiaomo`（键名与实际音色 Yunxi 不符且零
+  引用，五语 `voice.xiaomo` 键同步删）。
+- i18n：客户端三处硬编码中文（单聊错误气泡 / 状态点 title / 形象悬停提示）进五语键
+  （`chat.*` / `dot.*` / `actor.tip`）；`hint.privacy` 四语不再是英文原句；`panel.lang`
+  /`panel.settings` 各语本地化；hi 补译 14 个与英文逐字相同的键 + `meta.title`（天城文）。
+- 打包修复：`tests/assets-manifest.json`、`tests/voices.json` 进包——原先依赖它们的两个
+  测试 .mjs 在包里、数据文件不在，装到 profile 后一跑就 ENOENT。
+- 文档：五语 README 十处过期口径修正——体积「2MB」→ 约 20MB（受 20MB 门禁约束）、交叉
+  淡入 240→180ms、帧况（3–6 帧 / 230ms）、走路幅度 −5/+13px、es/pt/hi 的鲸鱼娘表情立绘、
+  面板跟随宠物位置、assets 扩展名含 webm、license 口径、「7 种心情」「3 形象」计数。
+- 测试 101 → 106，全绿；构建产物两次生成逐字节一致；`gen:check` 逐字节一致。
+
 ## 1.24.0 — 2026-10-27
 
 - **补齐：薇 / 绯 / 靛 / 雪 的「被拖动」与「心声」台词**（各 5 条 drag + 8 条 aside，五语）。

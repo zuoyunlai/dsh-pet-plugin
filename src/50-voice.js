@@ -104,7 +104,10 @@
             notify()
           })
           .catch(() => {
-            runtime.neuralOk = false
+            // 网络抖动 ≠ 不可用（R-08）：置「未知」并允许下次说话重试；
+            // 只有上面 .then 里明确的 available:false 才直接降级
+            runtime.neuralOk = undefined
+            neuralChecked = false
           })
       } catch (e) {
         runtime.neuralOk = false

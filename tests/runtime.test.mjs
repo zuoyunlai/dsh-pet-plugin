@@ -7,6 +7,9 @@
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { makeEnv } from './harness.mjs'
 
 const CLIP_MS = 5167
@@ -649,4 +652,42 @@ test('1.22.0 鼠标快速移回会取消收起（不会闪一下）', () => {
   A.setHover(true) // 又移回来了
   env.advance(400)
   assert.equal(R.hovering, true, '移回后应保持展开，不能被挂起的收起定时器关掉')
+})
+
+/* ---------- 2026-10-28 审计 R-01：CLOCK_RE 曾写成 \d 双反斜杠，
+   任何合法时间都校验失败 → 活跃时段每次重载被静默重置。---------- */
+
+test('R01 CLOCK_RE 匹配合法时间、拒绝非法时间（从构建产物提取实测）', () => {
+  const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'client.js'), 'utf8')
+  const m = src.match(/const CLOCK_RE = (\/[^\n]*\/)\n/)
+  assert.ok(m, 'client.js 里应有 CLOCK_RE 定义')
+  const re = eval(m[1])
+  assert.equal(re.test('09:00'), true, '09:00 应合法（旧 bug 下失败）')
+  assert.equal(re.test('23:59'), true)
+  assert.equal(re.test('00:00'), true)
+  assert.equal(re.test('24:00'), false, '24 点不合法')
+  assert.equal(re.test('9:00'), false, '小时必须两位')
+  assert.equal(re.test('12:5'), false, '分钟必须两位')
+})
+
+test('R01 设置往返：保存的活跃时段（含跨零点）重载后原样保留', () => {
+  const env = makeEnv({
+    storage: {
+      'dsh-pet.settings.v1': JSON.stringify({ persona: 'violet', activeStart: '22:30', activeEnd: '03:00' }),
+    },
+  })
+  const R = env.api.runtime
+  assert.equal(R.settings.activeStart, '22:30', '旧 bug 下会被重置回 09:00')
+  assert.equal(R.settings.activeEnd, '03:00', '旧 bug 下会被重置回 23:00')
+})
+
+test('R01 设置往返：坏值仍然回落默认（校验修复≠放弃校验）', () => {
+  const env = makeEnv({
+    storage: {
+      'dsh-pet.settings.v1': JSON.stringify({ persona: 'violet', activeStart: '25:99', activeEnd: 'oops' }),
+    },
+  })
+  const R = env.api.runtime
+  assert.equal(R.settings.activeStart, '09:00')
+  assert.equal(R.settings.activeEnd, '23:00')
 })

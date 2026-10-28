@@ -136,7 +136,6 @@
     function hidePet(snoozeMs) {
       if (snoozeMs) runtime.snoozeUntil = nowMs() + Number(snoozeMs)
       runtime.visible = false
-      runtime.chatOpen = false
       // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
       clearAction()
       stopVoice()
@@ -471,12 +470,27 @@
 
       let lastErr = null
       for (const url of urls) {
+        // 客户端超时（R-09）：服务端默认 30s（可配到 120s），挂起的 fetch 不能
+        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）
+        let ctrl = null
+        let guard = 0
+        if (typeof AbortController === 'function') {
+          ctrl = new AbortController()
+          guard = setTimeout(() => {
+            try {
+              ctrl.abort()
+            } catch (e) {
+              /* ignore */
+            }
+          }, 90000)
+        }
         try {
           const res = await fetch(url, {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify(body),
+            signal: ctrl ? ctrl.signal : undefined,
           })
           const raw = await res.text()
           let data = null
@@ -493,6 +507,8 @@
         } catch (e) {
           lastErr = e
           petLog('chat attempt failed', { via: url, msg: String((e && e.message) || e) })
+        } finally {
+          if (guard) clearTimeout(guard)
         }
       }
       throw lastErr || new Error('没有可用的接口地址')
@@ -523,10 +539,10 @@
           }
           petLog('chat failed', { msg, origin, api })
           if (/SIGN_IN|ACCOUNT|auth/i.test(msg)) {
-            bubble('得先在 DSH 里登录 DeepSeek，我才用得上大模型。', 6000)
+            bubble(t('chat.needSignIn'), 6000)
           } else {
             bubble(
-              (pick(p.lines.error) || '我这会儿脑子有点卡住了。') +
+              (pick(p.lines.error) || t('chat.stuck')) +
                 '\n[origin=' +
                 origin +
                 ' api=' +

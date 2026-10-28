@@ -53,7 +53,8 @@ test('有 DSH 内置 python 时 resolvePython 不能落回 PATH 的 "python"', (
 })
 
 test('音色表覆盖五语', () => {
-  for (const v of ['xiaoxiao', 'xiaoyi', 'xiaomo', 'ava', 'emma', 'elvira', 'francisca', 'swara']) {
+  // 2026-10-28 审计 R-10：xiaomo 是死键（无形象引用、面板不列，且键名与实际音色 Yunxi 不符）已删
+  for (const v of ['xiaoxiao', 'xiaoyi', 'hsiaochen', 'ava', 'emma', 'elvira', 'francisca', 'swara']) {
     assert.ok(TTS_VOICES[v], '缺少音色 ' + v)
   }
 })

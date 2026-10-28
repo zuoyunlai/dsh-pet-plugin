@@ -32,7 +32,9 @@
     const SETTINGS_MODES = new Set(['always', 'random'])
     const SETTINGS_BUBBLES = new Set(['auto', 'off'])
     const SETTINGS_INPUT = new Set(['hover', 'always'])
-    const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
+    // HH:MM 校验（R-01，2026-10-28 审计：曾误写成 \\d 双反斜杠——正则字面量里
+    // 那是「字面反斜杠+d」，任何合法时间都匹配失败，活跃时段每次重载被重置）
+    const CLOCK_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 
     function finiteNumber(value, fallback, min, max) {
       const n = typeof value === 'number' && Number.isFinite(value) ? value : Number(value)

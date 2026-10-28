@@ -68,7 +68,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","voice.xiaomo":"Xiaomo · cool","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}"},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"Settings","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","voice.xiaomo":"晓墨 · 清冷","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","voice.xiaomo":"Xiaomo · fría","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Settings","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","voice.xiaomo":"Xiaomo · fria","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"Effects","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"Random","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"Neural","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Raftaar","panel.inputBox":"Input box","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"Size","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"Bomb","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","voice.xiaomo":"Xiaomo · thandi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}","chat.needSignIn":"You need to sign in to DeepSeek in DSH before I can use the model.","chat.stuck":"My head is a little stuck right now.","dot.thinking":"thinking…","dot.ok":"chat link OK","dot.fail":"last attempt failed (see [dsh-pet] chat failed in the console)","dot.idle":"no chat yet","actor.tip":" (drag me / right-click for a menu)"},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"语言","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}","chat.needSignIn":"得先在 DSH 里登录 DeepSeek，我才用得上大模型。","chat.stuck":"我这会儿脑子有点卡住了。","dot.thinking":"它正在想…","dot.ok":"单聊通道正常","dot.fail":"刚才那次没接上（看控制台 [dsh-pet] chat failed）","dot.idle":"还没聊过","actor.tip":"（可以拖走 / 右键有菜单）"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto a los servicios en línea de Microsoft; desactívala si prefieres no salir de esta máquina.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}","chat.needSignIn":"Primero inicia sesión en DeepSeek dentro de DSH para que pueda usar el modelo.","chat.stuck":"Ahora mismo se me ha atascado la cabeza.","dot.thinking":"pensando…","dot.ok":"chat en orden","dot.fail":"el último intento falló (mira [dsh-pet] chat failed en la consola)","dot.idle":"aún sin chatear","actor.tip":" (arrástrame / clic derecho para el menú)"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}","chat.needSignIn":"Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.","chat.stuck":"Minha cabeça travou um pouco agora.","dot.thinking":"pensando…","dot.ok":"chat funcionando","dot.fail":"a última tentativa falhou (veja [dsh-pet] chat failed no console)","dot.idle":"ainda sem conversa","actor.tip":" (arraste-me / clique direito para o menu)"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"भाषा","panel.langAuto":"स्वतः (DSH के अनुसार)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"प्रभाव","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"कभी-कभी","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"न्यूरल","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"वॉल्यूम","panel.pitch":"पिच","panel.rate":"Raftaar","panel.inputBox":"इनपुट बॉक्स","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"आकार","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"सेटिंग्स","panel.ink":"स्याही","panel.confetti":"कंफेटी","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"बम","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"न्यूरल आवाज़ बोले जाने वाले टेक्स्ट को माइक्रोसॉफ्ट के ऑनलाइन सेवा को भेजती है; नहीं भेजना चाहते तो «न्यूरल» बंद कर दें।","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}","chat.needSignIn":"पहले DSH में DeepSeek पर साइन-इन करें, तभी मैं मॉडल इस्तेमाल कर पाऊँगी।","chat.stuck":"अभी मेरा दिमाग़ थोड़ा अटक गया है।","dot.thinking":"सोच रही है…","dot.ok":"चैट ठीक है","dot.fail":"पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)","dot.idle":"अभी तक कोई चैट नहीं","actor.tip":" (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -1537,7 +1537,9 @@ window.__ModuleLoader__.load({
     const SETTINGS_MODES = new Set(['always', 'random'])
     const SETTINGS_BUBBLES = new Set(['auto', 'off'])
     const SETTINGS_INPUT = new Set(['hover', 'always'])
-    const CLOCK_RE = /^([01]\\d|2[0-3]):[0-5]\\d$/
+    // HH:MM 校验（R-01，2026-10-28 审计：曾误写成 \\d 双反斜杠——正则字面量里
+    // 那是「字面反斜杠+d」，任何合法时间都匹配失败，活跃时段每次重载被重置）
+    const CLOCK_RE = /^([01]\d|2[0-3]):[0-5]\d$/
 
     function finiteNumber(value, fallback, min, max) {
       const n = typeof value === 'number' && Number.isFinite(value) ? value : Number(value)
@@ -1627,7 +1629,6 @@ window.__ModuleLoader__.load({
       hoverTimer: null,
       inputPinned: false,
       aside: null, // 心声：灰色小字，{ text, at, ttl }，只在自带 lines.aside 的形象上出现
-      chatOpen: false,
       panelOpen: false,
       ai: 'unknown', // 'unknown' | 'busy' | 'ok' | 'fail'
       fx: [], // 正在播的特效
@@ -1635,7 +1636,6 @@ window.__ModuleLoader__.load({
       action: null, // 正在播的动作序列 { name, frames, i, step, until }
       rootEl: null, // 宠物根节点，给视线跟随用
       history: [], // 跟它单聊的最近几轮（落 localStorage，刷新不失忆）
-      input: null, // 兼容旧字段
       speaking: false,
       speakUntil: 0,
       subs: new Set(),
@@ -1674,7 +1674,7 @@ window.__ModuleLoader__.load({
 
     /**
      * 媒体 metadata 到手：记下真实时长，并把这一代的收尾时间按它重排。
-     * 首次播放时用的是 20s 兜底，若真的等到 20s 才收尾，片段播完（ended）本来就会
+     * 首次播放时用的是 12s 兜底（CLIP_MAX_MS），若真的等到 12s 才收尾，片段播完（ended）本来就会
      * 更早结束动作——这里补的是「兜底比片段短」的反向情况（旧片段 5.167s）。
      */
     function noteClipDuration(clip, seconds) {
@@ -1982,7 +1982,10 @@ window.__ModuleLoader__.load({
             notify()
           })
           .catch(() => {
-            runtime.neuralOk = false
+            // 网络抖动 ≠ 不可用（R-08）：置「未知」并允许下次说话重试；
+            // 只有上面 .then 里明确的 available:false 才直接降级
+            runtime.neuralOk = undefined
+            neuralChecked = false
           })
       } catch (e) {
         runtime.neuralOk = false
@@ -2347,7 +2350,6 @@ window.__ModuleLoader__.load({
     function hidePet(snoozeMs) {
       if (snoozeMs) runtime.snoozeUntil = nowMs() + Number(snoozeMs)
       runtime.visible = false
-      runtime.chatOpen = false
       // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
       clearAction()
       stopVoice()
@@ -2682,12 +2684,27 @@ window.__ModuleLoader__.load({
 
       let lastErr = null
       for (const url of urls) {
+        // 客户端超时（R-09）：服务端默认 30s（可配到 120s），挂起的 fetch 不能
+        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）
+        let ctrl = null
+        let guard = 0
+        if (typeof AbortController === 'function') {
+          ctrl = new AbortController()
+          guard = setTimeout(() => {
+            try {
+              ctrl.abort()
+            } catch (e) {
+              /* ignore */
+            }
+          }, 90000)
+        }
         try {
           const res = await fetch(url, {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify(body),
+            signal: ctrl ? ctrl.signal : undefined,
           })
           const raw = await res.text()
           let data = null
@@ -2704,6 +2721,8 @@ window.__ModuleLoader__.load({
         } catch (e) {
           lastErr = e
           petLog('chat attempt failed', { via: url, msg: String((e && e.message) || e) })
+        } finally {
+          if (guard) clearTimeout(guard)
         }
       }
       throw lastErr || new Error('没有可用的接口地址')
@@ -2734,10 +2753,10 @@ window.__ModuleLoader__.load({
           }
           petLog('chat failed', { msg, origin, api })
           if (/SIGN_IN|ACCOUNT|auth/i.test(msg)) {
-            bubble('得先在 DSH 里登录 DeepSeek，我才用得上大模型。', 6000)
+            bubble(t('chat.needSignIn'), 6000)
           } else {
             bubble(
-              (pick(p.lines.error) || '我这会儿脑子有点卡住了。') +
+              (pick(p.lines.error) || t('chat.stuck')) +
                 '\n[origin=' +
                 origin +
                 ' api=' +
@@ -3076,16 +3095,20 @@ window.__ModuleLoader__.load({
   70%,100%{opacity:0;transform:scale(2.1)}
 }
 .dsh-pet-menu-mask{position:fixed;inset:0;z-index:80;pointer-events:auto}
-.dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-bd);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
+.dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-border);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
 /* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
    旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
    rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：
    动画全部取消、过渡时长归零、特效层不显示。视频的自动播放由 JS 侧
-   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。 */
+   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。
+   ⚠ 必须带 .dsh-pet-layer 作用域（2026-10-28 审计 R-03）：这份 CSS 是 <style> 直接
+   注进宿主文档的（没有 shadow DOM），裸 * 会把整个 DSH 应用的动画一并关掉。
+   菜单/面板/特效层都是 .dsh-pet-layer 的 DOM 子孙；输入框旁 🐾 按钮在另一个
+   slot，但它没有 animation 声明，不受影响。 */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .dsh-pet-layer *,.dsh-pet-layer *::before,.dsh-pet-layer *::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
   .dsh-pet-fx{display:none!important}
 }
 `
@@ -3414,7 +3437,7 @@ window.__ModuleLoader__.load({
         if (patch.persona && patch.persona !== prevPersona) clearAction()
         saveSettings()
         notify()
-        if (patch.persona || patch.ttsVoice || patch.voicePitch != null || patch.voiceRate != null) {
+        if (patch.persona || patch.ttsVoice) {
           setTimeout(() => warmVoice(), 50)
         }
       }
@@ -3578,13 +3601,14 @@ window.__ModuleLoader__.load({
                 } catch (e) {
                   /* ignore */
                 }
-                runtime.panelOpen = false
+                // 软复位（R-13，2026-10-28 审计）：不再 location.reload()——那会重载
+                // 整个 DSH 应用，殃及宿主未保存的状态。聊天历史不清（reload 行为也不清它）。
+                runtime.settings = loadSettings()
+                runtime.dragPos = null
+                runtime.autoPos = null
+                clearAction()
+                placePanel()
                 notify()
-                try {
-                  window.location.reload()
-                } catch (e) {
-                  /* ignore */
-                }
               },
             },
             t('panel.resetAll'),
@@ -4180,7 +4204,7 @@ window.__ModuleLoader__.load({
       // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
       // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
       const inputHoverMode = s.inputMode !== 'always'
-      const inputShown = !inputHoverMode || runtime.hovering || runtime.chatOpen || runtime.inputPinned
+      const inputShown = !inputHoverMode || runtime.hovering || runtime.inputPinned
       const rowClass = 'dsh-pet-row' + (inputHoverMode ? ' is-collapsible' : '') + (inputShown ? '' : ' is-hidden')
 
       const baseScale = clamp(s.scale, 0.6, 2)
@@ -4306,12 +4330,12 @@ window.__ModuleLoader__.load({
                   (runtime.ai === 'busy' ? ' busy' : ''),
                 title:
                   runtime.ai === 'busy'
-                    ? '它正在想…'
+                    ? t('dot.thinking')
                     : runtime.ai === 'ok'
-                      ? '单聊通道正常'
+                      ? t('dot.ok')
                       : runtime.ai === 'fail'
-                        ? '刚才那次没接上（看控制台 [dsh-pet] chat failed）'
-                        : '还没聊过',
+                        ? t('dot.fail')
+                        : t('dot.idle'),
               })
             : null,
           s.showInput
@@ -4379,7 +4403,7 @@ window.__ModuleLoader__.load({
                 notify()
               },
               'data-phase': runtime.phase,
-              title: p.name + ' · ' + p.tag + '（可以拖走 / 右键有菜单）',
+              title: p.name + ' · ' + p.tag + t('actor.tip'),
               style: {
                 // 用真实尺寸缩放而不是 transform：占位一起变大，
                 // 输入框会被顶上去，不会被她的头顶住
@@ -4812,7 +4836,12 @@ window.__ModuleLoader__.load({
           let stop = false
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
           const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
-          const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          // 去重（R-05）：base 为空（网页版无注入）时两个地址相同，
+          // 不去重会让失败轮询白跑一遍 8s 预算（chatWithPet 同款写法）
+          const urls = []
+          for (const u of [base + '/dsh-pet/ping', '/dsh-pet/ping']) {
+            if (u && urls.indexOf(u) < 0) urls.push(u)
+          }
           // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000

@@ -20,8 +20,8 @@ con su propio temperamento.
 - **Panel de ajustes**: agrupado (aspecto / voz / visualización / acciones / efectos), con
   desplegables y conmutadores propios, fijado al viewport.
 - **Cinco personajes** fotorrealistas: 薇, 绯, 靛, 雪 (5 expresiones cada uno) y 鲸鱼娘
-  (azure), una doncella con orejas y cola de ballena, con un solo retrato realista y sus
-  propios clips de caminar, bailar y apartarse el pelo.
+  (azure), una doncella con orejas y cola de ballena, con 5 retratos realistas (desde la
+  1.23.0) y sus propios clips de caminar, bailar y apartarse el pelo.
 
 ## Behavior
 

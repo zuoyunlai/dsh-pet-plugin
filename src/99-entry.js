@@ -166,7 +166,12 @@
           let stop = false
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
           const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
-          const urls = [base + '/dsh-pet/ping', '/dsh-pet/ping']
+          // 去重（R-05）：base 为空（网页版无注入）时两个地址相同，
+          // 不去重会让失败轮询白跑一遍 8s 预算（chatWithPet 同款写法）
+          const urls = []
+          for (const u of [base + '/dsh-pet/ping', '/dsh-pet/ping']) {
+            if (u && urls.indexOf(u) < 0) urls.push(u)
+          }
           // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000

@@ -99,7 +99,7 @@
       // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
       // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
       const inputHoverMode = s.inputMode !== 'always'
-      const inputShown = !inputHoverMode || runtime.hovering || runtime.chatOpen || runtime.inputPinned
+      const inputShown = !inputHoverMode || runtime.hovering || runtime.inputPinned
       const rowClass = 'dsh-pet-row' + (inputHoverMode ? ' is-collapsible' : '') + (inputShown ? '' : ' is-hidden')
 
       const baseScale = clamp(s.scale, 0.6, 2)
@@ -225,12 +225,12 @@
                   (runtime.ai === 'busy' ? ' busy' : ''),
                 title:
                   runtime.ai === 'busy'
-                    ? '它正在想…'
+                    ? t('dot.thinking')
                     : runtime.ai === 'ok'
-                      ? '单聊通道正常'
+                      ? t('dot.ok')
                       : runtime.ai === 'fail'
-                        ? '刚才那次没接上（看控制台 [dsh-pet] chat failed）'
-                        : '还没聊过',
+                        ? t('dot.fail')
+                        : t('dot.idle'),
               })
             : null,
           s.showInput
@@ -298,7 +298,7 @@
                 notify()
               },
               'data-phase': runtime.phase,
-              title: p.name + ' · ' + p.tag + '（可以拖走 / 右键有菜单）',
+              title: p.name + ' · ' + p.tag + t('actor.tip'),
               style: {
                 // 用真实尺寸缩放而不是 transform：占位一起变大，
                 // 输入框会被顶上去，不会被她的头顶住

@@ -80,7 +80,7 @@
         if (patch.persona && patch.persona !== prevPersona) clearAction()
         saveSettings()
         notify()
-        if (patch.persona || patch.ttsVoice || patch.voicePitch != null || patch.voiceRate != null) {
+        if (patch.persona || patch.ttsVoice) {
           setTimeout(() => warmVoice(), 50)
         }
       }
@@ -244,13 +244,14 @@
                 } catch (e) {
                   /* ignore */
                 }
-                runtime.panelOpen = false
+                // 软复位（R-13，2026-10-28 审计）：不再 location.reload()——那会重载
+                // 整个 DSH 应用，殃及宿主未保存的状态。聊天历史不清（reload 行为也不清它）。
+                runtime.settings = loadSettings()
+                runtime.dragPos = null
+                runtime.autoPos = null
+                clearAction()
+                placePanel()
                 notify()
-                try {
-                  window.location.reload()
-                } catch (e) {
-                  /* ignore */
-                }
               },
             },
             t('panel.resetAll'),

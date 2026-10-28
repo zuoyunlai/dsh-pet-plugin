@@ -323,16 +323,20 @@
   70%,100%{opacity:0;transform:scale(2.1)}
 }
 .dsh-pet-menu-mask{position:fixed;inset:0;z-index:80;pointer-events:auto}
-.dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-bd);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
+.dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-border);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
 /* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
    旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
    rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：
    动画全部取消、过渡时长归零、特效层不显示。视频的自动播放由 JS 侧
-   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。 */
+   （runtime.reduced + playAction 的 explicit 白名单）负责，CSS 管不到。
+   ⚠ 必须带 .dsh-pet-layer 作用域（2026-10-28 审计 R-03）：这份 CSS 是 <style> 直接
+   注进宿主文档的（没有 shadow DOM），裸 * 会把整个 DSH 应用的动画一并关掉。
+   菜单/面板/特效层都是 .dsh-pet-layer 的 DOM 子孙；输入框旁 🐾 按钮在另一个
+   slot，但它没有 animation 声明，不受影响。 */
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  .dsh-pet-layer *,.dsh-pet-layer *::before,.dsh-pet-layer *::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
   .dsh-pet-fx{display:none!important}
 }
 `

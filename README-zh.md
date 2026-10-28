@@ -19,7 +19,7 @@
   宠物把回复念在气泡里。默认模型 `deepseek-account` / `deepseek-flash`，
   可在插件配置里改 provider / model / maxTokens / temperature。
 - **图标**：`icon.svg` 是插件 logo（玫红 `#e95573` 的「长发剪影」）；输入框右侧的入口按钮用**同一条 path**（内联 SVG，18px），两处永远一致。
-- **设置面板**：分组（形象 / 声音 / 显示 / 动作 / 特效）+ 自定义下拉（不用原生 select：Windows 弹出层是系统白底，深色主题下看不清）+ 自绘开关；面板固定在视口右侧、不随宠物位置移动。
+- **设置面板**：分组（形象 / 声音 / 显示 / 动作 / 特效）+ 自定义下拉（不用原生 select：Windows 弹出层是系统白底，深色主题下看不清）+ 自绘开关；面板跟着她的位置摆（上方放不下就放左侧），并四面夹进取景口、不钻顶栏。
 - **五个内置形象/性格**（全部是**超写实照片风格**立绘，同一套打光与构图；
   五只各 5 张：默认 / 开心 / 害羞 / 生气 / 困）：
   - 薇 · 紫发，从容地挑逗（`assets/pet-violet*.webp`）
@@ -29,16 +29,17 @@
   - 鲸鱼娘 · 深海蓝，乖巧可爱的诱惑（`pet-azure*`）：鲸鳍耳 + 鲸尾的女仆装，
     五张写实立绘（1.23.0 补齐表情）+ 自己的走路 / 跳舞 / 撩头发三条视频片段
 
-  换表情时是**交叉淡入淡出**（240ms），不是硬切；动作幅度按照片重调过
-  （走路 ±5px、跳舞 ±4°、呼吸 5–6s 一轮），默认大小 1.15×。
+  换表情时是**交叉淡入淡出**（180ms），不是硬切；动作幅度按照片重调过
+  （走路 −5/+13px 非对称步幅、跳舞 ±4°、呼吸 5–6s 一轮），默认大小 1.15×。
 - **动作序列**：形象可以带 `actions: { dance: [...], hair: [...], walk: [...] }`，
-  每套 3 张同姿势变化的帧，按 340ms 逐帧交叉淡入播放（像翻页动画）。
+  每套 3–6 张同姿势变化的帧（3 帧按 340ms、6 帧按 230ms 逐帧交叉淡入，像翻页动画；
+  薇/绯的跳舞是 6 帧，鲸鱼娘只走视频片段、不带帧序列）。
   五只内置各配齐三套（跳舞 / 撩头发 / 走路），姿势按性格分化：绯是大幅甩发猫步，靛是慢摆缓步，雪是克制直线。跳舞/走路时循环播，发呆时按 0.8%/tick 随机撩一下头发。
   新形象也可以只给视频片段（VP9 + alpha）：动作存活时间按片段自己的时长走，不再写死 5.167s。
   面板里也有「撩头发」按钮可以直接试。
 - **立绘怎么加**：把透明底 WebP 丢进 `assets/`，在 `PERSONAS` 里加一项
   `image: '文件名.png'`（多表情时用 `images: { mood: '文件.png' }`）。贴图由宿主路由
-  `/dsh-pet/assets/` 提供（只放行 png/jpg/webp，路径只取 basename，防越界）。
+  `/dsh-pet/assets/` 提供（放行 png/jpg/webp/webm，路径只取 basename，防越界）。
   抠图脚本 `tools/make-pet-image.py`：**绿幕图优先**（按绿通道领先算 alpha + despill），
   浅色渐变背景只作兜底——那路上皮肤和白底几乎同色（实测色差 0.041），分不开。
 
@@ -49,9 +50,9 @@
 | 常驻 / 随机出现 | 齿轮面板切换；随机模式下按「每小时概率」掷骰，并受活跃时段约束 |
 | 活跃时段 | 起止时间，支持跨零点（22:00 → 03:00） |
 | 主动说话 | 台词包按心情分组随机抽取，气泡 + 语音朗读 |
-| 语音 | **可选增强**：宿主装过 `edge-tts`（任意 python，`pip install edge-tts`）就用神经音色（晓晓/晓伊/晓墨），宿主路由 `/dsh-pet/tts` 合成并缓存，`/dsh-pet/tts/status` 负责探测；没有 python/edge-tts 时**自动退回系统 `speechSynthesis`**，插件本身零依赖、2MB |
+| 语音 | **可选增强**：宿主装过 `edge-tts`（任意 python，`pip install edge-tts`）就用神经音色（晓晓/晓伊/晓臣等，按形象分配），宿主路由 `/dsh-pet/tts` 合成并缓存，`/dsh-pet/tts/status` 负责探测；没有 python/edge-tts 时**自动退回系统 `speechSynthesis`**。插件本身零依赖；含 87 个立绘与动作素材的包体约 20MB（受 20MB 门禁约束） |
 | 小输入框 | **默认收起，鼠标移到人物上才滑出**（1.22.0 起；鼠标从人物移到输入框上不会收起）。设置里「悬停才显示」关掉即恢复常显。回车后**只跟它单聊**：一次性模型调用，回复进气泡，不写进任何 DSH 会话 |
-| 动作与表情 | CSS 动画 7 种心情：idle / walk / dance / shy / angry / sleep / talk / happy |
+| 动作与表情 | CSS 动画 8 种心情：idle / walk / dance / shy / angry / sleep / talk / happy |
 | 被拖动 | 松手落地时有 60% 概率说一句 `drag` 台词；五只齐备（1.24.0 补齐薇/绯/靛/雪），台词五语 |
 | 心声 | 低频（7%）冒一句灰色小字的内心 OS，只在自带 `lines.aside` 的形象上出现，**不出声**；五只齐备（1.24.0） |
 | 视线跟随 | 瞳孔跟着鼠标走（写 CSS 变量，不触发重渲染） |
@@ -112,7 +113,7 @@ export DSH_PET_PYTHON=/path/to/python   # 不会自动找时显式指定
 
 ```powershell
 node --check client.js
-node tests\smoke.mjs        # 假 window + React 桩，真跑一遍渲染，覆盖 3 形象 × 8 心情
+node tests\smoke.mjs        # 假 window + React 桩，真跑一遍渲染，覆盖全部 5 形象 × 8 心情
 node --test tests\host.test.mjs   # 宿主路由：注册/状态/限流/路径穿越（要在已装目录里跑）
 node "%USERPROFILE%\.dsh\profiles\desktop\node_modules\dsh-plugin-guide\bin\dsh-plugin-dev.js" check --cwd .
 ```
@@ -140,12 +141,13 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - **动作视频**：pack 里可以带 `clips: { dance: "pet-x-dance.webm" }`——带 alpha 通道的 VP9 WebM。1.20.0 随包视频高度为 640；普通片段约 5.167 秒，stage 片段约 10.125 秒。`tools/assets-manifest.cjs` 会记录尺寸、时长、编码器、像素格式、alpha 模式、字节数和 SHA-256；资产测试会锁定这些值，并检查总预算不超过 20 MB。
   该动作播放时她用循环 `<video>` 而不是翻帧，这是做到真 24fps 的唯一办法。
 - **立绘**：透明底 WebP 丢进 `assets/`，在 `pets/<id>/pack.json` 里引用，再 `node build.mjs`
-  （它会先从 `pets/` 生成 `src/30-personas.js`）。宿主路由 `/dsh-pet/assets/` 只放行图片扩展名。
+  （它会先从 `pets/` 生成 `src/30-personas.js`）。宿主路由 `/dsh-pet/assets/` 只放行白名单里的图片与 webm 扩展名。
 
 ## 运行期扩展（1.21.0）
 
 - **免重构建的自定义形象**：把 `$DSH_HOME/dsh-pet/pets/<id>/pack.json`（素材放同目录，
-  `license` 必填）丢进宿主目录——启动时扫描、与内置五只合并，经 `GET /dsh-pet/personas`
+  素材放同目录；`license` 对内置包是发布门禁的必填项，用户包运行期不校验、缺了也照常
+  加载）丢进宿主目录——启动时扫描、与内置五只合并，经 `GET /dsh-pet/personas`
   下发；资产走 `/dsh-pet/pets/<id>/…`（realpath 包含检查 + 扩展名白名单 + 超限 413）。
   客户端拿不到列表时回落内置表。
 - **台词覆盖**：`$DSH_HOME/dsh-pet/voice.json`——

@@ -6,7 +6,7 @@
   "pet": {
     "panel.title": "桌面伴侣",
     "panel.look": "形象",
-    "panel.lang": "Language",
+    "panel.lang": "语言",
     "panel.langAuto": "Auto (follow DSH)",
     "panel.voice": "声音",
     "panel.display": "显示",
@@ -36,7 +36,7 @@
     "panel.stay": "再待一会儿",
     "panel.cheer": "开心一下",
     "panel.hide": "藏 1h",
-    "panel.settings": "Settings",
+    "panel.settings": "设置",
     "panel.ink": "泼墨",
     "panel.confetti": "撒花",
     "panel.cloud": "乌云",
@@ -47,11 +47,10 @@
     "panel.close": "关闭",
     "voice.xiaoxiao": "晓晓 · 温柔",
     "voice.xiaoyi": "晓伊 · 甜",
-    "voice.xiaomo": "晓墨 · 清冷",
     "pet.toggle": "桌面伴侣",
     "pet.toggleOff": "她在屏幕外，点一下拉回来",
     "hint.neuralOff": "神经音色不可用，改用系统语音",
-    "hint.privacy": "Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.",
+    "hint.privacy": "神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。",
     "placeholder.chat": "跟{name}说句话…",
     "a11y.talkTo": "对 {name} 说话",
     "a11y.send": "发送",
@@ -61,6 +60,13 @@
     "voice.xiaobei": "晓北 · 活泼（东北）",
     "panel.pitchTrim": "音高微调",
     "panel.rateTrim": "语速微调",
-    "panel.voiceEff": "当前：{voice} · 音高 {pitch} · 语速 {rate}"
+    "panel.voiceEff": "当前：{voice} · 音高 {pitch} · 语速 {rate}",
+    "chat.needSignIn": "得先在 DSH 里登录 DeepSeek，我才用得上大模型。",
+    "chat.stuck": "我这会儿脑子有点卡住了。",
+    "dot.thinking": "它正在想…",
+    "dot.ok": "单聊通道正常",
+    "dot.fail": "刚才那次没接上（看控制台 [dsh-pet] chat failed）",
+    "dot.idle": "还没聊过",
+    "actor.tip": "（可以拖走 / 右键有菜单）"
   }
 }

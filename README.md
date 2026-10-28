@@ -25,19 +25,21 @@ own temper.
 - **Icon**: `icon.svg` (the rose silhouette) and the composer button share the same path.
 - **Settings panel**: grouped (look / voice / display / actions / effects), custom dropdowns
   (native `<select>` popups are system-white and unreadable in dark themes) and custom
-  switches; it is pinned to the viewport and does not follow the pet.
+  switches; it is placed relative to the pet (above her, or to her left when there is no
+  room) and clamped into the viewport under the header.
 - **Five personas** (photo-realistic, same lighting; **all five** ship 5 expressions
   each: default / happy / shy / angry / sleepy): 薇 (violet), 绯 (crimson), 靛 (indigo),
   雪 (silver), plus 鲸鱼娘 (azure) — a whale-fin maid whose expression set was added in
-  1.23.0, with its own walk / dance / hair clips. Expression changes cross-fade (240 ms)
+  1.23.0, with its own walk / dance / hair clips. Expression changes cross-fade (180 ms)
   instead of hard-cutting.
 - **Action sequences**: a persona may declare `actions: { dance: [...], hair: [...],
-  walk: [...] }`; each set is 3 frames played as a 340 ms flip-book. All four originals have
+  walk: [...] }`; each set is 3–6 frames (3-frame sets step at 340 ms, 6-frame at 230 ms;
+  azure ships clips only, no frame sets). All four originals have
   dance / hair-flip / walk, each stylised to the character; newer personas may instead ship
   video clips (VP9 + alpha), and a clip's own length decides how long the action lives.
 - **Adding artwork**: drop transparent PNGs into `assets/` and reference them from
   `PERSONAS` (`image`, or `images: { mood: 'file.png' }`). Served by `/dsh-pet/assets/`
-  (image extensions only, basename only). `tools/make-pet-image.py` removes a green-screen
+  (image and webm video extensions only, basename only). `tools/make-pet-image.py` removes a green-screen
   background (preferred) and falls back to a gradient key.
 
 ## Behavior
@@ -99,7 +101,7 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   concatenates the parts into `client.js` (the only file DSH loads). Never edit
   `client.js` by hand — `npm test` rebuilds and then runs the smoke test.
 - **Personas, lines and tempers**: `pets/<id>/pack.json` — `images` (five
-  expressions), `actions` (dance / hair / walk, three frames each), `voice`, `temper`,
+  expressions), `actions` (dance / hair / walk, 3–6 frames each), `voice`, `temper`,
   and `lines` / `linesEn` line packs.
 - **UI strings**: edit the `pet` namespace in `locale/*.json`, then `node build.mjs` — the
   dictionaries are injected at build time, so the locale files are the single source of
@@ -114,12 +116,13 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   flipping through still frames, which is the only way to get true 24 fps motion.
 - **Artwork**: drop transparent WebPs into `assets/` and reference them from
   `pets/<id>/pack.json`, then `node build.mjs` (it regenerates `src/30-personas.js`).
-  The `/dsh-pet/assets/` route only serves image extensions.
+  The `/dsh-pet/assets/` route only serves allow-listed image and webm video extensions.
 
 ## Extending at runtime (1.21.0)
 
 - **Custom persona packs without a rebuild**: drop `$DSH_HOME/dsh-pet/pets/<id>/pack.json`
-  (with its assets next to it, `license` required) — the host scans it at startup, merges it
+  (with its assets next to it; `license` is a release gate for the built-in packs — user
+  packs are not license-checked at runtime) — the host scans it at startup, merges it
   with the built-in five, and serves it under `/dsh-pet/pets/<id>/…` (realpath containment +
   extension whitelist + 413 oversize). The client picks the list up via `GET /dsh-pet/personas`
   and falls back to the built-in table when absent.
