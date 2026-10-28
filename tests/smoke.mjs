@@ -339,11 +339,83 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   petApi.runtime.visible = true
   walk(pet({ ...baseProps }))
   assert.ok(seen.length >= 1, '应该渲染出 .dsh-pet-imgwrap')
-  assert.match(String(seen[0]['--pet-dx']), /^-?3px$/, '交叉淡入应带方向位移，实际 ' + seen[0]['--pet-dx'])
+  // 1.26.1：换表情改为纯透明度淡入淡出。原来带的 ±3px 位移 + 0.6% 缩放
+  // 在超写实静帧上被读成「一切表情人就往旁边跳一下」（用户 2026-10-28 反馈）。
+  // 静帧之间本来已对齐（实测各表情人物中心差 ≤0.5px），不需要位移补偿。
   const css = petApi.CSS
-  assert.ok(css.includes('dsh-pet-alive'), 'CSS 里应有常驻微动 keyframes')
-  assert.ok(css.includes('var(--pet-dx'), '交叉淡入 keyframes 应使用位移变量')
-  console.log('OK  crossfade dx=' + seen[0]['--pet-dx'] + ' + alive micro-motion')
+  assert.ok(!/var\(--pet-dx/.test(css), '交叉淡入不应再使用位移变量（会造成切换时位置跳变）')
+  assert.ok(!/dsh-pet-img-in[^}]*scale\(/.test(css), '交叉淡入不应再缩放（会让人物大小闪一下）')
+  // 静帧不再自抖：图片形象的元素不允许被 CSS 常驻动画驱动
+  assert.ok(/\.dsh-pet-figure\{[^}]*animation:none!important/.test(css), '图片形象应禁用 CSS 常驻动画')
+  // 1.26.1：立绘静立（用户 2026-10-28 反馈「立绘不要摇动或跳动」）。
+  // dsh-pet-alive / fig-* 系列已删：它们只服务图片形象，而图片形象的动画
+  // 被全局禁用后成了死代码。这里反向断言「不许回来」，防止重构时复活。
+  // （匹配 @keyframes 前缀，避免撞上说明注释里的名字。）
+  assert.ok(!css.includes('@keyframes dsh-pet-alive'), 'dsh-pet-alive keyframes 应已删除（死代码）')
+  assert.ok(!/@keyframes fig-(walk|dance|idle)/.test(css), 'fig-* 立绘动画应已删除（死代码）')
+  console.log('OK  crossfade 纯淡化 + figure 禁自抖')
+}
+
+/* ---------- 1.26.1：气泡不能挤动人物 ---------- */
+{
+  // root 在「拖动过/有保存位置」时是 top 锚定的，若气泡还是 flex 流内元素，
+  // 一出现就把角色往下顶（用户 2026-10-28 报「切表情时人物往下位移」）。
+  // 这里锁两件事：气泡被包进 .dsh-pet-top，且该容器是绝对定位。
+  const css = petApi.CSS
+  assert.ok(
+    /\.dsh-pet-top\{[^}]*position:absolute/.test(css),
+    '.dsh-pet-top 必须是绝对定位（否则气泡会把人物挤下去）',
+  )
+  const prevBubble = petApi.runtime.bubble
+  petApi.runtime.bubble = { text: '测试气泡', at: Date.now(), ttl: 9999, kind: 'idle' }
+  petApi.runtime.visible = true
+  let bubbleParent = ''
+  const walk = (node, parentCls = '', depth = 0) => {
+    if (!node || typeof node !== 'object' || depth > 40) return
+    if (typeof node.type === 'function') {
+      walk(node.type(node.props || {}), parentCls, depth + 1)
+      return
+    }
+    const cls = node.props && typeof node.props.className === 'string' ? node.props.className : ''
+    if (cls === 'dsh-pet-bubble') bubbleParent = parentCls
+    for (const c of node.children || []) walk(c, cls || parentCls, depth + 1)
+  }
+  walk(pet({ ...baseProps }))
+  assert.equal(bubbleParent, 'dsh-pet-top', '气泡必须挂在 .dsh-pet-top 里（不在 root 的 flex 流中）')
+  petApi.runtime.bubble = prevBubble
+  console.log('OK  气泡浮层脱离文档流')
+}
+
+/* ---------- 1.26.1：表情立绘的水平对齐补偿 ---------- */
+{
+  // azure 的 happy/shy/angry/sleep 相对 idle 整体偏了 3.5%~5% 画布宽（实测），
+  // 切表情会横向跳。imageFit 按文件名给出补偿量，必须真的落到 <img> 上。
+  const fit = petApi.PERSONAS.azure.imageFit
+  assert.ok(fit && fit['pet-azure-happy.webp'], 'azure 应有 happy 的 imageFit')
+  petApi.runtime.settings.persona = 'azure'
+  petApi.runtime.mood = 'happy'
+  petApi.runtime.visible = true
+  petApi.runtime.action = null
+  let imgStyle = null
+  const walk = (node, depth = 0) => {
+    if (!node || typeof node !== 'object' || depth > 40) return
+    if (typeof node.type === 'function') {
+      walk(node.type(node.props || {}), depth + 1)
+      return
+    }
+    if (node.props && node.props.className === 'dsh-pet-img dsh-pet-img-cur') imgStyle = node.props.style
+    for (const c of node.children || []) walk(c, depth + 1)
+  }
+  walk(pet({ ...baseProps }))
+  assert.ok(imgStyle, '应渲染出当前立绘 <img>')
+  assert.equal(imgStyle['--img-x'], String(fit['pet-azure-happy.webp']), 'img 的 --img-x 应等于 imageFit 值')
+  assert.ok(
+    /\.dsh-pet-imgwrap \.dsh-pet-img\{[^}]*var\(--img-x/.test(petApi.CSS),
+    'CSS 必须把 --img-x 用进 transform，否则补偿不生效',
+  )
+  petApi.runtime.settings.persona = 'violet'
+  petApi.runtime.mood = 'idle'
+  console.log('OK  表情立绘水平对齐补偿')
 }
 
 /* ---------- 1.16.0：动作视频片段 ---------- */
@@ -370,8 +442,40 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   assert.ok(String(found[0].src).endsWith('.webm'), '视频源应是 .webm，实际 ' + found[0].src)
   assert.equal(found[0].muted, true, '必须静音，否则浏览器不给自动播放')
   assert.equal(found[0].autoPlay, true)
-  console.log('OK  action clip: ' + found[0].src.split('/').pop())
+  // 1.26.1：人物占比补偿必须真的写到 video 上，且取自 pack 的 clipFit。
+  // 这是「撩头发突然变小 / 切片段人物横向跳」的修复点：没有这三个变量，
+  // 视频会按画布比例渲染并居中，人物比立绘小一圈、还可能偏到一边。
+  // 值必须与 pack.json 一致，防止渲染层与测量数据脱节。
+  const fit = petApi.PERSONAS.violet.clipFit && petApi.PERSONAS.violet.clipFit.dance
+  assert.ok(fit, 'violet 的 dance 应有 clipFit（tools/measure-clipfit.mjs 生成）')
+  assert.equal(found[0].style && found[0].style['--clip-s'], String(fit.s), 'video 的 --clip-s 应等于 clipFit.s')
+  assert.equal(found[0].style && found[0].style['--clip-y'], String(fit.y), 'video 的 --clip-y 应等于 clipFit.y')
+  assert.equal(
+    found[0].style && found[0].style['--clip-x'],
+    String(Number.isFinite(fit.x) ? fit.x : 0),
+    'video 的 --clip-x 应等于 clipFit.x（缺省 0）',
+  )
+  assert.ok(Number(fit.s) > 0, 'clipFit.s 应为正数')
+  console.log('OK  action clip: ' + found[0].src.split('/').pop() + ' (clipFit s=' + fit.s + ' x=' + fit.x + ')')
   petApi.runtime.action = null
+}
+
+/* ---------- 1.26.1：每个动作片段都要有 clipFit（换素材后必须重测） ---------- */
+{
+  const missing = []
+  for (const [id, p] of Object.entries(petApi.PERSONAS)) {
+    if (!p.clips) continue
+    for (const action of Object.keys(p.clips)) {
+      const f = p.clipFit && p.clipFit[action]
+      if (!f || !(Number(f.s) > 0)) missing.push(id + '.' + action)
+    }
+  }
+  assert.equal(
+    missing.length,
+    0,
+    '以下动作缺 clipFit（跑 node tools/measure-clipfit.mjs --write 重新生成）：' + missing.join(', '),
+  )
+  console.log('OK  clipFit 覆盖：' + Object.keys(petApi.PERSONAS).filter((k) => petApi.PERSONAS[k].clips).length + ' 个形象全部动作')
 }
 
 /* ---------- i18n：五语键值完整且非空 ---------- */

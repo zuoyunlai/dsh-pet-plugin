@@ -424,5 +424,30 @@
     "hair": "pet-violet-hair.webm",
     "stage": "pet-violet-stage.webm"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "clipFit": {
+    "dance": {
+      "s": 1.0897,
+      "y": -0.0007,
+      "x": 0.0058
+    },
+    "walk": {
+      "s": 1.2134,
+      "y": 0.1186,
+      "x": 0.0056
+    },
+    "hair": {
+      "s": 1.1169,
+      "y": 0.0196,
+      "x": 0.0012
+    },
+    "stage": {
+      "s": 1.3621,
+      "y": 0.0855,
+      "x": -0.021
+    }
+  },
+  "imageFit": {
+    "pet-violet-sleep.webp": 0.0098
+  }
 }

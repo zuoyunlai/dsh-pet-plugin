@@ -57,6 +57,9 @@
       // 人不在屏幕上（藏起来 / 被拖出视口）就不冒泡、不发声：
       // 用户 2026-10-25 报的「人物不在桌面了，可她还在说话」就是这条漏了闸。
       if (!runtime.visible || runtime.petOffscreen) return
+      // 安静态（1.26.0）：失焦超过阈值或手动勿扰时，只放行「有事」的那几类
+      // （announce / chatAck / chatErr），自发演绎一律不出。见 src/55-focus.js
+      if (isQuiet() && !isAddressedKind(mood)) return
       const s = runtime.settings
       const t = String(text)
       // 第三参是该句所属的类别（appear/dance/poked/drag/chatAck…）：交给导演层查演绎方向，
@@ -295,6 +298,9 @@
     function tick() {
       const now = nowMs()
       const s = runtime.settings
+
+      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它
+      syncQuiet()
 
       // 阶段机：先算阶段，再按阶段给一点情绪反馈
       const prevPhase = runtime.phase

@@ -36,6 +36,10 @@
     "panel.stay": "Fique mais um pouco",
     "panel.cheer": "Fica feliz",
     "panel.hide": "Ocultar 1h",
+    "panel.dontDisturb": "Não perturbe 1 h",
+    "panel.dontDisturbOn": "Encerrar não perturbe",
+    "panel.turnNotify": "Avisar quando terminar",
+    "panel.turnNotifyHint": "Uma notificação quando uma rodada longa termina e você não está olhando.",
     "panel.settings": "Configurações",
     "panel.ink": "Tinta",
     "panel.confetti": "Confete",
@@ -67,6 +71,7 @@
     "dot.ok": "chat funcionando",
     "dot.fail": "a última tentativa falhou (veja [dsh-pet] chat failed no console)",
     "dot.idle": "ainda sem conversa",
-    "actor.tip": " (arraste-me / clique direito para o menu)"
+    "actor.tip": " (arraste-me / clique direito para o menu)",
+    "hint.notifyDenied": "A permissão de notificação não foi concedida. Ative-a na barra de endereço para usar os avisos."
   }
 }

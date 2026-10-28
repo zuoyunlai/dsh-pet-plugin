@@ -425,5 +425,27 @@
     "hair": "pet-crimson-hair.webm",
     "stage": "pet-crimson-stage.webm"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "clipFit": {
+    "dance": {
+      "s": 1.3333,
+      "y": 0.1328,
+      "x": 0.0924
+    },
+    "walk": {
+      "s": 1.1252,
+      "y": 0.1063,
+      "x": 0.0408
+    },
+    "hair": {
+      "s": 1.0912,
+      "y": 0.0075,
+      "x": 0.0036
+    },
+    "stage": {
+      "s": 1.3409,
+      "y": 0.0589,
+      "x": 0.0316
+    }
+  }
 }

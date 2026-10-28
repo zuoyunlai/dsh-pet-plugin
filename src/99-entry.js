@@ -35,6 +35,25 @@
             playFx,
             notify,
             runToCenterAndDance,
+            // 失焦感知（1.26.0）：安静态判定要能被台架直接问到，
+            // 否则只能靠肉眼观察「她是不是真的闭嘴了」。
+            isQuiet,
+            quietReason,
+            isAddressedKind,
+            isFocused,
+            syncQuiet,
+            toggleDontDisturb,
+            dndRemainingMs,
+            QUIET_AFTER_MS,
+            DONT_DISTURB_MS,
+            // 失焦通知（1.26.0）：降级链与自证统计，台架要能直接驱动与断言
+            probeNotify,
+            requestNotifyPermission,
+            sendTurnNotify,
+            titlePrefix,
+            notifyStats,
+            TURN_NOTIFY_MIN_MS,
+            TURN_NOTIFY_COOLDOWN_MS,
             // 片段时长（1.20.0）：媒体 metadata 到手后写进 runtime.clipMs，
             // 收尾时间按真实片长重排；台架走同一个入口固定这条规则。
             noteClipDuration,
@@ -94,6 +113,9 @@
           }
         })
         ctx.effect(() => {
+          // 失焦感知（1.26.0）：安静态的事件源。与 tick 同生命周期，
+          // 卸载函数由 watchFocus 返回，统一在这里清理。
+          const stopFocus = watchFocus()
           runtime.timer = setInterval(() => {
             try {
               tick()
@@ -135,6 +157,11 @@
             clearTimeout(resizeTimer)
             if (runtime.timer) clearInterval(runtime.timer)
             runtime.timer = null
+            try {
+              stopFocus()
+            } catch (e) {
+              /* ignore */
+            }
             clearLater()
             stopVoice()
           }

@@ -28,7 +28,13 @@ if "--crop" in argv:
     force_crop = tuple(int(v) for v in argv[i + 1].split(","))
     del argv[i:i + 2]
 if len(argv) < 2:
-    raise SystemExit("用法：batch-key.py <输入目录> <输出目录> [目标高度] [--crop l,t,r,b]")
+    raise SystemExit("用法：batch-key.py <输入目录> <输出目录> [目标高度] [--crop l,t,r,b] [--dead-zone-alpha]")
+
+# 1.26.1：默认用**线性透射率**反推 alpha（能保留半透明材质，如漆皮鞋底）。
+# 旧公式是死区（dom>0.12 一律判成背景），半透明材质会被整个抠掉 —— 用户报的
+# 「鞋底透底」就是它造成的。旧公式保留为 --dead-zone-alpha 开关，
+# 供需要逐字节复现历史素材时使用。
+linear_alpha = "--dead-zone-alpha" not in argv
 
 src_dir = argv[0]
 out_dir = argv[1]
@@ -68,8 +74,29 @@ def key_frame(path):
     # 而黑缎/皮革的反光经常就是 dom 0.01~0.04（绿幕映上去的一点点绿），
     # 结果整片深色面料变成 0.8~0.95 的半透明 —— 叠在浅色页面上就是"高光透底"。
     # 绿幕本体 dom≈0.96，离 0.05 很远，死区不会把背景放进来。
-    alpha = np.clip((0.12 - dom) / 0.07, 0.0, 1.0)
-    alpha = alpha * alpha * (3.0 - 2.0 * alpha)
+    #
+    # 1.26.1：线性透射率公式（默认）。
+    # 旧公式（死区）的问题：dom>0.12 一律判成 0，于是「半透明材质」被整个抠掉。
+    # 实测银发雪的漆皮鞋底是半透明的（绿幕直接透过来），用户报「鞋底透底」。
+    # 线性公式的依据：黑鞋叠绿幕，若材质透射率 t，观测色 ≈ 绿幕色 × t，
+    # 而 dom = G-max(R,B) ≈ t × dom_bg ⇒ t = dom/dom_bg ⇒ alpha = 1 - t。
+    # 纯绿幕 t=1 → alpha=0 ✓；不透明黑鞋 t=0 → alpha=1 ✓；半透明鞋底 → 中间值 ✓
+    if linear_alpha:
+        # 绿幕自身的 dom：取四角中位数（画面主体可能很大，中位数不稳）
+        def _corner_dom(y, x):
+            p = arr[y:y + 48, x:x + 48].reshape(-1, 3)
+            return float(np.median(p[:, 1] - np.maximum(p[:, 0], p[:, 2])))
+        w, h = arr.shape[1], arr.shape[0]
+        dom_bg = float(np.median([
+            _corner_dom(0, 0), _corner_dom(0, max(0, w - 48)),
+            _corner_dom(max(0, h - 48), 0), _corner_dom(max(0, h - 48), max(0, w - 48)),
+        ]))
+        alpha = np.clip((dom_bg - dom) / max(1e-6, dom_bg), 0.0, 1.0)
+        # 不走 smoothstep：它是给死区公式压边的，线性公式已经是平滑的，
+        # 再压一次会把半透明材质的透射率关系弄坏（0.42 → 0.38）。
+    else:
+        alpha = np.clip((0.12 - dom) / 0.07, 0.0, 1.0)
+        alpha = alpha * alpha * (3.0 - 2.0 * alpha)
 
     # v9：暗部保护。黑缎的高光是**绿幕反射**——绿光强、红蓝被压暗，
     # 胸口那道反光带的像素是 (r,g,b)≈(15,37,10)、luma≈0.12、dom≈0.087，

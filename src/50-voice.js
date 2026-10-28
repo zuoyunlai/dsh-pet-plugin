@@ -185,6 +185,9 @@
       if (!text || !runtime.settings.voiceOn) return
       // 人不在屏幕上就别出声（2026-10-25 用户报：人都藏起来了，她还在说话）
       if (!onScreen()) return
+      // 安静态（1.26.0）：与 bubble 同一套判据，kind 由调用方透传（第三参）。
+      // 单独再判一次是因为 speak 可以被绕过 bubble 直接调用，声音是最讨厌的那一种打扰。
+      if (isQuiet() && !isAddressedKind(mood)) return
       // 跳舞时不要被「说话」这个心情抢走动作（否则中间那 6 秒全在点头）
       const staged = !!runtime.stage
       const prevMood = runtime.mood === 'talk' ? 'idle' : runtime.mood

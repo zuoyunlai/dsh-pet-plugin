@@ -19,8 +19,14 @@ const ORDER = [
   'tagEn',
   'image',
   'images',
+  // 1.26.1：表情立绘之间的水平对齐补偿（tools/measure-clipfit.mjs 生成）。
+  // 紧跟 images——它是「images 里某些图的修正」。
+  'imageFit',
   'actions',
   'clips',
+  // 1.26.1：动作视频的人物占比补偿（tools/measure-clipfit.mjs 生成）。
+  // 放在 clips 之后，与「素材 → 该素材的修正」语义相邻。
+  'clipFit',
   'voice',
   'temper',
   'lines',
@@ -34,6 +40,15 @@ const ORDER = [
 const PREFERRED = ['violet', 'crimson', 'indigo', 'silver', 'azure']
 
 const q = (v) => JSON.stringify(String(v))
+/**
+ * 对象的键：合法标识符裸写，其余一律加引号。
+ *
+ * 1.26.1 修：imageFit / clipFit 的键可能是文件名（`pet-azure-happy.webp`），
+ * 含 `.` `-` 不是合法 JS 标识符，裸写会产出语法错误（build 的 --check 直接炸）。
+ * 既有键（idle/dance/hair…）都是合法标识符，仍裸写 ⇒ 旧输出逐字节不变。
+ */
+const KEY_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/
+const keyOf = (k) => (KEY_RE.test(k) ? k : JSON.stringify(k))
 
 function fmt(value, indent) {
   const pad = ' '.repeat(indent)
@@ -49,9 +64,9 @@ function fmt(value, indent) {
   }
   const keys = Object.keys(value)
   if (!keys.length) return '{}'
-  const inline = '{ ' + keys.map((k) => k + ': ' + fmt(value[k], 0)).join(', ') + ' }'
+  const inline = '{ ' + keys.map((k) => keyOf(k) + ': ' + fmt(value[k], 0)).join(', ') + ' }'
   if (inline.length < 96 && !inline.includes('\n')) return inline
-  return '{\n' + keys.map((k) => pad2 + k + ': ' + fmt(value[k], indent + 2)).join(',\n') + ',\n' + pad + '}'
+  return '{\n' + keys.map((k) => pad2 + keyOf(k) + ': ' + fmt(value[k], indent + 2)).join(',\n') + ',\n' + pad + '}'
 }
 
 /** 模板目录：有 pack.json 但不进构建（供用户复制起步用） */

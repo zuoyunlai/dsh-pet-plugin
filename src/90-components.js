@@ -204,6 +204,26 @@
           }),
           h(Toggle, { label: t('panel.chatter'), checked: s.chatter, onChange: (v) => update({ chatter: v }) }),
           h(Toggle, { label: t('panel.celebrate'), checked: s.celebrate !== false, onChange: (v) => update({ celebrate: v }) }),
+          // 1.26.0：跑完提醒。打开时申请浏览器通知权限——权限请求必须挂在
+          // 用户手势回调里（浏览器会拒绝非手势触发的请求），这个 onClick 就是手势。
+          // 被拒/不可用时回弹为 off，不能假装开着。
+          h(Toggle, {
+            label: t('panel.turnNotify'),
+            checked: s.turnNotify !== false,
+            onChange: async (v) => {
+              if (!v) {
+                update({ turnNotify: false })
+                return
+              }
+              const perm = await requestNotifyPermission()
+              if (perm === 'granted') update({ turnNotify: true })
+              else {
+                // 回弹：权限没给到，这个开关不能停留在开
+                update({ turnNotify: false })
+                if (typeof bubble === 'function') bubble(t('hint.notifyDenied'), 4000, 'chatErr')
+              }
+            },
+          }),
           h(Toggle, { label: t('panel.chaos'), checked: s.chaos !== false, onChange: (v) => update({ chaos: v }) }),
         ),
         h(Slider, { label: t('panel.size'), min: 0.8, max: 2, step: 0.1, value: Number(s.scale).toFixed(1), suffix: '×', onChange: (v) => update({ scale: v }) }),

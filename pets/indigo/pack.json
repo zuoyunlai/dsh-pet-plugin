@@ -422,5 +422,27 @@
     "hair": "pet-indigo-hair.webm",
     "stage": "pet-indigo-stage.webm"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "clipFit": {
+    "dance": {
+      "s": 1.0446,
+      "y": 0.002,
+      "x": -0.0003
+    },
+    "walk": {
+      "s": 1.132,
+      "y": 0.0496,
+      "x": 0
+    },
+    "hair": {
+      "s": 1.0714,
+      "y": 0.0227,
+      "x": -0.0465
+    },
+    "stage": {
+      "s": 1.2954,
+      "y": 0.0756,
+      "x": 0.0025
+    }
+  }
 }

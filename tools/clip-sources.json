@@ -1,0 +1,335 @@
+{
+  "violet/dance": {
+    "job": "smvmccu2y3746df",
+    "iou": 0.93,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjlnaqu8472d7",
+        0.63
+      ],
+      [
+        "smvm2nlxeb12c15",
+        0.608
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "violet/walk": {
+    "job": "smvjljynyb2ae1a",
+    "iou": 0.901,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjmayvo1bee31",
+        0.626
+      ],
+      [
+        "smvjlu363bf1322",
+        0.565
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "violet/hair": {
+    "job": "smvjlnaqu8472d7",
+    "iou": 0.916,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvmccu2y3746df",
+        0.627
+      ],
+      [
+        "smvjlu363bf1322",
+        0.617
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "violet/stage": {
+    "job": "smvnwvgwod9fa8a",
+    "iou": 0.951,
+    "src": "1440x2528",
+    "src_frames": 243,
+    "runner_up": [
+      [
+        "smvnwvsdp4970ca",
+        0.581
+      ],
+      [
+        "smvnwaq02e80226",
+        0.521
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "crimson/dance": {
+    "job": "smvmcnxzl165dd1",
+    "iou": 0.869,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjj54n6ad7a9e",
+        0.648
+      ],
+      [
+        "smvjlu363bf1322",
+        0.624
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "crimson/walk": {
+    "job": "smvjlqckac3bf5e",
+    "iou": 0.95,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjmayvo1bee31",
+        0.56
+      ],
+      [
+        "smvjljynyb2ae1a",
+        0.552
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "crimson/hair": {
+    "job": "smvjlu363bf1322",
+    "iou": 0.95,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvmcnxzl165dd1",
+        0.642
+      ],
+      [
+        "smvjlnaqu8472d7",
+        0.618
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "crimson/stage": {
+    "job": "smvnwvsdp4970ca",
+    "iou": 0.941,
+    "src": "1440x2528",
+    "src_frames": 243,
+    "runner_up": [
+      [
+        "smvnwvgwod9fa8a",
+        0.582
+      ],
+      [
+        "smvnvd2n8956944",
+        0.534
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "indigo/dance": {
+    "job": "smvmco0i7ceb98f",
+    "iou": 0.913,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjm3jfsff66e7",
+        0.5
+      ],
+      [
+        "smvjlnaqu8472d7",
+        0.499
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "indigo/walk": {
+    "job": "smvjm3jfsff66e7",
+    "iou": 0.931,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjljynyb2ae1a",
+        0.548
+      ],
+      [
+        "smvntwqyn5660a5",
+        0.537
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "indigo/hair": {
+    "job": "smvjm7sh46d98a3",
+    "iou": 0.927,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjljynyb2ae1a",
+        0.544
+      ],
+      [
+        "smvjmexkwc48807",
+        0.54
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "indigo/stage": {
+    "job": "smvnww5k5eb9900",
+    "iou": 0.926,
+    "src": "1440x2528",
+    "src_frames": 243,
+    "runner_up": [
+      [
+        "smvnvnp3s072274",
+        0.508
+      ],
+      [
+        "smvnwaq02e80226",
+        0.496
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "silver/dance": {
+    "job": "smvmco2v9954160",
+    "iou": 0.904,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjjd8ud31a200",
+        0.665
+      ],
+      [
+        "smvmccu2y3746df",
+        0.594
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "silver/walk": {
+    "job": "smvjmayvo1bee31",
+    "iou": 0.931,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjljynyb2ae1a",
+        0.612
+      ],
+      [
+        "smvjlqckac3bf5e",
+        0.557
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "silver/hair": {
+    "job": "smvjmexkwc48807",
+    "iou": 0.919,
+    "src": "768x1344",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvjjd8ud31a200",
+        0.598
+      ],
+      [
+        "smvjlu363bf1322",
+        0.577
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "silver/stage": {
+    "job": "smvnwwgv04e49d4",
+    "iou": 0.928,
+    "src": "1440x2528",
+    "src_frames": 243,
+    "runner_up": [
+      [
+        "smvnwvgwod9fa8a",
+        0.528
+      ],
+      [
+        "smvnwvsdp4970ca",
+        0.507
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  },
+  "azure/dance": {
+    "job": "smvntx28r7e258d",
+    "iou": 0.551,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "note": "多帧 IoU 0.551 偏低；由排除法定（walk/hair 已分别确认 smvntwqyn5660a5 / smvnuj8d74df88b，剩余候选里 FANFEED 记载 smvntx28r7e258d=dance）",
+    "status": "不可用：该源绿幕布光不均（暗绿区 dom≈0.55），线性透射率公式会把背景判成 ~40% 不透明（bg-alpha 66~92 实测）。保持旧死区管线素材。"
+  },
+  "azure/walk": {
+    "job": "smvntwqyn5660a5",
+    "iou": 0.94,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvnuj8d74df88b",
+        0.592
+      ],
+      [
+        "smvjlnaqu8472d7",
+        0.561
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）",
+    "status": "不可用：该源绿幕布光不均（暗绿区 dom≈0.55），线性透射率公式会把背景判成 ~40% 不透明（bg-alpha 66~92 实测）。保持旧死区管线素材。"
+  },
+  "azure/hair": {
+    "job": "smvnuj8d74df88b",
+    "iou": 0.864,
+    "src": "1440x2528",
+    "src_frames": 124,
+    "runner_up": [
+      [
+        "smvntwqyn5660a5",
+        0.642
+      ],
+      [
+        "smvjlnaqu8472d7",
+        0.6
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）",
+    "status": "不可用：该源绿幕布光不均（暗绿区 dom≈0.55），线性透射率公式会把背景判成 ~40% 不透明（bg-alpha 66~92 实测）。保持旧死区管线素材。"
+  },
+  "azure/stage": {
+    "job": "smvnwaq02e80226",
+    "iou": 0.955,
+    "src": "1440x2528",
+    "src_frames": 243,
+    "runner_up": [
+      [
+        "smvnvnp3s072274",
+        0.625
+      ],
+      [
+        "smvntg28q56328e",
+        0.581
+      ]
+    ],
+    "note": "多帧剪影 IoU（帧数已过滤）"
+  }
+}

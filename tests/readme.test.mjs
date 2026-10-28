@@ -85,20 +85,19 @@ fact(
   [['README-zh.md', /(\d+(?:\.\d+)?)%\/tick 随机撩/, '撩发概率']],
 )
 
-test('README 口径：走路步幅（zh 文档写法）', (t) => {
+test('README 口径：立绘静立（1.26.1 起无 CSS 摇摆）', (t) => {
   if (!existsSync(join(root, 'README-zh.md')) || !existsSync(join(root, 'src'))) {
     t.skip('runtime-only copy')
     return
   }
-  const m = read('src/70-style.js').match(
-    /fig-walk\{0%,100%\{[^}]*\}\s*25%\{transform:translateX\((-?\d+)px\)[^}]*\}\s*75%\{transform:translateX\((\d+)px\)/,
-  )
-  assert.ok(m, 'fig-walk keyframes 提取失败')
-  const expect = `走路 ${MINUS}${Math.abs(Number(m[1]))}/+${m[2]}px`
-  assert.ok(
-    read('README-zh.md').includes(expect),
-    `README-zh 应包含「${expect}」（代码 fig-walk -${Math.abs(Number(m[1]))}/+${m[2]}px）`,
-  )
+  // fig-* 立绘动画已删（被 animation:none!important 压死后是死代码），
+  // README 不得再声称「走路步幅 / 跳舞 ±4° / 呼吸」这类 CSS 自造动作。
+  const zh = read('README-zh.md')
+  assert.ok(!zh.includes('步幅'), 'README-zh 不应再提「步幅」（CSS 步幅动画已删）')
+  assert.ok(!/呼吸\s*5/.test(zh), 'README-zh 不应再提「呼吸 5–6s」（立绘已静立）')
+  const css = read('src/70-style.js')
+  assert.ok(!/fig-walk|fig-dance/.test(css), 'CSS 里不应再有 fig-* 立绘动画')
+  assert.ok(/\.dsh-pet-figure\{[^}]*animation:none!important/.test(css), '.dsh-pet-figure 应禁用动画')
 })
 
 test('README 口径：动作帧步长（3 帧 / 6 帧两档）', (t) => {

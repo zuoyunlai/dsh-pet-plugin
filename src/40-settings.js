@@ -23,6 +23,7 @@
       scale: 1.15,
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
+      turnNotify: false, // 1.26.0：你不在时，长活跑完弹一条通知（默认关，避免装完就挨弹窗）
       // 默认位置：右下角但抬高一截，避开同样钉在右下角的其它挂件（比如余额小鲸鱼）
       statusBubbles: 'auto', // 'auto' 阶段机自动台词 | 'off' 关掉（点按/拖拽/announce 不受影响）
       pos: null, // { x, y } 左上角像素，null = 用默认右下角锚点
@@ -73,6 +74,7 @@
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)
+      out.turnNotify = booleanSetting(source.turnNotify, out.turnNotify)
       if (typeof source.statusBubbles === 'string' && SETTINGS_BUBBLES.has(source.statusBubbles)) {
         out.statusBubbles = source.statusBubbles
       }

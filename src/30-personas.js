@@ -18,6 +18,7 @@
           dance: "pet-violet-happy.webp",
           poked: "pet-violet-shy.webp",
         },
+        imageFit: { "pet-violet-sleep.webp": 0.0098 },
         actions: {
           dance: [
             "pet-violet-dance1.webp",
@@ -35,6 +36,12 @@
           walk: "pet-violet-walk.webm",
           hair: "pet-violet-hair.webm",
           stage: "pet-violet-stage.webm",
+        },
+        clipFit: {
+          dance: { s: 1.0897, y: -0.0007, x: 0.0058 },
+          walk: { s: 1.2134, y: 0.1186, x: 0.0056 },
+          hair: { s: 1.1169, y: 0.0196, x: 0.0012 },
+          stage: { s: 1.3621, y: 0.0855, x: -0.021 },
         },
         voice: {
           pitch: 1.02,
@@ -314,6 +321,12 @@
           hair: "pet-crimson-hair.webm",
           stage: "pet-crimson-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.3333, y: 0.1328, x: 0.0924 },
+          walk: { s: 1.1252, y: 0.1063, x: 0.0408 },
+          hair: { s: 1.0912, y: 0.0075, x: 0.0036 },
+          stage: { s: 1.3409, y: 0.0589, x: 0.0316 },
+        },
         voice: {
           pitch: 1.04,
           rate: 0.94,
@@ -561,6 +574,12 @@
           hair: "pet-indigo-hair.webm",
           stage: "pet-indigo-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.0446, y: 0.002, x: -0.0003 },
+          walk: { s: 1.132, y: 0.0496, x: 0 },
+          hair: { s: 1.0714, y: 0.0227, x: -0.0465 },
+          stage: { s: 1.2954, y: 0.0756, x: 0.0025 },
+        },
         voice: {
           pitch: 0.96,
           rate: 0.82,
@@ -798,6 +817,12 @@
           hair: "pet-silver-hair.webm",
           stage: "pet-silver-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.1319, y: 0.068, x: 0.0081 },
+          walk: { s: 1.1339, y: 0.1119, x: 0.0567 },
+          hair: { s: 1.2134, y: 0.1217, x: 0.062 },
+          stage: { s: 1.282, y: 0.0992, x: 0.0394 },
+        },
         voice: {
           pitch: 0.92,
           rate: 0.82,
@@ -1012,11 +1037,23 @@
           dance: "pet-azure-happy.webp",
           poked: "pet-azure-shy.webp",
         },
+        imageFit: {
+          "pet-azure-happy.webp": 0.0502,
+          "pet-azure-shy.webp": 0.0353,
+          "pet-azure-angry.webp": 0.0417,
+          "pet-azure-sleep.webp": 0.0395,
+        },
         clips: {
           dance: "pet-azure-dance.webm",
           walk: "pet-azure-walk.webm",
           hair: "pet-azure-hair.webm",
           stage: "pet-azure-stage.webm",
+        },
+        clipFit: {
+          dance: { s: 1.0698, y: -0.0024, x: 0.0154 },
+          walk: { s: 1.0128, y: 0.0069, x: 0.0551 },
+          hair: { s: 1.0334, y: -0.0025, x: 0.0041 },
+          stage: { s: 1.2966, y: 0.0737, x: 0.0879 },
         },
         voice: {
           pitch: 1.06,

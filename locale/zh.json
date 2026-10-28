@@ -36,6 +36,10 @@
     "panel.stay": "再待一会儿",
     "panel.cheer": "开心一下",
     "panel.hide": "藏 1h",
+    "panel.dontDisturb": "勿扰 1 小时",
+    "panel.dontDisturbOn": "结束勿扰",
+    "panel.turnNotify": "跑完了提醒我",
+    "panel.turnNotifyHint": "你不在的时候，长时间的一轮跑完会弹一条通知。",
     "panel.settings": "设置",
     "panel.ink": "泼墨",
     "panel.confetti": "撒花",
@@ -67,6 +71,7 @@
     "dot.ok": "单聊通道正常",
     "dot.fail": "刚才那次没接上（看控制台 [dsh-pet] chat failed）",
     "dot.idle": "还没聊过",
-    "actor.tip": "（可以拖走 / 右键有菜单）"
+    "actor.tip": "（可以拖走 / 右键有菜单）",
+    "hint.notifyDenied": "没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。"
   }
 }

@@ -60,6 +60,14 @@ def main():
     out_h = int(sys.argv[sys.argv.index("--out-h") + 1]) if "--out-h" in sys.argv else 640
     subj_h = int(sys.argv[sys.argv.index("--subject-h") + 1]) if "--subject-h" in sys.argv else 583
     crf = sys.argv[sys.argv.index("--crf") + 1] if "--crf" in sys.argv else "38"
+    # 1.26.1：补回「深色封闭空洞」。绿幕反光会把亮面鞋（漆皮）上的像素判成背景，
+    # 鞋面就留下透底；判据是「封闭 + 深色」，腿缝等真实镂空是亮绿背景，不受影响。
+    # 默认开（--no-fill-dark-holes 可关）。详见 tools/fill-dark-holes.py。
+    fill_dark = "--no-fill-dark-holes" not in sys.argv
+    fill_thr = float(sys.argv[sys.argv.index("--fill-dark-thr") + 1]) if "--fill-dark-thr" in sys.argv else 0.35
+    # 1.26.1：线性透射率 alpha 已是 batch-key 的默认，这里不用再传开关；
+    # 保留 --dead-zone-alpha 供需要复现历史素材时使用。
+    linear_alpha = "--dead-zone-alpha" not in sys.argv
 
     probe = run(
         [
@@ -88,12 +96,24 @@ def main():
         os.makedirs(d)
 
     run(["ffmpeg", "-nostdin", "-y", "-v", "error", "-i", src, "-vf", "fps=24", os.path.join(frames, "%04d.png")])
-    run([sys.executable, os.path.join(HERE, "batch-key.py"), frames, keyed, str(out_h),
-         "--crop", "0,%d,1440,%d" % (t, t + crop_h)])
+    key_args = [sys.executable, os.path.join(HERE, "batch-key.py"), frames, keyed, str(out_h),
+                "--crop", "0,%d,1440,%d" % (t, t + crop_h)]
+    if not linear_alpha:
+        key_args.append("--dead-zone-alpha")
+    run(key_args)
     run([sys.executable, os.path.join(HERE, "stage-stabilize.py"), keyed, stable])
 
+    # 1.26.1：补回深色封闭空洞（绿幕反光把亮面鞋判成了背景）。
+    # 放在 stabilize 之后、编码之前 —— stabilize 会改像素，在它之后做最稳妥。
+    encode_src = stable
+    if fill_dark:
+        filled = os.path.join(work, "filled")
+        run([sys.executable, os.path.join(HERE, "fill-dark-holes.py"), stable, filled,
+             "--thr", str(fill_thr)])
+        encode_src = filled
+
     # 钉完之后按内容边界再横向收一刀，免得画布两侧全是透明边
-    files = sorted(glob.glob(os.path.join(stable, "*.png")))
+    files = sorted(glob.glob(os.path.join(encode_src, "*.png")))
     lo, hi = 10**9, -1
     for f in files:
         xs = np.where((np.asarray(Image.open(f))[..., 3] > 10).any(axis=0))[0]
@@ -106,7 +126,7 @@ def main():
 
     run([
         "ffmpeg", "-nostdin", "-y", "-v", "error", "-framerate", "24", "-start_number", "0",
-        "-i", os.path.join(stable, "%04d.png"),
+        "-i", os.path.join(encode_src, "%04d.png"),
         "-vf", "crop=%d:%d:%d:0,unsharp=5:5:0.4:5:5:0" % (r - l, h, l),
         "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-b:v", "0", "-crf", crf,
         "-cpu-used", "0", "-auto-alt-ref", "0", "-lag-in-frames", "0",

@@ -36,6 +36,10 @@
     "panel.stay": "Stay a while",
     "panel.cheer": "Cheer up",
     "panel.hide": "Hide 1h",
+    "panel.dontDisturb": "Do not disturb 1h",
+    "panel.dontDisturbOn": "End do not disturb",
+    "panel.turnNotify": "Tell me when a run finishes",
+    "panel.turnNotifyHint": "One notification when a long run completes while you are away.",
     "panel.settings": "Settings",
     "panel.ink": "Ink",
     "panel.confetti": "Confetti",
@@ -67,6 +71,7 @@
     "dot.ok": "chat link OK",
     "dot.fail": "last attempt failed (see [dsh-pet] chat failed in the console)",
     "dot.idle": "no chat yet",
-    "actor.tip": " (drag me / right-click for a menu)"
+    "actor.tip": " (drag me / right-click for a menu)",
+    "hint.notifyDenied": "Notification permission was not granted. Enable it in the address bar to use turn reminders."
   }
 }

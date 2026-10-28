@@ -422,5 +422,27 @@
     "hair": "pet-silver-hair.webm",
     "stage": "pet-silver-stage.webm"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "clipFit": {
+    "dance": {
+      "s": 1.1319,
+      "y": 0.068,
+      "x": 0.0081
+    },
+    "walk": {
+      "s": 1.1339,
+      "y": 0.1119,
+      "x": 0.0567
+    },
+    "hair": {
+      "s": 1.2134,
+      "y": 0.1217,
+      "x": 0.062
+    },
+    "stage": {
+      "s": 1.282,
+      "y": 0.0992,
+      "x": 0.0394
+    }
+  }
 }

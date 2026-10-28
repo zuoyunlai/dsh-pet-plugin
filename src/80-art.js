@@ -124,11 +124,33 @@
         return () => clearTimeout(t)
       }, [prev, cur])
       const dx = swap.current === 0 ? 3 : -3
+      // 静帧水平对齐（1.26.1）：个别形象的表情立绘相对 idle 整体偏了一截
+      // （azure 实测 3.5%~5% 画布宽，切表情时会横向跳）。pack.json 的 imageFit
+      // 按文件名给出需要的水平位移比例；没有条目就是 0，等价旧行为。
+      const imgX = (s) => {
+        const v = persona && persona.imageFit && persona.imageFit[s]
+        return Number.isFinite(v) ? String(v) : '0'
+      }
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
+        prev
+          ? h('img', {
+              className: 'dsh-pet-img dsh-pet-img-prev',
+              src: assetUrl(prev, persona),
+              style: { '--img-x': imgX(prev) },
+              alt: '',
+              draggable: false,
+            })
+          : null,
+        h('img', {
+          key: cur,
+          className: 'dsh-pet-img dsh-pet-img-cur',
+          src: assetUrl(cur, persona),
+          style: { '--img-x': imgX(cur) },
+          alt,
+          draggable: false,
+        }),
       )
     }
 
@@ -143,7 +165,7 @@
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen, exiting, persona }) {
+    function ClipLayer({ clip, clipName, poster, alt, gen, exiting, persona }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -155,6 +177,17 @@
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
       const still = h(CrossImage, { src: poster, alt, persona })
       if (failed || giveUp) return still
+      // 人物占比补偿（1.26.1）：pack.json 的 clipFit[动作名] → CSS 变量。
+      // s 缩放、y 纵向对齐脚底、x 横向对齐人物中心。
+      // 缺省时 s=1 / y=0 / x=0，等价于旧行为（自定义形象没测量过也不会变形）。
+      const fit = (persona && persona.clipFit && clipName && persona.clipFit[clipName]) || null
+      const fitStyle = fit && Number.isFinite(fit.s) && fit.s > 0
+        ? {
+            '--clip-s': String(fit.s),
+            '--clip-y': String(Number.isFinite(fit.y) ? fit.y : 0),
+            '--clip-x': String(Number.isFinite(fit.x) ? fit.x : 0),
+          }
+        : undefined
       // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
       const showStill = !ready || exiting
       return h(
@@ -167,6 +200,7 @@
             'dsh-pet-video' +
             (ready && !exiting ? ' is-ready' : '') +
             (exiting ? ' is-leaving' : ''),
+          style: fitStyle,
           src: assetUrl(clip, persona),
           autoPlay: true,
           muted: true,
@@ -213,7 +247,17 @@
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting, persona: p })
+              ? h(ClipLayer, {
+                  key: act.gen,
+                  clip,
+                  // 动作名用于查 clipFit（clip 是文件名，得用 action 名做键）
+                  clipName: act.name,
+                  poster: stillSrc,
+                  alt: p.name,
+                  gen: act.gen,
+                  exiting: !!act.exiting,
+                  persona: p,
+                })
               : h(CrossImage, { src: stillSrc, alt: p.name, persona: p }),
             variant ? null : h(FigureMarks, { mood }),
           ),

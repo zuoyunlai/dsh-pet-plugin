@@ -36,6 +36,10 @@
     "panel.stay": "Thodi der ruko",
     "panel.cheer": "Khush ho jao",
     "panel.hide": "1 ghantaa chhupao",
+    "panel.dontDisturb": "1 घंटा परेशान न करें",
+    "panel.dontDisturbOn": "परेशान न करें बंद करें",
+    "panel.turnNotify": "खत्म होने पर बताएं",
+    "panel.turnNotifyHint": "जब आप दूर हों और लंबा दौर पूरा हो, तो एक सूचना।",
     "panel.settings": "सेटिंग्स",
     "panel.ink": "स्याही",
     "panel.confetti": "कंफेटी",
@@ -67,6 +71,7 @@
     "dot.ok": "चैट ठीक है",
     "dot.fail": "पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)",
     "dot.idle": "अभी तक कोई चैट नहीं",
-    "actor.tip": " (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)"
+    "actor.tip": " (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)",
+    "hint.notifyDenied": "सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।"
   }
 }

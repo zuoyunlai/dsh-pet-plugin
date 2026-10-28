@@ -194,22 +194,33 @@
         runtime.panelOpen
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
-        runtime.bubble
-          // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
-        // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
-        ? h(
-            'div',
-            {
-              className: 'dsh-pet-bubble',
-              ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
-                ? { role: 'status', 'aria-live': 'polite' }
-                : { 'aria-hidden': 'true' }),
-            },
-            runtime.bubble.text,
-          )
-          : null,
-        runtime.aside
-          ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
+        // 1.26.1：气泡/心声必须绝对定位，不能参与 .dsh-pet-root 的 flex 流。
+        // 原因：root 在「拖动过/有保存位置」时改成 top 锚定（见上面 style 里
+        // bottom:'auto'），此时气泡作为流内元素一出现就会把下面的角色往下顶——
+        // 用户 2026-10-28 报「切表情时人物往下位移，其实是气泡把她挤下去了」。
+        // 现在气泡浮在 root 上方（bottom:100%），人物位置与气泡有无完全解耦。
+        runtime.bubble || runtime.aside
+          ? h(
+              'div',
+              { className: 'dsh-pet-top' },
+              runtime.bubble
+                // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
+                // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
+                ? h(
+                    'div',
+                    {
+                      className: 'dsh-pet-bubble',
+                      ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
+                        ? { role: 'status', 'aria-live': 'polite' }
+                        : { 'aria-hidden': 'true' }),
+                    },
+                    runtime.bubble.text,
+                  )
+                : null,
+              runtime.aside
+                ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
+                : null,
+            )
           : null,
         // 1.22.0（用户 2026-10-27 反馈）：悬停区域必须同时覆盖「人物」和「输入框」。
         // 首版只把事件挂在人物本体上 → 鼠标刚离开人物、还没到输入框，pointerleave 就
@@ -473,6 +484,11 @@
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
           item(t('panel.hair'), () => playAction('hair', { explicit: true })),
+          // 勿扰（1.26.0）：与失焦自动安静共用同一个判定（src/55-focus.js）。
+          // 开着的时候再点一次是「结束勿扰」，不用去设置里找开关。
+          item(dndRemainingMs() ? t('panel.dontDisturbOn') : t('panel.dontDisturb'), () =>
+            toggleDontDisturb(),
+          ),
           // 不叫它「叫出来」：藏起来后她整个人不渲染（96-overlay.js:91 返回 null），
           // 这个菜单根本点不到。她看得见的时候，这一项的真实作用是「延长停留」。
           // 把她叫回来请用输入框旁的 🐾 按钮或 /dsh-pet 叫出来。
@@ -503,6 +519,9 @@
           // 阶段机：刚结束给一个 done 窗口（会换成开心/庆祝的表情）
           runtime.doneUntil = nowMs() + 4000
           if (syncPhase()) notify()
+          // 失焦通知（1.26.0）：你不在时才弹。通知有独立的 turnNotify 开关，
+          // 不挂在 celebrate 下——庆祝是「她在我面前高兴」，通知是「叫我回来验收」。
+          if (runtime.settings.turnNotify) sendTurnNotify(dur)
           if (dur > 4000 && runtime.settings.celebrate !== false) {
             let focused = true
             try {

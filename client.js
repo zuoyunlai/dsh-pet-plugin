@@ -68,7 +68,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}","chat.needSignIn":"You need to sign in to DeepSeek in DSH before I can use the model.","chat.stuck":"My head is a little stuck right now.","dot.thinking":"thinking…","dot.ok":"chat link OK","dot.fail":"last attempt failed (see [dsh-pet] chat failed in the console)","dot.idle":"no chat yet","actor.tip":" (drag me / right-click for a menu)"},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"语言","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}","chat.needSignIn":"得先在 DSH 里登录 DeepSeek，我才用得上大模型。","chat.stuck":"我这会儿脑子有点卡住了。","dot.thinking":"它正在想…","dot.ok":"单聊通道正常","dot.fail":"刚才那次没接上（看控制台 [dsh-pet] chat failed）","dot.idle":"还没聊过","actor.tip":"（可以拖走 / 右键有菜单）"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto a los servicios en línea de Microsoft; desactívala si prefieres no salir de esta máquina.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}","chat.needSignIn":"Primero inicia sesión en DeepSeek dentro de DSH para que pueda usar el modelo.","chat.stuck":"Ahora mismo se me ha atascado la cabeza.","dot.thinking":"pensando…","dot.ok":"chat en orden","dot.fail":"el último intento falló (mira [dsh-pet] chat failed en la consola)","dot.idle":"aún sin chatear","actor.tip":" (arrástrame / clic derecho para el menú)"},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}","chat.needSignIn":"Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.","chat.stuck":"Minha cabeça travou um pouco agora.","dot.thinking":"pensando…","dot.ok":"chat funcionando","dot.fail":"a última tentativa falhou (veja [dsh-pet] chat failed no console)","dot.idle":"ainda sem conversa","actor.tip":" (arraste-me / clique direito para o menu)"},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"भाषा","panel.langAuto":"स्वतः (DSH के अनुसार)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"प्रभाव","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"कभी-कभी","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"न्यूरल","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"वॉल्यूम","panel.pitch":"पिच","panel.rate":"Raftaar","panel.inputBox":"इनपुट बॉक्स","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"आकार","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.settings":"सेटिंग्स","panel.ink":"स्याही","panel.confetti":"कंफेटी","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"बम","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"न्यूरल आवाज़ बोले जाने वाले टेक्स्ट को माइक्रोसॉफ्ट के ऑनलाइन सेवा को भेजती है; नहीं भेजना चाहते तो «न्यूरल» बंद कर दें।","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}","chat.needSignIn":"पहले DSH में DeepSeek पर साइन-इन करें, तभी मैं मॉडल इस्तेमाल कर पाऊँगी।","chat.stuck":"अभी मेरा दिमाग़ थोड़ा अटक गया है।","dot.thinking":"सोच रही है…","dot.ok":"चैट ठीक है","dot.fail":"पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)","dot.idle":"अभी तक कोई चैट नहीं","actor.tip":" (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.dontDisturb":"Do not disturb 1h","panel.dontDisturbOn":"End do not disturb","panel.turnNotify":"Tell me when a run finishes","panel.turnNotifyHint":"One notification when a long run completes while you are away.","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}","chat.needSignIn":"You need to sign in to DeepSeek in DSH before I can use the model.","chat.stuck":"My head is a little stuck right now.","dot.thinking":"thinking…","dot.ok":"chat link OK","dot.fail":"last attempt failed (see [dsh-pet] chat failed in the console)","dot.idle":"no chat yet","actor.tip":" (drag me / right-click for a menu)","hint.notifyDenied":"Notification permission was not granted. Enable it in the address bar to use turn reminders."},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"语言","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.dontDisturb":"勿扰 1 小时","panel.dontDisturbOn":"结束勿扰","panel.turnNotify":"跑完了提醒我","panel.turnNotifyHint":"你不在的时候，长时间的一轮跑完会弹一条通知。","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}","chat.needSignIn":"得先在 DSH 里登录 DeepSeek，我才用得上大模型。","chat.stuck":"我这会儿脑子有点卡住了。","dot.thinking":"它正在想…","dot.ok":"单聊通道正常","dot.fail":"刚才那次没接上（看控制台 [dsh-pet] chat failed）","dot.idle":"还没聊过","actor.tip":"（可以拖走 / 右键有菜单）","hint.notifyDenied":"没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.dontDisturb":"No molestar 1 h","panel.dontDisturbOn":"Terminar no molestar","panel.turnNotify":"Avisarme al terminar","panel.turnNotifyHint":"Una notificación cuando una tanda larga termina y no estás mirando.","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto a los servicios en línea de Microsoft; desactívala si prefieres no salir de esta máquina.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}","chat.needSignIn":"Primero inicia sesión en DeepSeek dentro de DSH para que pueda usar el modelo.","chat.stuck":"Ahora mismo se me ha atascado la cabeza.","dot.thinking":"pensando…","dot.ok":"chat en orden","dot.fail":"el último intento falló (mira [dsh-pet] chat failed en la consola)","dot.idle":"aún sin chatear","actor.tip":" (arrástrame / clic derecho para el menú)","hint.notifyDenied":"No se concedió permiso de notificación. Actívalo en la barra de direcciones para usar los avisos."},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.dontDisturb":"Não perturbe 1 h","panel.dontDisturbOn":"Encerrar não perturbe","panel.turnNotify":"Avisar quando terminar","panel.turnNotifyHint":"Uma notificação quando uma rodada longa termina e você não está olhando.","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}","chat.needSignIn":"Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.","chat.stuck":"Minha cabeça travou um pouco agora.","dot.thinking":"pensando…","dot.ok":"chat funcionando","dot.fail":"a última tentativa falhou (veja [dsh-pet] chat failed no console)","dot.idle":"ainda sem conversa","actor.tip":" (arraste-me / clique direito para o menu)","hint.notifyDenied":"A permissão de notificação não foi concedida. Ative-a na barra de endereço para usar os avisos."},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"भाषा","panel.langAuto":"स्वतः (DSH के अनुसार)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"प्रभाव","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"कभी-कभी","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"न्यूरल","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"वॉल्यूम","panel.pitch":"पिच","panel.rate":"Raftaar","panel.inputBox":"इनपुट बॉक्स","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"आकार","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.dontDisturb":"1 घंटा परेशान न करें","panel.dontDisturbOn":"परेशान न करें बंद करें","panel.turnNotify":"खत्म होने पर बताएं","panel.turnNotifyHint":"जब आप दूर हों और लंबा दौर पूरा हो, तो एक सूचना।","panel.settings":"सेटिंग्स","panel.ink":"स्याही","panel.confetti":"कंफेटी","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"बम","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"न्यूरल आवाज़ बोले जाने वाले टेक्स्ट को माइक्रोसॉफ्ट के ऑनलाइन सेवा को भेजती है; नहीं भेजना चाहते तो «न्यूरल» बंद कर दें।","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}","chat.needSignIn":"पहले DSH में DeepSeek पर साइन-इन करें, तभी मैं मॉडल इस्तेमाल कर पाऊँगी।","chat.stuck":"अभी मेरा दिमाग़ थोड़ा अटक गया है।","dot.thinking":"सोच रही है…","dot.ok":"चैट ठीक है","dot.fail":"पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)","dot.idle":"अभी तक कोई चैट नहीं","actor.tip":" (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)","hint.notifyDenied":"सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -194,6 +194,7 @@ window.__ModuleLoader__.load({
           dance: "pet-violet-happy.webp",
           poked: "pet-violet-shy.webp",
         },
+        imageFit: { "pet-violet-sleep.webp": 0.0098 },
         actions: {
           dance: [
             "pet-violet-dance1.webp",
@@ -211,6 +212,12 @@ window.__ModuleLoader__.load({
           walk: "pet-violet-walk.webm",
           hair: "pet-violet-hair.webm",
           stage: "pet-violet-stage.webm",
+        },
+        clipFit: {
+          dance: { s: 1.0897, y: -0.0007, x: 0.0058 },
+          walk: { s: 1.2134, y: 0.1186, x: 0.0056 },
+          hair: { s: 1.1169, y: 0.0196, x: 0.0012 },
+          stage: { s: 1.3621, y: 0.0855, x: -0.021 },
         },
         voice: {
           pitch: 1.02,
@@ -490,6 +497,12 @@ window.__ModuleLoader__.load({
           hair: "pet-crimson-hair.webm",
           stage: "pet-crimson-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.3333, y: 0.1328, x: 0.0924 },
+          walk: { s: 1.1252, y: 0.1063, x: 0.0408 },
+          hair: { s: 1.0912, y: 0.0075, x: 0.0036 },
+          stage: { s: 1.3409, y: 0.0589, x: 0.0316 },
+        },
         voice: {
           pitch: 1.04,
           rate: 0.94,
@@ -737,6 +750,12 @@ window.__ModuleLoader__.load({
           hair: "pet-indigo-hair.webm",
           stage: "pet-indigo-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.0446, y: 0.002, x: -0.0003 },
+          walk: { s: 1.132, y: 0.0496, x: 0 },
+          hair: { s: 1.0714, y: 0.0227, x: -0.0465 },
+          stage: { s: 1.2954, y: 0.0756, x: 0.0025 },
+        },
         voice: {
           pitch: 0.96,
           rate: 0.82,
@@ -974,6 +993,12 @@ window.__ModuleLoader__.load({
           hair: "pet-silver-hair.webm",
           stage: "pet-silver-stage.webm",
         },
+        clipFit: {
+          dance: { s: 1.1319, y: 0.068, x: 0.0081 },
+          walk: { s: 1.1339, y: 0.1119, x: 0.0567 },
+          hair: { s: 1.2134, y: 0.1217, x: 0.062 },
+          stage: { s: 1.282, y: 0.0992, x: 0.0394 },
+        },
         voice: {
           pitch: 0.92,
           rate: 0.82,
@@ -1188,11 +1213,23 @@ window.__ModuleLoader__.load({
           dance: "pet-azure-happy.webp",
           poked: "pet-azure-shy.webp",
         },
+        imageFit: {
+          "pet-azure-happy.webp": 0.0502,
+          "pet-azure-shy.webp": 0.0353,
+          "pet-azure-angry.webp": 0.0417,
+          "pet-azure-sleep.webp": 0.0395,
+        },
         clips: {
           dance: "pet-azure-dance.webm",
           walk: "pet-azure-walk.webm",
           hair: "pet-azure-hair.webm",
           stage: "pet-azure-stage.webm",
+        },
+        clipFit: {
+          dance: { s: 1.0698, y: -0.0024, x: 0.0154 },
+          walk: { s: 1.0128, y: 0.0069, x: 0.0551 },
+          hair: { s: 1.0334, y: -0.0025, x: 0.0041 },
+          stage: { s: 1.2966, y: 0.0737, x: 0.0879 },
         },
         voice: {
           pitch: 1.06,
@@ -1528,6 +1565,7 @@ window.__ModuleLoader__.load({
       scale: 1.15,
       chaos: true, // 恶作剧总开关（泼墨/起雾/炸弹）
       celebrate: true, // 一轮跑完时庆祝（长活会跑到中间跳舞）
+      turnNotify: false, // 1.26.0：你不在时，长活跑完弹一条通知（默认关，避免装完就挨弹窗）
       // 默认位置：右下角但抬高一截，避开同样钉在右下角的其它挂件（比如余额小鲸鱼）
       statusBubbles: 'auto', // 'auto' 阶段机自动台词 | 'off' 关掉（点按/拖拽/announce 不受影响）
       pos: null, // { x, y } 左上角像素，null = 用默认右下角锚点
@@ -1578,6 +1616,7 @@ window.__ModuleLoader__.load({
       out.scale = finiteNumber(source.scale, out.scale, 0.5, 2)
       out.chaos = booleanSetting(source.chaos, out.chaos)
       out.celebrate = booleanSetting(source.celebrate, out.celebrate)
+      out.turnNotify = booleanSetting(source.turnNotify, out.turnNotify)
       if (typeof source.statusBubbles === 'string' && SETTINGS_BUBBLES.has(source.statusBubbles)) {
         out.statusBubbles = source.statusBubbles
       }
@@ -1659,6 +1698,12 @@ window.__ModuleLoader__.load({
       clipPlaying: '', // 当前正在播放的片段名（'' = 还没起来）：决定静帧 poster 是否撤掉
       clipMs: {}, // 片段实测时长 { 文件名: ms }：metadata 到手后写进来
       lastClipError: '', // 最近一次片段加载失败的文件名（诊断用）
+      // —— 失焦感知（1.26.0）：见 src/55-focus.js ——
+      blurredAt: 0, // 本次失焦的起始时间戳（0 = 在前台）
+      dndUntil: 0, // 手动「勿扰」截止时间戳（0 = 没开）
+      quietReason: '', // '' | 'dnd' | 'blur'：当前安静原因，/ping 诊断用
+      quietSince: 0, // 进入安静态的时间戳（跨越边界时由 syncQuiet 写）
+      wokeAt: 0, // 刚醒来的时间戳（外层据此播一次伸懒腰）
     }
 
     // 片段时长不再写死（1.20.0）：早期 12 条都是同一批参数生成的 5.167s，写死没问题；
@@ -2063,6 +2108,9 @@ window.__ModuleLoader__.load({
       if (!text || !runtime.settings.voiceOn) return
       // 人不在屏幕上就别出声（2026-10-25 用户报：人都藏起来了，她还在说话）
       if (!onScreen()) return
+      // 安静态（1.26.0）：与 bubble 同一套判据，kind 由调用方透传（第三参）。
+      // 单独再判一次是因为 speak 可以被绕过 bubble 直接调用，声音是最讨厌的那一种打扰。
+      if (isQuiet() && !isAddressedKind(mood)) return
       // 跳舞时不要被「说话」这个心情抢走动作（否则中间那 6 秒全在点头）
       const staged = !!runtime.stage
       const prevMood = runtime.mood === 'talk' ? 'idle' : runtime.mood
@@ -2212,6 +2260,369 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /* ================= 失焦感知：安静态 ================= *
+     *
+     * 1.26.0 起，「人不在就别出声」从语音这一条闸门推广到整个组件：
+     * 窗口失焦超过 QUIET_AFTER_MS（或用户手动开了勿扰），就进安静态——
+     * 气泡静默、语音静音、停止自发动作。重新聚焦时「醒」过来。
+     *
+     * 为什么单独一个模块：判断「人在不在」只能靠 document 上的几个信号，
+     * 而它们各有各的坑（见 isFocused）。集中在一处，改判定只改一处。
+     *
+     * 平台无关：只用 document.visibilityState / document.hasFocus()，
+     * Windows / macOS / Linux / 各浏览器行为一致，不涉及任何平台分支。
+     */
+
+    /** 失焦多久算「人走了」：60s（用户 2026-10-28 拍板，考虑共享屏幕开会场景） */
+    const QUIET_AFTER_MS = 60 * 1000
+    /** 手动「勿扰」的时长 */
+    const DONT_DISTURB_MS = 60 * 60 * 1000
+
+    /**
+     * 当前是否在前台。
+     *
+     * 两个信号都要看，因为**两个都会骗人**，方向还相反：
+     *   - document.hasFocus() 在某些点按 / 子窗口场景下窗口明明在前台却报 false；
+     *   - visibilityState 在窗口被别的应用完整遮住时仍然是 'visible'。
+     * 取 AND 是最保守的组合：两个都说在，才算在。
+     * 判错了的后果不对称——误判成「不在」只是她安静一会儿；
+     * 误判成「在」就是开会共享屏幕时她突然开口。所以宁可偏向安静。
+     */
+    function isFocused() {
+      try {
+        if (typeof document === 'undefined') return true
+        if (document.visibilityState && document.visibilityState !== 'visible') return false
+        if (typeof document.hasFocus === 'function') return document.hasFocus()
+      } catch (e) {
+        /* 读不到就当在前台：不能因为探测失败让她永久失联 */
+      }
+      return true
+    }
+
+    /**
+     * 安静态判定。返回 '' 表示不安静，否则返回原因（给 /ping 诊断与单测用）：
+     *   'dnd'   —— 手动勿扰中
+     *   'blur'  —— 失焦超过阈值
+     */
+    function quietReason() {
+      const now = nowMs()
+      if (runtime.dndUntil && now < runtime.dndUntil) return 'dnd'
+      if (!runtime.blurredAt) return ''
+      if (now - runtime.blurredAt < QUIET_AFTER_MS) return ''
+      return 'blur'
+    }
+
+    /** 她此刻是否应该保持安静 */
+    function isQuiet() {
+      return quietReason() !== ''
+    }
+
+    /**
+     * 这类气泡/台词是否属于「有事」，安静态下也要放行。
+     *
+     * 区分标准不是「谁触发的」，而是**用户是否在等这句话**：
+     *   - announce：外部脚本让她说话（CI 挂了、git hook 提醒），属于有事；
+     *   - chatAck / chatErr：用户刚跟她说话，在等她回，属于有事；
+     *   - 其余（idle / dance / poked / drag / 心情台词）都是自发演绎，安静态一律不出。
+     */
+    function isAddressedKind(kind) {
+      return kind === 'announce' || kind === 'chatAck' || kind === 'chatErr'
+    }
+
+    /** 手动「勿扰 1 小时」开关。开着就关，关着就开。 */
+    function toggleDontDisturb() {
+      if (runtime.dndUntil && nowMs() < runtime.dndUntil) runtime.dndUntil = 0
+      else runtime.dndUntil = nowMs() + DONT_DISTURB_MS
+      runtime.quietReason = quietReason()
+      notify()
+    }
+
+    /** 勿扰还剩多少毫秒（菜单文案用；没开是 0） */
+    function dndRemainingMs() {
+      const left = (runtime.dndUntil || 0) - nowMs()
+      return left > 0 ? left : 0
+    }
+
+    /**
+     * 启动失焦监听。返回卸载函数，交给 ctx.effect。
+     * 只在 window/document 上挂三个事件，所有清理都在返回值里（prelude 红线）。
+     */
+    function watchFocus() {
+      const markBlurred = () => {
+        if (!runtime.blurredAt) runtime.blurredAt = nowMs()
+      }
+      const markFocused = () => {
+        runtime.blurredAt = 0
+      }
+      const onFocus = () => {
+        markFocused()
+        runtime.quietReason = quietReason()
+        // 通知标题前缀（56-notify.js）在用户回来时撤掉——人已经在了，不用再在任务栏喊他
+        if (typeof titlePrefix === 'function') titlePrefix(false)
+        notify()
+      }
+      // 标签页切走 / 切回（比 hasFocus 更早反映 visibilityState）
+      const onVisibility = () => {
+        try {
+          if (document.visibilityState === 'hidden') markBlurred()
+          else markFocused()
+        } catch (e) {
+          /* ignore */
+        }
+        runtime.quietReason = quietReason()
+        notify()
+      }
+
+      try {
+        window.addEventListener('blur', markBlurred)
+        window.addEventListener('focus', onFocus)
+        document.addEventListener('visibilitychange', onVisibility)
+      } catch (e) {
+        /* 装不上监听就退回「永不安静」，不能因为监听失败让功能整体挂掉 */
+      }
+
+      // 启动时如果本来就在后台（比如刷新于一个隐藏标签），立刻记一笔
+      try {
+        if (document.visibilityState === 'hidden') runtime.blurredAt = nowMs()
+      } catch (e) {
+        /* ignore */
+      }
+
+      return () => {
+        try {
+          window.removeEventListener('blur', markBlurred)
+          window.removeEventListener('focus', onFocus)
+          document.removeEventListener('visibilitychange', onVisibility)
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
+
+    /**
+     * 安静态的边界条件：进入/退出时要做的事。
+     * 由 tick 每轮调用一次，自己比较前后两个状态，只在**跨越边界**时动作。
+     */
+    function syncQuiet() {
+      const now = quietReason()
+      const prev = runtime.quietReason || ''
+      runtime.quietReason = now
+      if (prev === now) return
+      // 进入安静：记时间戳，外层据此播一次「打哈欠趴下」
+      if (now && !prev) {
+        runtime.quietSince = nowMs()
+        runtime.wokeAt = 0
+      }
+      // 退出安静：记「刚醒」，外层据此播一次「抻懒腰」
+      if (!now && prev) {
+        runtime.quietSince = 0
+        runtime.wokeAt = nowMs()
+      }
+      notify()
+    }
+
+    /* ================= 失焦通知：一轮跑完提醒 ================= *
+     *
+     * 1.26.0。把「一轮跑完了，回来验收」送到人眼前——哪怕他切去了别的应用。
+     *
+     * 纯 Web 标准，跨平台（Windows / macOS / Linux / 各浏览器），不依赖任何宿主能力。
+     * 核心是**能力降级链**：每一层失败都静默下移，绝不抛错、绝不刷控制台噪音。
+     *
+     *   1. Web Notification（permission === 'granted'）
+     *   2. 文档标题前缀 ●（永不失败的兜底，任务栏/标签页标题可见）
+     *   3. 文档内角标（她头上一个红点）
+     *
+     * 为什么标题前缀是「永不失败的兜底」而不是冗余：浏览器里 notification.onclick
+     * 多数不保证真的把标签页切到前台；标题是任务栏上唯一可靠的「回来吧」信号。
+     */
+
+    /** 短于这个时长的一轮不值得弹（4 秒的活弹窗是骚扰） */
+    const TURN_NOTIFY_MIN_MS = 10000
+    /** 两次通知的最小间隔（避免「连发」） */
+    const TURN_NOTIFY_COOLDOWN_MS = 90000
+
+    // —— 自证统计：跨平台方案里「通知到底发出去没有」不能靠猜（见方案 §2.3）——
+    // Linux 无通知守护进程、macOS 系统级静音、浏览器权限被撤，这三种情况
+    // Notification API 都不报错，只是通知不出现。只有 show / error 事件能说实话。
+    const notifyStats = {
+      supported: 'none', // 'web' | 'none'
+      permission: 'unavailable', // granted | denied | default | unavailable
+      sent: 0, // 实际弹出（Notification.show 或标题前缀生效）
+      failed: 0, // 探测到 error / 2s 内未触发 show
+      lastReason: '', // 最近一次被拦下的原因（诊断用）
+      lastAt: 0,
+    }
+
+    /** 一次性探测：这个环境能不能用 Web 通知、权限现状如何。结果写 notifyStats。 */
+    function probeNotify() {
+      try {
+        if (typeof window === 'undefined' || !('Notification' in window)) {
+          notifyStats.supported = 'none'
+          notifyStats.permission = 'unavailable'
+          return
+        }
+        notifyStats.supported = 'web'
+        notifyStats.permission = window.Notification.permission || 'default'
+      } catch (e) {
+        notifyStats.supported = 'none'
+        notifyStats.permission = 'unavailable'
+      }
+    }
+
+    /**
+     * 请求通知权限。**只能在用户手势回调里调用**（浏览器会拒绝非手势触发的请求）。
+     * 返回最终权限状态；拒绝时调用方要把设置项回弹为 off。
+     */
+    async function requestNotifyPermission() {
+      probeNotify()
+      if (notifyStats.supported !== 'web') return notifyStats.permission
+      try {
+        notifyStats.permission = await window.Notification.requestPermission()
+      } catch (e) {
+        // 隐私模式 / 沙箱里可能根本无法授予，静默记为 denied，交给降级链
+        notifyStats.permission = 'denied'
+      }
+      return notifyStats.permission
+    }
+
+    /** 标题前缀兜底：记下原标题，聚焦时恢复 */
+    function titlePrefix(on) {
+      try {
+        const tag = '● '
+        const cur = document.title || ''
+        if (on) {
+          if (!runtime.notifyTaggedTitle) runtime.notifyTaggedTitle = cur
+          if (!cur.startsWith(tag)) document.title = tag + cur
+        } else {
+          if (runtime.notifyTaggedTitle) {
+            if (document.title === tag + runtime.notifyTaggedTitle) document.title = runtime.notifyTaggedTitle
+            runtime.notifyTaggedTitle = ''
+          }
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    /** 通知内容的文案（title 用人设名，body 用耗时） */
+    function turnNotifyText(dur) {
+      const mm = Math.max(1, Math.round(dur / 60000))
+      let pname = 'dsh-pet'
+      try {
+        const p = persona()
+        if (p && p.name) pname = p.name
+      } catch (e) {
+        /* ignore */
+      }
+      const title = pname
+      const body =
+        (runtime.settings.lang === 'zh' ? `跑完了，${mm} 分钟，回来验收吧` :
+         runtime.settings.lang === 'es' ? `Terminó, ${mm} min, vuelve a revisar.` :
+         runtime.settings.lang === 'pt' ? `Terminou, ${mm} min, volte para conferir.` :
+         runtime.settings.lang === 'hi' ? `${mm} मिनट में हो गया, वापस आकर देख लीजिए।` :
+         `Done, ${mm} min. Come back and review.`)
+      return { title, body }
+    }
+
+    /**
+     * 发一条「跑完了」通知。带降级链与自证回执。
+     * @param {number} dur 一轮耗时（毫秒）
+     * @returns {string} 实际走到的层：'notification' | 'title' | 'badge' | 'skip:<reason>'
+     */
+    function sendTurnNotify(dur) {
+      probeNotify()
+      const now = nowMs()
+
+      // —— 前置条件（全部满足才弹，任一不满足都记 lastReason 后静默跳过）——
+      if (dur < TURN_NOTIFY_MIN_MS) return skipNotify('short')
+      // 人正看着就别弹：通知的唯一目的就是「把人叫回来」，人已经在看就没必要。
+      // 注意这里不看 isQuiet()——安静态管的是「她不主动打扰」，而 turnNotify 是
+      // 用户明确授权过的提醒（开了开关），两者是独立的。
+      if (isFocused()) return skipNotify('focused')
+      if (now - (notifyStats.lastAt || 0) < TURN_NOTIFY_COOLDOWN_MS) return skipNotify('cooldown')
+
+      const { title, body } = turnNotifyText(dur)
+
+      // 第 1 层：Web Notification
+      if (notifyStats.supported === 'web' && notifyStats.permission === 'granted') {
+        let n = null
+        try {
+          n = new window.Notification(title, {
+            body,
+            tag: 'dsh-pet-turn-end', // 同 tag 自动替换，天然去重
+            silent: true,
+            requireInteraction: false,
+            lang: runtime.settings.lang || 'en',
+          })
+        } catch (e) {
+          // 移动端 / 某些环境构造即抛 TypeError，落到下一层
+          n = null
+        }
+        if (n) {
+          // 自证核心：只有 show 事件真的触发才算「发出去了」。
+          // Linux 无通知守护进程 / macOS 系统静音 / 权限被中途撤掉，这三种情况
+          // API 都不报错、不触发 show、也不触发 error——只是通知不出现。
+          // 所以用「2s 内未 show 也未 error」判定静默失败，落到标题兜底。
+          let settled = false
+          const onShow = () => {
+            if (settled) return
+            settled = true
+            notifyStats.sent++
+            notifyStats.lastReason = ''
+            notifyStats.lastAt = now
+          }
+          const onError = () => {
+            if (settled) return
+            settled = true
+            notifyStats.failed++
+            notifyStats.lastReason = 'error'
+            titlePrefix(true) // 通知报错 → 标题兜底
+          }
+          try {
+            n.addEventListener('show', onShow)
+            n.addEventListener('error', onError)
+          } catch (e) {
+            /* ignore */
+          }
+          // 静默失败的自证窗口：2s 内没 show 也没 error → no-daemon
+          later(() => {
+            if (!settled) {
+              settled = true
+              notifyStats.failed++
+              notifyStats.lastReason = 'no-daemon'
+              titlePrefix(true)
+            }
+          }, 2000)
+          if (typeof n.show === 'function') {
+            try {
+              n.show()
+            } catch (e) {
+              onError()
+            }
+          }
+          // 通知路径上无论最终 show/error，标题都先打上——点击通知不保证切回
+          // 标签页，标题是任务栏上唯一可靠的双保险。
+          titlePrefix(true)
+          notifyStats.lastAt = now
+          return 'notification'
+        }
+      }
+
+      // 第 2 层：标题前缀（永不失败）
+      titlePrefix(true)
+      notifyStats.sent++
+      notifyStats.lastReason = 'title-fallback'
+      notifyStats.lastAt = now
+      return 'title'
+
+      // 第 3 层（角标）留到 overlay 层有视觉载体时再挂，避免现在为一个红点开一条 UI 线
+    }
+
+    function skipNotify(reason) {
+      notifyStats.lastReason = reason
+      return 'skip:' + reason
+    }
+
     /* ================= 说话气泡 ================= */
 
     /**
@@ -2271,6 +2682,9 @@ window.__ModuleLoader__.load({
       // 人不在屏幕上（藏起来 / 被拖出视口）就不冒泡、不发声：
       // 用户 2026-10-25 报的「人物不在桌面了，可她还在说话」就是这条漏了闸。
       if (!runtime.visible || runtime.petOffscreen) return
+      // 安静态（1.26.0）：失焦超过阈值或手动勿扰时，只放行「有事」的那几类
+      // （announce / chatAck / chatErr），自发演绎一律不出。见 src/55-focus.js
+      if (isQuiet() && !isAddressedKind(mood)) return
       const s = runtime.settings
       const t = String(text)
       // 第三参是该句所属的类别（appear/dance/poked/drag/chatAck…）：交给导演层查演绎方向，
@@ -2509,6 +2923,9 @@ window.__ModuleLoader__.load({
     function tick() {
       const now = nowMs()
       const s = runtime.settings
+
+      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它
+      syncQuiet()
 
       // 阶段机：先算阶段，再按阶段给一点情绪反馈
       const prevPhase = runtime.phase
@@ -2802,6 +3219,13 @@ window.__ModuleLoader__.load({
 .dsh-pet-badge-dot{width:5px;height:5px;border-radius:50%;background:#e0477a;box-shadow:0 0 4px rgba(224,71,122,.8)}
 .dsh-pet-toggle:hover{opacity:1;background:var(--pet-bg-hover)}
 .dsh-pet-root *{box-sizing:border-box}
+/* 1.26.1：气泡/心声的浮层容器。
+   必须绝对定位**脱离文档流**：.dsh-pet-root 在「拖动过/有保存位置」时是 top 锚定
+   （bottom:auto），此时气泡若作为流内元素，一出现就会把下面的角色往下顶
+   ——用户 2026-10-28 报「切表情时人物会位移，其实是气泡把她挤下去了」。
+   浮在 root 上方后，人物位置与气泡有无完全无关。 */
+.dsh-pet-top{position:absolute;right:0;bottom:calc(100% + 6px);display:flex;flex-direction:column;
+  align-items:flex-end;gap:6px;max-width:min(260px,58vw);pointer-events:none}
 .dsh-pet-bubble{pointer-events:auto;max-width:min(260px,58vw);padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.5;
   white-space:pre-wrap;word-break:break-word;
   background:var(--pet-bg);border:1px solid var(--pet-border);
@@ -2809,7 +3233,7 @@ window.__ModuleLoader__.load({
 .dsh-pet-bubble:after{content:"";position:absolute;right:22px;bottom:-5px;width:9px;height:9px;transform:rotate(45deg);
   background:var(--pet-bg);border-right:1px solid var(--pet-border);
   border-bottom:1px solid var(--pet-border)}
-.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);margin:3px 0 0 auto;padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
+.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
 .dsh-pet-aside:before{content:"( ")}
 .dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
@@ -2846,48 +3270,73 @@ window.__ModuleLoader__.load({
   transform-origin:center center;transition:transform 1.25s cubic-bezier(.4,0,.2,1)}
 .dsh-pet-actor:active{cursor:grabbing}
 .dsh-pet-actor svg{width:100%;height:100%;display:block;overflow:visible}
-.dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%}
+/* 1.26.1：图片形象的动感只由动作视频提供，CSS 不再自造位移/缩放/呼吸。
+   之前漏了一处（用户 2026-10-28 二次反馈「还是能看到立绘摇摆」）：
+   图片形象的元素同时带 .dsh-pet-body 与 .dsh-pet-figure 两个类，而基础规则
+   .dsh-pet-body 挂着 dsh-pet-breathe（上下浮 1.5px）、.mood-walk 还有
+   dsh-pet-stroll（±18px 横移）。只删 .mood-idle 那层不够，基础层仍在动。
+   !important 是刻意的：要压过所有 .mood-* 与基础 .dsh-pet-body 规则；
+   作用域仅限 .dsh-pet-figure（SVG 形象不含该类，不受影响）。 */
+.dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%;
+  animation:none!important}
 .dsh-pet-figbox{position:relative;height:100%;display:flex;align-items:flex-end}
 .dsh-pet-img{height:100%;width:auto;display:block;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));user-select:none;-webkit-user-drag:none;pointer-events:none}
+/* 1.26.1：静立不再自抖。用户 2026-10-28 反馈「立绘不要摇动或跳动」——
+   原先这里叠了两层常驻动画（本行的 dsh-pet-alive + .mood-idle 的 fig-idle），
+   呼吸缩放 + ±0.5deg 摆 + ±1.1deg 转，看起来像人物自己在抖。
+   现在只有真正的动作（走路/撩头发/跳舞/转身，即 .mood-* 与视频片段）才动，
+   静态立绘一律稳住。keyframes 保留：smoke 测试断言它存在，且日后可能复用。 */
 .dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;
-  transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
-.dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+  transform-origin:50% 100%}
+/* 静帧水平对齐（1.26.1）：--img-x 是「相对图片自身宽度」的位移比例，
+   用来修正个别形象表情立绘相对 idle 的横向偏移（azure 实测 3.5%~5%，
+   切表情时会横向跳）。没有该变量时按 0 处理，等价旧行为。 */
+.dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;
+  transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 /* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
 /* 1.19.3（R01）：静帧画在下面，video 只在真的开始播放后淡入（onPlaying 加 is-ready） */
 .dsh-pet-clipbox{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center}
 .dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
-.dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  height:100%;width:auto;display:block;object-fit:contain;opacity:0;
+/* 1.26.1：人物占比补偿。动作视频导出时四周留了透明边（人物只占画布 73%~97%），
+   而立绘几乎顶满（~99%）。若两边都用 height:100%，切换动作时人物视觉大小会突跳
+   （用户 2026-10-28 报「撩头发突然变小」）。pack.json 的 clipFit 给出每个片段的
+   s（放大倍数，让人物与立绘同高）、y（下移比例，让脚底落在同一基线）、
+   x（横向位移比例，把人物中心拉回立绘中心——裁切框按全片并集取，手臂偏向一侧
+   时人物会整体偏出画布中心，不补就会看到「切片段时人往旁边跳」）。
+   三个变量由 ClipLayer 内联写入；没有 clipFit 的自定义形象回落 1 / 0 / 0，即原行为。 */
+.dsh-pet-video{position:absolute;bottom:calc(var(--clip-y, 0) * -100%);left:50%;
+  transform:translateX(calc(-50% + (var(--clip-x, 0) * 100%)));
+  height:calc(100% * var(--clip-s, 1));width:auto;display:block;object-fit:contain;opacity:0;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
    舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
 .dsh-pet-video.is-ready{opacity:1}
 /* 动作结束时淡回立绘（R02 后续）：硬切在跳舞结尾切笑脸时最明显 */
 .dsh-pet-video.is-leaving{opacity:0;transition:opacity .22s ease-out}
-/* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
+/* 1.26.1：换表情只做纯透明度交叉淡化，不再带位移与缩放。
+   原来这里用「±3px 横移 + 0.6% 缩放 + 1px 模糊」模仿运动模糊，但作用在
+   超写实静帧上时，用户看到的是「一切表情人物就往旁边跳一下」（2026-10-28
+   反馈「表情切换时人物的位置会变化」）。所以改成纯淡入淡出。
+   注意：位移里必须带上 --img-x（静帧对齐补偿），否则动画期间会盖掉它。
+   --pet-dx 保留在变量里，CrossImage 仍会写，只是不再参与变换。 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
 @keyframes dsh-pet-img-in{
   from{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(.994)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
   to{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(-50%) scale(1)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 }
 @keyframes dsh-pet-img-out{
   from{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(-50%) scale(1)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
   to{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(1.006)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 }
-/* 常驻微动：呼吸 + 髋部左右摆，60fps 由合成器跑，CPU 零负担 */
-@keyframes dsh-pet-alive{
-  0%{transform:scale(1) rotate(-0.5deg)}
-  25%{transform:scale(1.006) rotate(0deg)}
-  50%{transform:scale(1.012) rotate(0.5deg)}
-  75%{transform:scale(1.006) rotate(0deg)}
-  100%{transform:scale(1) rotate(-0.5deg)}
-}
+/* 1.26.1：dsh-pet-alive（呼吸+髋摆）keyframes 已删 —— 它挂在 .dsh-pet-imgwrap 上，
+   只服务图片形象，而图片形象的动画已被 animation:none!important 全局禁用，
+   属死代码。SVG 形象不用 imgwrap。 */
 .dsh-pet-gear{position:absolute;right:-2px;top:-2px;pointer-events:auto;cursor:pointer;border:none;border-radius:999px;
   width:20px;height:20px;font-size:11px;line-height:1;opacity:0;transition:opacity .15s;
   background:var(--pet-bg);color:inherit;border:1px solid var(--pet-border)}
@@ -2983,29 +3432,11 @@ window.__ModuleLoader__.load({
 .mood-angry .dsh-pet-tail{animation:dsh-pet-sway .5s ease-in-out infinite}
 .dsh-pet-zzz{font-size:11px;opacity:.7}
 
-/* —— 立绘的动作（幅度比 SVG 那套大，不然看不出在动） —— */
-@keyframes fig-idle{0%,100%{transform:rotate(-1.1deg) translateY(0)}50%{transform:rotate(1.1deg) translateY(-1px)}}
-@keyframes fig-walk{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-5px) rotate(.7deg)}
-  75%{transform:translateX(13px) rotate(-.9deg)}}
-@keyframes fig-dance{0%{transform:rotate(-4deg) translateY(0)}25%{transform:rotate(0) translateY(-6px)}
-  50%{transform:rotate(4deg) translateY(0)}75%{transform:rotate(0) translateY(-6px)}100%{transform:rotate(-7deg) translateY(0)}}
-@keyframes fig-shy{0%,100%{transform:scale(1,1) rotate(0) translateY(0)}50%{transform:scale(1.01,.99) rotate(-1.4deg) translateY(-2px)}}
-@keyframes fig-angry{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-2px) rotate(-.8deg)}
-  75%{transform:translateX(2px) rotate(.8deg)}}
-@keyframes fig-talk{0%,100%{transform:translateY(0)}50%{transform:translateY(1.6px)}}
-@keyframes fig-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}70%{transform:translateY(0)}}
-@keyframes fig-sleep{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,.988)}}
-@keyframes fig-poked{0%{transform:translateY(0) scale(1)}22%{transform:translateY(-7px) scale(1.03)}
-  60%{transform:translateY(0) scale(1)}100%{transform:translateY(0) scale(1)}}
-.mood-idle .dsh-pet-figure{animation:fig-idle 5.2s ease-in-out infinite}
-.mood-walk .dsh-pet-figure{animation:fig-walk 3.8s ease-in-out infinite}
-.mood-dance .dsh-pet-figure{animation:fig-dance .95s ease-in-out infinite}
-.mood-shy .dsh-pet-figure{animation:fig-shy 1.9s ease-in-out infinite}
-.mood-angry .dsh-pet-figure{animation:fig-angry .45s linear infinite}
-.mood-talk .dsh-pet-figure{animation:fig-talk 1.7s ease-in-out infinite}
-.mood-happy .dsh-pet-figure{animation:fig-hop 1s ease-in-out infinite}
-.mood-sleep .dsh-pet-figure{animation:fig-sleep 6s ease-in-out infinite}
-.mood-poked .dsh-pet-figure{animation:fig-poked .55s ease-out 2}
+/* 1.26.1：立绘的 CSS 动作（fig-* 系列）已整体移除。
+   原因：.dsh-pet-figure 上的 animation:none!important（见上方）让这些规则永远赢不了，
+   成了死代码；而它们描述的「走路步幅/跳舞摆动/呼吸」在 1.26.1 起由动作视频真实呈现，
+   CSS 自造的位移正是用户报的「立绘摇摆」。README 里对应的步幅描述同步删除。
+   SVG 形象（仅示例包）走的仍是 .dsh-pet-body 那套，不受影响。 */
 .mood-poked .dsh-pet-body{animation:dsh-pet-hop .6s ease-out 2}
 
 /* —— 立绘的表情贴纸（没有五官层时唯一的“表情”） —— */
@@ -3243,11 +3674,33 @@ window.__ModuleLoader__.load({
         return () => clearTimeout(t)
       }, [prev, cur])
       const dx = swap.current === 0 ? 3 : -3
+      // 静帧水平对齐（1.26.1）：个别形象的表情立绘相对 idle 整体偏了一截
+      // （azure 实测 3.5%~5% 画布宽，切表情时会横向跳）。pack.json 的 imageFit
+      // 按文件名给出需要的水平位移比例；没有条目就是 0，等价旧行为。
+      const imgX = (s) => {
+        const v = persona && persona.imageFit && persona.imageFit[s]
+        return Number.isFinite(v) ? String(v) : '0'
+      }
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
+        prev
+          ? h('img', {
+              className: 'dsh-pet-img dsh-pet-img-prev',
+              src: assetUrl(prev, persona),
+              style: { '--img-x': imgX(prev) },
+              alt: '',
+              draggable: false,
+            })
+          : null,
+        h('img', {
+          key: cur,
+          className: 'dsh-pet-img dsh-pet-img-cur',
+          src: assetUrl(cur, persona),
+          style: { '--img-x': imgX(cur) },
+          alt,
+          draggable: false,
+        }),
       )
     }
 
@@ -3262,7 +3715,7 @@ window.__ModuleLoader__.load({
      * - 加载失败按文件记忆，同一片段不再反复等 3s；
      * - 播放状态放 runtime（而不是组件 state）：重渲染可观测、也能被台架断言。
      */
-    function ClipLayer({ clip, poster, alt, gen, exiting, persona }) {
+    function ClipLayer({ clip, clipName, poster, alt, gen, exiting, persona }) {
       const failed = !!runtime.clipFailed[clip]
       const ready = runtime.clipPlaying === clip
       const [giveUp, setGiveUp] = useState(false)
@@ -3274,6 +3727,17 @@ window.__ModuleLoader__.load({
       // 失败就在原地退回静帧；正常播放时静帧不能同时留在画面上
       const still = h(CrossImage, { src: poster, alt, persona })
       if (failed || giveUp) return still
+      // 人物占比补偿（1.26.1）：pack.json 的 clipFit[动作名] → CSS 变量。
+      // s 缩放、y 纵向对齐脚底、x 横向对齐人物中心。
+      // 缺省时 s=1 / y=0 / x=0，等价于旧行为（自定义形象没测量过也不会变形）。
+      const fit = (persona && persona.clipFit && clipName && persona.clipFit[clipName]) || null
+      const fitStyle = fit && Number.isFinite(fit.s) && fit.s > 0
+        ? {
+            '--clip-s': String(fit.s),
+            '--clip-y': String(Number.isFinite(fit.y) ? fit.y : 0),
+            '--clip-x': String(Number.isFinite(fit.x) ? fit.x : 0),
+          }
+        : undefined
       // exiting：动作已结束、片段正在淡出，静帧先垫在下面（否则会硬切成笑脸立绘）
       const showStill = !ready || exiting
       return h(
@@ -3286,6 +3750,7 @@ window.__ModuleLoader__.load({
             'dsh-pet-video' +
             (ready && !exiting ? ' is-ready' : '') +
             (exiting ? ' is-leaving' : ''),
+          style: fitStyle,
           src: assetUrl(clip, persona),
           autoPlay: true,
           muted: true,
@@ -3332,7 +3797,17 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsh-pet-figbox' },
             clip
-              ? h(ClipLayer, { key: act.gen, clip, poster: stillSrc, alt: p.name, gen: act.gen, exiting: !!act.exiting, persona: p })
+              ? h(ClipLayer, {
+                  key: act.gen,
+                  clip,
+                  // 动作名用于查 clipFit（clip 是文件名，得用 action 名做键）
+                  clipName: act.name,
+                  poster: stillSrc,
+                  alt: p.name,
+                  gen: act.gen,
+                  exiting: !!act.exiting,
+                  persona: p,
+                })
               : h(CrossImage, { src: stillSrc, alt: p.name, persona: p }),
             variant ? null : h(FigureMarks, { mood }),
           ),
@@ -3565,6 +4040,26 @@ window.__ModuleLoader__.load({
           }),
           h(Toggle, { label: t('panel.chatter'), checked: s.chatter, onChange: (v) => update({ chatter: v }) }),
           h(Toggle, { label: t('panel.celebrate'), checked: s.celebrate !== false, onChange: (v) => update({ celebrate: v }) }),
+          // 1.26.0：跑完提醒。打开时申请浏览器通知权限——权限请求必须挂在
+          // 用户手势回调里（浏览器会拒绝非手势触发的请求），这个 onClick 就是手势。
+          // 被拒/不可用时回弹为 off，不能假装开着。
+          h(Toggle, {
+            label: t('panel.turnNotify'),
+            checked: s.turnNotify !== false,
+            onChange: async (v) => {
+              if (!v) {
+                update({ turnNotify: false })
+                return
+              }
+              const perm = await requestNotifyPermission()
+              if (perm === 'granted') update({ turnNotify: true })
+              else {
+                // 回弹：权限没给到，这个开关不能停留在开
+                update({ turnNotify: false })
+                if (typeof bubble === 'function') bubble(t('hint.notifyDenied'), 4000, 'chatErr')
+              }
+            },
+          }),
           h(Toggle, { label: t('panel.chaos'), checked: s.chaos !== false, onChange: (v) => update({ chaos: v }) }),
         ),
         h(Slider, { label: t('panel.size'), min: 0.8, max: 2, step: 0.1, value: Number(s.scale).toFixed(1), suffix: '×', onChange: (v) => update({ scale: v }) }),
@@ -4303,22 +4798,33 @@ window.__ModuleLoader__.load({
         runtime.panelOpen
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
-        runtime.bubble
-          // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
-        // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
-        ? h(
-            'div',
-            {
-              className: 'dsh-pet-bubble',
-              ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
-                ? { role: 'status', 'aria-live': 'polite' }
-                : { 'aria-hidden': 'true' }),
-            },
-            runtime.bubble.text,
-          )
-          : null,
-        runtime.aside
-          ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
+        // 1.26.1：气泡/心声必须绝对定位，不能参与 .dsh-pet-root 的 flex 流。
+        // 原因：root 在「拖动过/有保存位置」时改成 top 锚定（见上面 style 里
+        // bottom:'auto'），此时气泡作为流内元素一出现就会把下面的角色往下顶——
+        // 用户 2026-10-28 报「切表情时人物往下位移，其实是气泡把她挤下去了」。
+        // 现在气泡浮在 root 上方（bottom:100%），人物位置与气泡有无完全解耦。
+        runtime.bubble || runtime.aside
+          ? h(
+              'div',
+              { className: 'dsh-pet-top' },
+              runtime.bubble
+                // 读屏语义（2026-10-28 审计④a）：闲聊/心情台词是装饰，aria-hidden 别打断读屏；
+                // 只有用户发起、在等回复的那几类（单聊回复/错误/外部播报）才是 polite 实时区
+                ? h(
+                    'div',
+                    {
+                      className: 'dsh-pet-bubble',
+                      ...(runtime.bubble.kind === 'chatAck' || runtime.bubble.kind === 'chatErr' || runtime.bubble.kind === 'announce'
+                        ? { role: 'status', 'aria-live': 'polite' }
+                        : { 'aria-hidden': 'true' }),
+                    },
+                    runtime.bubble.text,
+                  )
+                : null,
+              runtime.aside
+                ? h('div', { className: 'dsh-pet-aside', 'aria-hidden': 'true' }, runtime.aside.text)
+                : null,
+            )
           : null,
         // 1.22.0（用户 2026-10-27 反馈）：悬停区域必须同时覆盖「人物」和「输入框」。
         // 首版只把事件挂在人物本体上 → 鼠标刚离开人物、还没到输入框，pointerleave 就
@@ -4582,6 +5088,11 @@ window.__ModuleLoader__.load({
           },
           item(t('panel.dance'), () => runToCenterAndDance()),
           item(t('panel.hair'), () => playAction('hair', { explicit: true })),
+          // 勿扰（1.26.0）：与失焦自动安静共用同一个判定（src/55-focus.js）。
+          // 开着的时候再点一次是「结束勿扰」，不用去设置里找开关。
+          item(dndRemainingMs() ? t('panel.dontDisturbOn') : t('panel.dontDisturb'), () =>
+            toggleDontDisturb(),
+          ),
           // 不叫它「叫出来」：藏起来后她整个人不渲染（96-overlay.js:91 返回 null），
           // 这个菜单根本点不到。她看得见的时候，这一项的真实作用是「延长停留」。
           // 把她叫回来请用输入框旁的 🐾 按钮或 /dsh-pet 叫出来。
@@ -4612,6 +5123,9 @@ window.__ModuleLoader__.load({
           // 阶段机：刚结束给一个 done 窗口（会换成开心/庆祝的表情）
           runtime.doneUntil = nowMs() + 4000
           if (syncPhase()) notify()
+          // 失焦通知（1.26.0）：你不在时才弹。通知有独立的 turnNotify 开关，
+          // 不挂在 celebrate 下——庆祝是「她在我面前高兴」，通知是「叫我回来验收」。
+          if (runtime.settings.turnNotify) sendTurnNotify(dur)
           if (dur > 4000 && runtime.settings.celebrate !== false) {
             let focused = true
             try {
@@ -4720,6 +5234,25 @@ window.__ModuleLoader__.load({
             playFx,
             notify,
             runToCenterAndDance,
+            // 失焦感知（1.26.0）：安静态判定要能被台架直接问到，
+            // 否则只能靠肉眼观察「她是不是真的闭嘴了」。
+            isQuiet,
+            quietReason,
+            isAddressedKind,
+            isFocused,
+            syncQuiet,
+            toggleDontDisturb,
+            dndRemainingMs,
+            QUIET_AFTER_MS,
+            DONT_DISTURB_MS,
+            // 失焦通知（1.26.0）：降级链与自证统计，台架要能直接驱动与断言
+            probeNotify,
+            requestNotifyPermission,
+            sendTurnNotify,
+            titlePrefix,
+            notifyStats,
+            TURN_NOTIFY_MIN_MS,
+            TURN_NOTIFY_COOLDOWN_MS,
             // 片段时长（1.20.0）：媒体 metadata 到手后写进 runtime.clipMs，
             // 收尾时间按真实片长重排；台架走同一个入口固定这条规则。
             noteClipDuration,
@@ -4779,6 +5312,9 @@ window.__ModuleLoader__.load({
           }
         })
         ctx.effect(() => {
+          // 失焦感知（1.26.0）：安静态的事件源。与 tick 同生命周期，
+          // 卸载函数由 watchFocus 返回，统一在这里清理。
+          const stopFocus = watchFocus()
           runtime.timer = setInterval(() => {
             try {
               tick()
@@ -4820,6 +5356,11 @@ window.__ModuleLoader__.load({
             clearTimeout(resizeTimer)
             if (runtime.timer) clearInterval(runtime.timer)
             runtime.timer = null
+            try {
+              stopFocus()
+            } catch (e) {
+              /* ignore */
+            }
             clearLater()
             stopVoice()
           }
