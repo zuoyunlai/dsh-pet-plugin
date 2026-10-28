@@ -1,7 +1,7 @@
 {
   "generatedAt": "baseline",
   "count": 87,
-  "totalBytes": 15211042,
+  "totalBytes": 19668834,
   "files": {
     "pet-azure-angry.webp": {
       "bytes": 51832,
@@ -42,10 +42,10 @@
       "sha256": "7970b7b46dfbb8c9d40a610d7e55ecbb5c6ce811eafdcb4df43f4b46203f2e42"
     },
     "pet-azure-stage.webm": {
-      "bytes": 1211132,
-      "sha256": "97b91b7693910ecfa73f00287de0a0778b52a12173c94a014e2e3b5601e415de",
-      "width": 426,
-      "height": 640,
+      "bytes": 2617990,
+      "sha256": "569fc3b0ac531307a9d9f33f364d4b4cab723d5f9a79164b92e4499b855111a9",
+      "width": 626,
+      "height": 960,
       "durationMs": 10125,
       "fps": "24/1",
       "codec": "vp9",
@@ -64,8 +64,8 @@
       "alphaMode": "1"
     },
     "pet-azure.webp": {
-      "bytes": 52652,
-      "sha256": "15d521af0d1a61466feadfc5bcfd1ec389356ec7b6e9644080c9d67169bf7edb"
+      "bytes": 84134,
+      "sha256": "2e80d2d7f48a8914de9a9b32d51df30000d8239454a0d932e41fa8a244ccee66"
     },
     "pet-crimson-angry.webp": {
       "bytes": 31082,
@@ -107,10 +107,10 @@
       "sha256": "67569e9c82d5e1b87f125d24a1feba23734b612ad7354729d60ee3e7a354e1c4"
     },
     "pet-crimson-hair.webm": {
-      "bytes": 540721,
-      "sha256": "2cd83067c64e45d56d141fd87cafe66b8b77f7a1584fc165ad52edb2591a6d35",
-      "width": 376,
-      "height": 640,
+      "bytes": 687295,
+      "sha256": "97c1974e1f26f6b819d150c231bb0b877f2df71dfd96c06358b855374021802e",
+      "width": 388,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -142,10 +142,10 @@
       "sha256": "d6abca36b36a1593fe5c504829d66314df1c9a98b90ebdbe2429a29e34e49c44"
     },
     "pet-crimson-stage.webm": {
-      "bytes": 669107,
-      "sha256": "494d52b87c7d2d82146713fa4c5b4d2defe21c13b3c7405cff91cec88cf3bc0f",
-      "width": 454,
-      "height": 640,
+      "bytes": 1463808,
+      "sha256": "269db9fc63cc6c1e440bd1be8b8762ff4516cac927f5033929541e812f51b25f",
+      "width": 674,
+      "height": 960,
       "durationMs": 10125,
       "fps": "24/1",
       "codec": "vp9",
@@ -153,10 +153,10 @@
       "alphaMode": "1"
     },
     "pet-crimson-walk.webm": {
-      "bytes": 648978,
-      "sha256": "14982b620e78e654447328ff564bb71b5204e17804cf0b072ccfc18d4b149031",
-      "width": 340,
-      "height": 640,
+      "bytes": 787050,
+      "sha256": "4ab9dbb7221ea6f695d77777d24354754f14d59393b76e28649643c228ae5f42",
+      "width": 368,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -207,10 +207,10 @@
       "sha256": "77023b03f4aecf62f7d763171e47da03b4470dc69d1463a220a45f4092c06587"
     },
     "pet-indigo-hair.webm": {
-      "bytes": 471357,
-      "sha256": "25f8aa969e4075b688d874d15ea9665657026a14767904f4cc6aa62b03244589",
+      "bytes": 459918,
+      "sha256": "6d33cca65fca989afdb904242053b6abc7a16aee1449d9d4fa8b6b07fe263563",
       "width": 314,
-      "height": 640,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -242,10 +242,10 @@
       "sha256": "e4093fb31b5e628292ad943c79a38d02ecc3f961241cb7d722e7ebca70b4f4b1"
     },
     "pet-indigo-stage.webm": {
-      "bytes": 691038,
-      "sha256": "10fa3475e2fd38ce68ec976939592ef5ce825a990c72be8fa3dfa74fd24442d5",
-      "width": 358,
-      "height": 640,
+      "bytes": 1181097,
+      "sha256": "8402f19254210a752a5b2e3df6b269dbe9442efd6728ac7584bcaa75a87c963e",
+      "width": 530,
+      "height": 960,
       "durationMs": 10125,
       "fps": "24/1",
       "codec": "vp9",
@@ -253,10 +253,10 @@
       "alphaMode": "1"
     },
     "pet-indigo-walk.webm": {
-      "bytes": 577796,
-      "sha256": "1b75071a3ca9693194fd9dd8adc3db24a982468d4750e296430e38627cb039e0",
-      "width": 278,
-      "height": 640,
+      "bytes": 676123,
+      "sha256": "0c50cf9ccadbf1b318d27d251ba7d7da18b446ba19fa97089f95168d710dc421",
+      "width": 288,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -307,10 +307,10 @@
       "sha256": "4381ab130a795689c39c6b4cfa9def6084a8e29333b49e104d1b55ca226c01c6"
     },
     "pet-silver-hair.webm": {
-      "bytes": 390411,
-      "sha256": "756dce2d7d907adaf981bacba822ad5b4fd95d4e50ccf0c97844cd3175b45e1b",
+      "bytes": 450306,
+      "sha256": "2e1687c1f6a75436ce3a65ddc640700d25407f478b57226535a53e51f06f9bc2",
       "width": 278,
-      "height": 640,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -342,10 +342,10 @@
       "sha256": "79cc7b192e61e3ec67352982982cde0a8b4175c7ba1eacf0eb6327867c511f43"
     },
     "pet-silver-stage.webm": {
-      "bytes": 547755,
-      "sha256": "b86d4288cd0b03d4b4339abab06f3ea136c110f20d3c39783ed2316cbc6797c3",
-      "width": 428,
-      "height": 640,
+      "bytes": 1198425,
+      "sha256": "438de46656470ada3b6946819dcdc1147ddf19b83a8d805470b9a701be7b0f77",
+      "width": 634,
+      "height": 960,
       "durationMs": 10125,
       "fps": "24/1",
       "codec": "vp9",
@@ -353,10 +353,10 @@
       "alphaMode": "1"
     },
     "pet-silver-walk.webm": {
-      "bytes": 577944,
-      "sha256": "25cc62e97c0941d8640794a4a52afe75c46d1b6f81ff9ea04fd03b730d235004",
-      "width": 244,
-      "height": 640,
+      "bytes": 663848,
+      "sha256": "d36a5eafa6ddb8f6779c75a684d6bb013a7413e68ce03891f5c654b1b1ac6223",
+      "width": 262,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -419,10 +419,10 @@
       "sha256": "768339465bfb72ffa11647990ee299f37992b769befb29cbea39aa1c7790cee4"
     },
     "pet-violet-hair.webm": {
-      "bytes": 363701,
-      "sha256": "e67497af9cd42b52f5a631c13955b7bb22b6efdae3cc645164f745c651553242",
-      "width": 285,
-      "height": 640,
+      "bytes": 393585,
+      "sha256": "4fc87f94a91f9ce3db8d9578aef8a2beaa9f02d330f92c1ffa7700c08cd4585c",
+      "width": 286,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",
@@ -454,10 +454,10 @@
       "sha256": "c76593faa470c93791192b89fda1dc8f3349c05b662d82d14e726d7c81f55bac"
     },
     "pet-violet-stage.webm": {
-      "bytes": 520847,
-      "sha256": "ecbf4667167282c991d0cd966578f8aabf702cb1d50f290ff9256b82492ade75",
-      "width": 318,
-      "height": 640,
+      "bytes": 1055629,
+      "sha256": "8cbe89d23fa61daf2cb524b3bf0aac1124b9753887bfc791629a590dbe92f7cd",
+      "width": 468,
+      "height": 960,
       "durationMs": 10125,
       "fps": "24/1",
       "codec": "vp9",
@@ -465,10 +465,10 @@
       "alphaMode": "1"
     },
     "pet-violet-walk.webm": {
-      "bytes": 704889,
-      "sha256": "f15b7def3cd162d2f0e876c6a5ca209ecc5c471b37bfa45efe73af38f2e8b3fd",
-      "width": 245,
-      "height": 640,
+      "bytes": 706912,
+      "sha256": "513a2966c01225099eccfcfb7ca6ed8aca5c53fc78238669ccde94099d791ebc",
+      "width": 264,
+      "height": 768,
       "durationMs": 5167,
       "fps": "24/1",
       "codec": "vp9",

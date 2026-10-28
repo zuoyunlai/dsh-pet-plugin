@@ -9,10 +9,11 @@
   4. 编码：libvpx-vp9 + alpha，参数与其余片段一致
 
 用法：
-    python tools/stage-pipeline.py <母版.mp4> <输出.webm> [--out-h 640] [--subject-h 583]
+    python tools/stage-pipeline.py <母版.mp4> <输出.webm> [--out-h 640] [--subject-h 583] [--crf 38]
 
 `--subject-h` 是「人物在成片里占多少像素高」，默认 583（与既有 12 条片段一致，
-切换时不会突然变大变小）。
+切换时不会突然变大变小）。`--crf` 1.25.0 起可调：960 高的重出用 42——
+母版单代 + 3.9× 过采样，42 的观感仍远好于旧的两代 640。
 """
 import glob
 import os
@@ -58,6 +59,7 @@ def main():
     src, out = sys.argv[1], sys.argv[2]
     out_h = int(sys.argv[sys.argv.index("--out-h") + 1]) if "--out-h" in sys.argv else 640
     subj_h = int(sys.argv[sys.argv.index("--subject-h") + 1]) if "--subject-h" in sys.argv else 583
+    crf = sys.argv[sys.argv.index("--crf") + 1] if "--crf" in sys.argv else "38"
 
     probe = run(
         [
@@ -106,7 +108,7 @@ def main():
         "ffmpeg", "-nostdin", "-y", "-v", "error", "-framerate", "24", "-start_number", "0",
         "-i", os.path.join(stable, "%04d.png"),
         "-vf", "crop=%d:%d:%d:0,unsharp=5:5:0.4:5:5:0" % (r - l, h, l),
-        "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-b:v", "0", "-crf", "38",
+        "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p", "-b:v", "0", "-crf", crf,
         "-cpu-used", "0", "-auto-alt-ref", "0", "-lag-in-frames", "0",
         "-row-mt", "1", "-tile-columns", "2", "-threads", "8",
         "-aq-mode", "2", "-sharpness", "3", out,

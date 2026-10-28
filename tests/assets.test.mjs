@@ -56,8 +56,16 @@ test('assets match the committed sha256 baseline', () => {
         if (!(field in base)) problems.push(`${name}: missing ${field} metadata`)
       }
       assert.equal(base.codec, 'vp9', `${name}: expected VP9`)
-      assert.ok(base.width > 0 && base.width <= 640, `${name}: invalid width`)
-      assert.equal(base.height, 640, `${name}: expected 640px height`)
+      assert.ok(base.width > 0 && base.width <= 720, `${name}: invalid width`)
+      // 1.25.0 分辨率分档：stage 从 2K 母版单代重出 960（4K 屏 zoom 场景）；
+      // 四只原版的 hair/walk 从 768 母版出 768 原生；其余维持 640。
+      // 960/768 档位的依据与预算见 AUDIT-2026-10-28-fixplan.md 执行补记。
+      const H768 = new Set([
+        'pet-crimson-hair', 'pet-crimson-walk', 'pet-indigo-hair', 'pet-indigo-walk',
+        'pet-silver-hair', 'pet-silver-walk', 'pet-violet-hair', 'pet-violet-walk',
+      ])
+      const expectedH = name.includes('-stage.') ? 960 : (H768.has(name.replace(/\.webm$/, '')) ? 768 : 640)
+      assert.equal(base.height, expectedH, `${name}: expected height ${expectedH}`)
       const expectedDuration = name.includes('-stage.') ? 10125 : 5167
       assert.equal(base.durationMs, expectedDuration, `${name}: unexpected duration`)
       assert.equal(base.alphaMode, '1', `${name}: expected alpha_mode=1`)

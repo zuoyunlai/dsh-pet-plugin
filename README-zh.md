@@ -50,7 +50,7 @@
 | 常驻 / 随机出现 | 齿轮面板切换；随机模式下按「每小时概率」掷骰，并受活跃时段约束 |
 | 活跃时段 | 起止时间，支持跨零点（22:00 → 03:00） |
 | 主动说话 | 台词包按心情分组随机抽取，气泡 + 语音朗读 |
-| 语音 | **可选增强**：宿主装过 `edge-tts`（任意 python，`pip install edge-tts`）就用神经音色（晓晓/晓伊/晓臣等，按形象分配），宿主路由 `/dsh-pet/tts` 合成并缓存，`/dsh-pet/tts/status` 负责探测；没有 python/edge-tts 时**自动退回系统 `speechSynthesis`**。插件本身零依赖；含 87 个立绘与动作素材的包体约 15MB（受 20MB 门禁约束） |
+| 语音 | **可选增强**：宿主装过 `edge-tts`（任意 python，`pip install edge-tts`）就用神经音色（晓晓/晓伊/晓臣等，按形象分配），宿主路由 `/dsh-pet/tts` 合成并缓存，`/dsh-pet/tts/status` 负责探测；没有 python/edge-tts 时**自动退回系统 `speechSynthesis`**。插件本身零依赖；含 87 个立绘与动作素材的包体约 19MB（受 20MB 门禁约束） |
 | 小输入框 | **默认收起，鼠标移到人物上才滑出**（1.22.0 起；鼠标从人物移到输入框上不会收起）。设置里「悬停才显示」关掉即恢复常显。回车后**只跟它单聊**：一次性模型调用，回复进气泡，不写进任何 DSH 会话 |
 | 动作与表情 | CSS 动画 8 种心情：idle / walk / dance / shy / angry / sleep / talk / happy |
 | 被拖动 | 松手落地时有 60% 概率说一句 `drag` 台词；五只齐备（1.24.0 补齐薇/绯/靛/雪），台词五语 |
@@ -138,7 +138,7 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - **界面文案**：改 `locale/*.json` 的 `pet` 命名空间，再 `node build.mjs` —— 字典在构建时注入
   产物，所以 locale 文件是唯一真源。加语言：先 `node tools/gen-locales.cjs` 出骨架，再补翻译。
 - **动作动画**：`src/70-style.js` 里加 keyframes，在 `src/96-overlay.js` 按 `mood` 挂 class。
-- **动作视频**：pack 里可以带 `clips: { dance: "pet-x-dance.webm" }`——带 alpha 通道的 VP9 WebM。1.20.0 随包视频高度为 640；普通片段约 5.167 秒，stage 片段约 10.125 秒。`tools/assets-manifest.cjs` 会记录尺寸、时长、编码器、像素格式、alpha 模式、字节数和 SHA-256；资产测试会锁定这些值，并检查总预算不超过 20 MB。
+- **动作视频**：pack 里可以带 `clips: { dance: "pet-x-dance.webm" }`——带 alpha 通道的 VP9 WebM。视频高度分档（1.25.0）：stage 片段 **960**（2K 母版单代重出，4K 屏 zoom 场景）、四只原版的 hair/walk **768**（768 母版原生）、其余 **640**；普通片段约 5.167 秒，stage 片段约 10.125 秒。`tools/assets-manifest.cjs` 会记录尺寸、时长、编码器、像素格式、alpha 模式、字节数和 SHA-256；资产测试会锁定这些值，并检查总预算不超过 20 MB。
   该动作播放时她用循环 `<video>` 而不是翻帧，这是做到真 24fps 的唯一办法。
 - **立绘**：透明底 WebP 丢进 `assets/`，在 `pets/<id>/pack.json` 里引用，再 `node build.mjs`
   （它会先从 `pets/` 生成 `src/30-personas.js`）。宿主路由 `/dsh-pet/assets/` 只放行白名单里的图片与 webm 扩展名。
