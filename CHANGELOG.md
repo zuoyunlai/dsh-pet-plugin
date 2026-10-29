@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.26.1 — 2026-10-29
+
+> 1.26.0 的补丁：修两处 CI 门禁问题。**npm 上的 1.26.0 请勿使用**——
+> 它缺少下面第 ① 条修复，减弱动效的样式作用域不合规（功能可用，但审计门禁不过）。
+
+- ① **CSS 作用域泄漏（CI 门禁 red）**：静立规则原写作裸 `.dsh-pet-figure{animation:none!important}`，
+  作用域超出 `.dsh-pet-layer`，会命中 DSH 应用内任何同名元素——`tests/browser.mjs` 的
+  减弱动效探针判「宠物元素移出 layer 后动画仍被关掉」而红。改为后代形式
+  `.dsh-pet-layer .dsh-pet-figure` / `.dsh-pet-layer .dsh-pet-imgwrap`（探针优先取
+  imgwrap，两者都要覆盖）。
+- ② **中文注释里的反引号破模板串**：①那条规则上方的新增注释含反引号，而 CSS 是模板
+  字符串——反引号提前闭合模板串，client.js 直接语法错误。注释里改用普通写法。
+  （`npm test` 不覆盖 client.js 模板串的语法，靠 `tests/browser.mjs` 抓到。）
+
 ## 1.26.0 — 2026-10-28
 
 > 两个批次合一：「她懂我」批次（失焦通知 + 失焦安静态，用户排第一的需求）与
