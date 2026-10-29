@@ -226,6 +226,9 @@ const testFiles = [
   'tests/voice.test.mjs',
   'tests/overlay.dom.test.mjs',
   'tests/readme.test.mjs',
+  'tests/focus.test.mjs',
+  'tests/notify.test.mjs',
+  'tests/state.test.mjs',
 ]
 const testCmd = ['node', ['--test', ...testFiles]]
 console.log('tests  : ' + (dry ? '(计划模式下仍会真跑)' : '') + ' node --check + smoke + ' + testFiles.join(' '))

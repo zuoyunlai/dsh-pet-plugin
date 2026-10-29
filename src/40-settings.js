@@ -2,6 +2,106 @@
 
     const STORAGE_KEY = 'dsh-pet.settings.v1'
 
+    /* —— 跨设备状态（P0-1，2026-10-29 审计）——
+     * 旧实现只写 localStorage，从不回传宿主；启动时又「宿主有就覆盖本地」，
+     * 于是改完设置一刷新就被首次安装的快照打回去。现在的约定：
+     *   - 每次本地保存都记一个时间戳（STATE_AT_KEY），作为 updatedAt 的来源；
+     *   - 保存后 500ms 防抖回传宿主（/state POST），用户的每一次改动都会落地；
+     *   - 宿主里的那份比本地新时，宿主在响应里回 stale + state，本地采纳它。
+     */
+    const STATE_AT_KEY = 'dsh-pet.stateAt.v1'
+    const STATE_PUSH_DELAY = 500
+    let statePushTimer = null
+
+    function localStateAt() {
+      try {
+        const n = Number(window.localStorage.getItem(STATE_AT_KEY))
+        return Number.isFinite(n) && n > 0 ? n : 0
+      } catch (e) {
+        return 0
+      }
+    }
+
+    function setLocalStateAt(at) {
+      try {
+        window.localStorage.setItem(STATE_AT_KEY, String(at || nowMs()))
+      } catch (e) {
+        /* 隐私模式：没有时间戳就退回「谁先到谁算」 */
+      }
+    }
+
+    /**
+     * 老用户升级迁移：localStorage 里已有设置、但没有时间戳时，把它视为「刚刚保存」。
+     * 否则本地那份（用户实际在用的）会被宿主里更旧的快照按 updatedAt 规则压回去，
+     * 正是审计 P0-1 里「改完刷新全回退」的现场。
+     */
+    function ensureLocalStateAt() {
+      try {
+        if (window.localStorage.getItem(STATE_AT_KEY)) return
+        if (window.localStorage.getItem(STORAGE_KEY)) setLocalStateAt(nowMs())
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    function stateEndpoint() {
+      const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+      return base + '/dsh-pet/state'
+    }
+
+    function scheduleStatePush(delay) {
+      try {
+        if (typeof setTimeout !== 'function') return
+        if (statePushTimer) clearTimeout(statePushTimer)
+        statePushTimer = setTimeout(() => {
+          statePushTimer = null
+          pushStateNow()
+        }, typeof delay === 'number' ? delay : STATE_PUSH_DELAY)
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    /** 把本地状态推给宿主；宿主更新时（stale）采纳宿主的那份。 */
+    function pushStateNow() {
+      try {
+        if (typeof fetch !== 'function') return Promise.resolve()
+        // P0-1：历史只有**真的变过**才回传。否则「这台机器从没聊过天」的空数组会把
+        // 另一台设备刚同步过来的历史冲掉——这是跨设备状态最容易踩的数据丢失。
+        const withHistory = !!runtime.historyDirty
+        const payload = { settings: runtime.settings, updatedAt: localStateAt() || nowMs() }
+        if (withHistory) payload.history = runtime.history
+        const body = JSON.stringify(payload)
+        return fetch(stateEndpoint(), {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
+          body,
+        })
+          .then((res) => (res && res.ok ? res.json() : null))
+          .then((j) => {
+            if (j && j.stale && j.state) {
+              adoptHostState(j.state)
+              return
+            }
+            if (withHistory && runtime.historyDirty) runtime.historyDirty = false
+          })
+          .catch(() => {})
+      } catch (e) {
+        return Promise.resolve()
+      }
+    }
+
+    /** 只落 localStorage（不改宿主）：采纳宿主状态时用，避免「采纳 → 立刻回传」的抖动 */
+    function persistSettings(at) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(runtime.settings))
+        setLocalStateAt(at || nowMs())
+      } catch (e) {
+        /* 隐私模式等场景静默失败 */
+      }
+    }
+
     const DEFAULT_SETTINGS = {
       persona: 'violet',
       lang: 'auto', // 'auto' 跟随 DSH 界面语言 | en/zh/es/pt/hi 手动锁定
@@ -103,9 +203,7 @@
     }
 
     function saveSettings() {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(runtime.settings))
-      } catch (e) {
-        /* 隐私模式等场景静默失败 */
-      }
+      persistSettings()
+      // P0-1：本地保存之后必须回传宿主，否则换浏览器/清缓存就回到旧快照
+      scheduleStatePush()
     }

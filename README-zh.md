@@ -146,19 +146,25 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 
 ## 运行期扩展（1.21.0）
 
-- **免重构建的自定义形象**：把 `$DSH_HOME/dsh-pet/pets/<id>/pack.json`（素材放同目录，
-  素材放同目录；`license` 对内置包是发布门禁的必填项，用户包运行期不校验、缺了也照常
-  加载）丢进宿主目录——启动时扫描、与内置五只合并，经 `GET /dsh-pet/personas`
+- **免重构建的自定义形象**：把 `$DSH_HOME/dsh-pet/pets/<id>/pack.json`（素材放同目录；
+  `license` 对内置包是发布门禁的必填项，用户包运行期不校验、缺了也照常加载）
+  丢进宿主目录——启动时扫描、与内置五只合并，经 `GET /dsh-pet/personas`
   下发；资产走 `/dsh-pet/pets/<id>/…`（realpath 包含检查 + 扩展名白名单 + 超限 413）。
-  客户端拿不到列表时回落内置表。
+  客户端拿不到列表时回落内置表。**包必须满足渲染契约**，否则整包拒载（fail-closed，
+  宿主日志一条警告）：`name` + `clips`、`image`（SVG 形象则要完整 `colors` 色表）；
+  `voice` / `temper` 出现时，`voice.pitch` / `voice.rate` 必须是有限数、
+  `temper` 必须是「心情 → 正数」映射。
 - **台词覆盖**：`$DSH_HOME/dsh-pet/voice.json`——
   `{"<personaId>|*": {"lines|linesEn|linesEs|linesPt|linesHi": {"<mood>": ["…≤300字, ≤200条"]}}}`，
   按 mood 合并，坏片段 warn 后丢弃；整个文件坏掉则警告并忽略，不影响启动。
 - **让桌面伴侣开口**：`POST /dsh-pet/announce` `{"text":"…"}`（≤300 字、限流 30/分）。
   `/dsh-pet/ping` 新增 `phase`（working|tool|review|done，15 秒新鲜窗口）与 `announce`
   （seq 防重放）——agent 工作时桌面伴侣会走位/撩发。
-- **状态落宿主盘**：`GET/POST /dsh-pet/state`（settings ≤64 键、history ≤200 条 ×8000 字）。
-  客户端启动时宿主优先合并，否则把 localStorage 上云——换浏览器/清缓存不丢形象和历史。
+- **状态落宿主盘**：`GET/POST /dsh-pet/state`。双方都带 `updatedAt`（新者胜：宿主里
+  的旧快照再也盖不回本地的新设置）；客户端在每次保存设置/历史后 500ms 防抖回传。
+  history 以 `{role, content}` 对象存储——旧版本留下的 `"[object Object]"` 字符串
+  在读取时被丢弃并迁移，不会写回 localStorage。设置键在宿主侧走白名单
+  （≤64 项；history ≤200 条 × 8000 字）。
 - **关掉自动碎碎念**：设置 `statusBubbles: auto|off`——off 时心情/问候/闲聊自动台词静默，
   点按/拖拽/announce 播报不受影响。
 - **分发合规**：每个 pack 声明 `license`，`THIRD_PARTY_NOTICES.md` 随包分发，
@@ -191,5 +197,6 @@ chrome --headless=new --screenshot=preview.png --window-size=1200,760 "file:///.
 - 神经语音是**可选增强**：宿主得有 python + `edge_tts`，否则退回系统 `speechSynthesis`
   （Windows 上就是那几个 SAPI 音色，靠面板的音高/语速调）。`speak()` 是唯一出口，替换容易。
 - 浏览器自动播放策略：页面没有用户手势前可能不出声，点一下宠物即可解锁。
-- 设置存在浏览器 localStorage，换浏览器配置就没了。
+- 设置存在浏览器 localStorage，并在每次保存后回传宿主（`$DSH_HOME/dsh-pet/state.json`，
+  带 `updatedAt` 新者胜）；同一 `DSH_HOME` 下换浏览器/清缓存不再丢设置与聊天历史。
 - 已开源发布：GitHub [zuoyunlai/dsh-pet-plugin](https://github.com/zuoyunlai/dsh-pet-plugin)，npm `dsh-pet-plugin`（MIT）。装法：`dsh plugin --profile desktop add dsh-pet-plugin`。

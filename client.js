@@ -1,9 +1,9 @@
 /**
  * dsh-pet — 桌面宠物（DSH Web 客户端插件）
  *
- * 挂载点：
- *   shell.overlay              → 宠物本体（全窗浮动层，root 作用域）
- *   conversation.input.overlay → 隐形桥接（session 作用域，拿到 inputActions 才能替用户发消息）
+ * 挂载点（2026-10-29 审计 P3-12：旧注释还写着早已删除的 conversation.input.overlay 桥）：
+ *   shell.overlay            → 宠物本体（全窗浮动层，root 作用域）
+ *   conversation.input.right → 输入框右侧的 🐾 常驻入口（宠物藏起来时的唯一召唤按钮）
  *
  * 约束（官方红线，别改坏）：
  *   - 不 iframe、不往 document.body 追加、不 require 任何 @deepseek-ai/dsh-client-* 包
@@ -16,7 +16,8 @@ window.__ModuleLoader__.load({
     'use strict'
     const React = require('react')
     const h = React.createElement
-    const { useState, useEffect, useCallback, useRef } = React
+    // P3-1：useCallback 从未使用（旧的死导入）
+    const { useState, useEffect, useRef } = React
 
     /* ================= 工具 ================= */
 
@@ -24,6 +25,15 @@ window.__ModuleLoader__.load({
     const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1))
     const pick = (arr) => (arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : '')
     const nowMs = () => Date.now()
+
+    /**
+     * 构建期注入的插件版本（build.mjs 会把下面这个占位符替换成 package.json 的 version）。
+     * 用途（P3-10，2026-10-29 审计）：资产 URL 带 ?v=<version>，升级后不会被 1 小时
+     * 公共缓存钉在旧立绘上。未构建（占位符还在）时不加参数，方便本地调试。
+     */
+    const PET_BUILD_VERSION = "1.27.0"
+    const PET_ASSET_QS =
+      PET_BUILD_VERSION.indexOf('__') === 0 ? '' : '?v=' + encodeURIComponent(PET_BUILD_VERSION)
 
     /** 系统是否要求减弱动效（读不到就当没有要求）。 */
     function prefersReduced() {
@@ -34,13 +44,26 @@ window.__ModuleLoader__.load({
       }
     }
 
+    /**
+     * 按权重抽样。P1-2（2026-10-29 审计）：旧实现在 table 为空/非对象时
+     * Object.keys(undefined) 直接抛，且非数字权重会让抽样退化。现在：
+     *   - 空表 → 'idle'（调用方 scheduleMood 拿到的是合法心情）；
+     *   - 非正数/NaN 的权重被跳过；全都不合法时退回第一个键。
+     */
     function weighted(table) {
-      const keys = Object.keys(table)
-      let total = 0
-      for (const k of keys) total += table[k]
+      const keys = table && typeof table === 'object' && !Array.isArray(table) ? Object.keys(table) : []
+      if (!keys.length) return 'idle'
+      const valid = (k) => {
+        const w = Number(table[k])
+        return Number.isFinite(w) && w > 0 ? w : 0
+      }
+      const total = keys.reduce((sum, k) => sum + valid(k), 0)
+      if (!(total > 0)) return keys[0]
       let r = Math.random() * total
       for (const k of keys) {
-        r -= table[k]
+        const w = valid(k)
+        if (!w) continue
+        r -= w
         if (r <= 0) return k
       }
       return keys[keys.length - 1]
@@ -68,7 +91,7 @@ window.__ModuleLoader__.load({
     // 字典由 build.mjs 从 locale/<lang>.json 注入（标记 @locales）；改文案请改 locale/ 再 build。
     // 语言跟随 DSH 界面语言：优先读 <html lang>（宿主切换语言时会改它），
     // 其次 navigator.language，最后回落英文。可用 localStorage['dsh-pet.lang'] 手动覆盖。
-    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.dontDisturb":"Do not disturb 1h","panel.dontDisturbOn":"End do not disturb","panel.turnNotify":"Tell me when a run finishes","panel.turnNotifyHint":"One notification when a long run completes while you are away.","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}","chat.needSignIn":"You need to sign in to DeepSeek in DSH before I can use the model.","chat.stuck":"My head is a little stuck right now.","dot.thinking":"thinking…","dot.ok":"chat link OK","dot.fail":"last attempt failed (see [dsh-pet] chat failed in the console)","dot.idle":"no chat yet","actor.tip":" (drag me / right-click for a menu)","hint.notifyDenied":"Notification permission was not granted. Enable it in the address bar to use turn reminders."},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"语言","panel.langAuto":"Auto (follow DSH)","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.dontDisturb":"勿扰 1 小时","panel.dontDisturbOn":"结束勿扰","panel.turnNotify":"跑完了提醒我","panel.turnNotifyHint":"你不在的时候，长时间的一轮跑完会弹一条通知。","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}","chat.needSignIn":"得先在 DSH 里登录 DeepSeek，我才用得上大模型。","chat.stuck":"我这会儿脑子有点卡住了。","dot.thinking":"它正在想…","dot.ok":"单聊通道正常","dot.fail":"刚才那次没接上（看控制台 [dsh-pet] chat failed）","dot.idle":"还没聊过","actor.tip":"（可以拖走 / 右键有菜单）","hint.notifyDenied":"没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.dontDisturb":"No molestar 1 h","panel.dontDisturbOn":"Terminar no molestar","panel.turnNotify":"Avisarme al terminar","panel.turnNotifyHint":"Una notificación cuando una tanda larga termina y no estás mirando.","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto a los servicios en línea de Microsoft; desactívala si prefieres no salir de esta máquina.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}","chat.needSignIn":"Primero inicia sesión en DeepSeek dentro de DSH para que pueda usar el modelo.","chat.stuck":"Ahora mismo se me ha atascado la cabeza.","dot.thinking":"pensando…","dot.ok":"chat en orden","dot.fail":"el último intento falló (mira [dsh-pet] chat failed en la consola)","dot.idle":"aún sin chatear","actor.tip":" (arrástrame / clic derecho para el menú)","hint.notifyDenied":"No se concedió permiso de notificación. Actívalo en la barra de direcciones para usar los avisos."},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.dontDisturb":"Não perturbe 1 h","panel.dontDisturbOn":"Encerrar não perturbe","panel.turnNotify":"Avisar quando terminar","panel.turnNotifyHint":"Uma notificação quando uma rodada longa termina e você não está olhando.","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}","chat.needSignIn":"Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.","chat.stuck":"Minha cabeça travou um pouco agora.","dot.thinking":"pensando…","dot.ok":"chat funcionando","dot.fail":"a última tentativa falhou (veja [dsh-pet] chat failed no console)","dot.idle":"ainda sem conversa","actor.tip":" (arraste-me / clique direito para o menu)","hint.notifyDenied":"A permissão de notificação não foi concedida. Ative-a na barra de endereço para usar os avisos."},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"भाषा","panel.langAuto":"स्वतः (DSH के अनुसार)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"प्रभाव","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"कभी-कभी","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"न्यूरल","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"वॉल्यूम","panel.pitch":"पिच","panel.rate":"Raftaar","panel.inputBox":"इनपुट बॉक्स","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"आकार","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.dontDisturb":"1 घंटा परेशान न करें","panel.dontDisturbOn":"परेशान न करें बंद करें","panel.turnNotify":"खत्म होने पर बताएं","panel.turnNotifyHint":"जब आप दूर हों और लंबा दौर पूरा हो, तो एक सूचना।","panel.settings":"सेटिंग्स","panel.ink":"स्याही","panel.confetti":"कंफेटी","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"बम","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"न्यूरल आवाज़ बोले जाने वाले टेक्स्ट को माइक्रोसॉफ्ट के ऑनलाइन सेवा को भेजती है; नहीं भेजना चाहते तो «न्यूरल» बंद कर दें।","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}","chat.needSignIn":"पहले DSH में DeepSeek पर साइन-इन करें, तभी मैं मॉडल इस्तेमाल कर पाऊँगी।","chat.stuck":"अभी मेरा दिमाग़ थोड़ा अटक गया है।","dot.thinking":"सोच रही है…","dot.ok":"चैट ठीक है","dot.fail":"पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)","dot.idle":"अभी तक कोई चैट नहीं","actor.tip":" (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)","hint.notifyDenied":"सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।"}}
+    const PET_LOCALES = {"en":{"panel.title":"Desktop companion","panel.look":"Look","panel.lang":"Language","panel.langAuto":"Auto (follow DSH)","panel.voice":"Voice","panel.display":"Display","panel.actions":"Actions","panel.effects":"Effects","panel.persona":"Persona","panel.always":"Always","panel.random":"Random","panel.probability":"Per hour","panel.active":"Hours","panel.voiceOn":"Speech","panel.neural":"Neural","voice.auto":"Follow persona (default)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Pitch","panel.rate":"Rate","panel.inputBox":"Input box","panel.inputHover":"Only on hover","panel.chatter":"Chit-chat","panel.celebrate":"Celebrate","panel.chaos":"Mischief","panel.size":"Size","panel.dance":"Dance","panel.hair":"Flip hair","panel.summon":"Summon","panel.stay":"Stay a while","panel.cheer":"Cheer up","panel.hide":"Hide 1h","panel.dontDisturb":"Do not disturb 1h","panel.dontDisturbOn":"End do not disturb","panel.turnNotify":"Tell me when a run finishes","panel.turnNotifyHint":"One notification when a long run completes while you are away.","panel.settings":"Settings","panel.ink":"Ink","panel.confetti":"Confetti","panel.cloud":"Cloud","panel.fog":"Fog","panel.bomb":"Bomb","panel.resetPos":"Reset corner","panel.resetAll":"Defaults","panel.close":"Close","voice.xiaoxiao":"Xiaoxiao · gentle","voice.xiaoyi":"Xiaoyi · sweet","pet.toggle":"Desktop companion","pet.toggleOff":"She is off-screen — click to bring her back","hint.neuralOff":"Neural voice unavailable, using the system voice","hint.privacy":"Neural voice sends the spoken text to Microsoft. Switch it off to keep everything on this machine.","placeholder.chat":"Say something to {name}…","a11y.talkTo":"Talk to {name}","a11y.send":"Send","a11y.start":"Active from","a11y.end":"Active until","voice.hsiaochen":"HsiaoChen · soft (TW)","voice.xiaobei":"Xiaobei · lively (NE)","panel.pitchTrim":"Pitch trim","panel.rateTrim":"Rate trim","panel.voiceEff":"Now: {voice} · pitch {pitch} · rate {rate}","chat.needSignIn":"You need to sign in to DeepSeek in DSH before I can use the model.","chat.stuck":"My head is a little stuck right now.","dot.thinking":"thinking…","dot.ok":"chat link OK","dot.fail":"last attempt failed (see [dsh-pet] chat failed in the console)","dot.idle":"no chat yet","actor.tip":" (drag me / right-click for a menu)","hint.notifyDenied":"Notification permission was not granted. Enable it in the address bar to use turn reminders.","chat.rateLimited":"Too many messages just now — give it a minute.","panel.clearMemory":"Clear chat memory","hint.memoryShared":"Persona switched. Chat memory is shared across personas — clear it in settings if you want a fresh start.","hint.renderFailed":"Something broke while drawing the pet. Check the console ([dsh-pet])."},"zh":{"panel.title":"桌面伴侣","panel.look":"形象","panel.lang":"语言","panel.langAuto":"自动（跟随 DSH）","panel.voice":"声音","panel.display":"显示","panel.actions":"动作","panel.effects":"特效","panel.persona":"形象","panel.always":"常驻","panel.random":"随机","panel.probability":"每小时","panel.active":"活跃","panel.voiceOn":"说话","panel.neural":"神经音色","voice.auto":"跟随角色（默认）","panel.voiceName":"音色","panel.volume":"音量","panel.pitch":"音高","panel.rate":"语速","panel.inputBox":"小输入框","panel.inputHover":"悬停才显示","panel.chatter":"主动搭话","panel.celebrate":"完成庆祝","panel.chaos":"恶作剧","panel.size":"大小","panel.dance":"跳一段","panel.hair":"撩头发","panel.summon":"叫出来","panel.stay":"再待一会儿","panel.cheer":"开心一下","panel.hide":"藏 1h","panel.dontDisturb":"勿扰 1 小时","panel.dontDisturbOn":"结束勿扰","panel.turnNotify":"跑完了提醒我","panel.turnNotifyHint":"你不在的时候，长时间的一轮跑完会弹一条通知。","panel.settings":"设置","panel.ink":"泼墨","panel.confetti":"撒花","panel.cloud":"乌云","panel.fog":"起雾","panel.bomb":"炸弹","panel.resetPos":"回右下角","panel.resetAll":"恢复默认","panel.close":"关闭","voice.xiaoxiao":"晓晓 · 温柔","voice.xiaoyi":"晓伊 · 甜","pet.toggle":"桌面伴侣","pet.toggleOff":"她在屏幕外，点一下拉回来","hint.neuralOff":"神经音色不可用，改用系统语音","hint.privacy":"神经语音会把要说的话发到微软的在线服务合成；不想外发就关掉「神经」，改用系统语音。","placeholder.chat":"跟{name}说句话…","a11y.talkTo":"对 {name} 说话","a11y.send":"发送","a11y.start":"活跃开始","a11y.end":"活跃结束","voice.hsiaochen":"晓臻 · 软糯（台湾）","voice.xiaobei":"晓北 · 活泼（东北）","panel.pitchTrim":"音高微调","panel.rateTrim":"语速微调","panel.voiceEff":"当前：{voice} · 音高 {pitch} · 语速 {rate}","chat.needSignIn":"得先在 DSH 里登录 DeepSeek，我才用得上大模型。","chat.stuck":"我这会儿脑子有点卡住了。","dot.thinking":"它正在想…","dot.ok":"单聊通道正常","dot.fail":"刚才那次没接上（看控制台 [dsh-pet] chat failed）","dot.idle":"还没聊过","actor.tip":"（可以拖走 / 右键有菜单）","hint.notifyDenied":"没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。","chat.rateLimited":"说得太快啦，缓一分钟再聊。","panel.clearMemory":"清空聊天记忆","hint.memoryShared":"换形象了：聊天记忆跨形象共用，想清掉就在设置里点「清空聊天记忆」。","hint.renderFailed":"画她的时候出错了，详情看控制台 [dsh-pet]。"},"es":{"panel.title":"Mascota","panel.look":"Aspecto","panel.lang":"Idioma","panel.langAuto":"Auto (seguir DSH)","panel.voice":"Voz","panel.display":"Pantalla","panel.actions":"Acciones","panel.effects":"Efectos","panel.persona":"Personaje","panel.always":"Siempre","panel.random":"Aleatoria","panel.probability":"Por hora","panel.active":"Horario","panel.voiceOn":"Hablar","panel.neural":"Neural","voice.auto":"Seguir al personaje (por defecto)","panel.voiceName":"Timbre","panel.volume":"Volumen","panel.pitch":"Tono","panel.rate":"Velocidad","panel.inputBox":"Cajita","panel.inputHover":"Solo al pasar el ratón","panel.chatter":"Charlar","panel.celebrate":"Celebrar","panel.chaos":"Travesuras","panel.size":"Tamaño","panel.dance":"Bailar","panel.hair":"Mover pelo","panel.summon":"Llamar","panel.stay":"Quédate un rato","panel.cheer":"Anímate","panel.hide":"Ocultar 1h","panel.dontDisturb":"No molestar 1 h","panel.dontDisturbOn":"Terminar no molestar","panel.turnNotify":"Avisarme al terminar","panel.turnNotifyHint":"Una notificación cuando una tanda larga termina y no estás mirando.","panel.settings":"Ajustes","panel.ink":"Tinta","panel.confetti":"Confeti","panel.cloud":"Nube","panel.fog":"Niebla","panel.bomb":"Bomba","panel.resetPos":"Esquina","panel.resetAll":"Defecto","panel.close":"Cerrar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · dulce","pet.toggle":"Mascota","pet.toggleOff":"Está fuera de pantalla, pulsa para traerla","hint.neuralOff":"Voz neural no disponible, se usa la del sistema","hint.privacy":"La voz neuronal envía el texto a los servicios en línea de Microsoft; desactívala si prefieres no salir de esta máquina.","placeholder.chat":"Dile algo a {name}…","a11y.talkTo":"Habla con {name}","a11y.send":"Enviar","a11y.start":"Activo desde","a11y.end":"Activo hasta","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tono","panel.rateTrim":"Ajuste de velocidad","panel.voiceEff":"Ahora: {voice} · tono {pitch} · velocidad {rate}","chat.needSignIn":"Primero inicia sesión en DeepSeek dentro de DSH para que pueda usar el modelo.","chat.stuck":"Ahora mismo se me ha atascado la cabeza.","dot.thinking":"pensando…","dot.ok":"chat en orden","dot.fail":"el último intento falló (mira [dsh-pet] chat failed en la consola)","dot.idle":"aún sin chatear","actor.tip":" (arrástrame / clic derecho para el menú)","hint.notifyDenied":"No se concedió permiso de notificación. Actívalo en la barra de direcciones para usar los avisos.","chat.rateLimited":"Demasiados mensajes, espera un minuto.","panel.clearMemory":"Borrar memoria del chat","hint.memoryShared":"Cambiaste de personaje. La memoria del chat se comparte entre personajes; bórrala en ajustes si quieres empezar de cero.","hint.renderFailed":"Algo falló al dibujar la mascota. Revisa la consola ([dsh-pet])."},"pt":{"panel.title":"Mascote","panel.look":"Aparência","panel.lang":"Idioma","panel.langAuto":"Auto (seguir DSH)","panel.voice":"Voz","panel.display":"Exibição","panel.actions":"Ações","panel.effects":"Efeitos","panel.persona":"Personagem","panel.always":"Sempre","panel.random":"Aleatória","panel.probability":"Por hora","panel.active":"Horário","panel.voiceOn":"Falar","panel.neural":"Neural","voice.auto":"Seguir o personagem (padrão)","panel.voiceName":"Timbre","panel.volume":"Volume","panel.pitch":"Tom","panel.rate":"Velocidade","panel.inputBox":"Caixinha","panel.inputHover":"Só retrátil ao passar","panel.chatter":"Puxar papo","panel.celebrate":"Celebrar","panel.chaos":"Travessuras","panel.size":"Tamanho","panel.dance":"Dançar","panel.hair":"Mexer cabelo","panel.summon":"Chamar","panel.stay":"Fique mais um pouco","panel.cheer":"Fica feliz","panel.hide":"Ocultar 1h","panel.dontDisturb":"Não perturbe 1 h","panel.dontDisturbOn":"Encerrar não perturbe","panel.turnNotify":"Avisar quando terminar","panel.turnNotifyHint":"Uma notificação quando uma rodada longa termina e você não está olhando.","panel.settings":"Configurações","panel.ink":"Tinta","panel.confetti":"Confete","panel.cloud":"Nuvem","panel.fog":"Névoa","panel.bomb":"Bomba","panel.resetPos":"Canto","panel.resetAll":"Padrão","panel.close":"Fechar","voice.xiaoxiao":"Xiaoxiao · suave","voice.xiaoyi":"Xiaoyi · doce","pet.toggle":"Mascote","pet.toggleOff":"Ela está fora da tela, clique para trazê-la","hint.neuralOff":"Voz neural indisponível, usando a do sistema","hint.privacy":"A voz neural envia o texto para o serviço on-line da Microsoft; desative se preferir manter tudo nesta máquina.","placeholder.chat":"Diga algo para {name}…","a11y.talkTo":"Fale com {name}","a11y.send":"Enviar","a11y.start":"Ativo das","a11y.end":"Ativo até","voice.hsiaochen":"HsiaoChen · suave (TW)","voice.xiaobei":"Xiaobei · vivaz (NE)","panel.pitchTrim":"Ajuste de tom","panel.rateTrim":"Ajuste de velocidade","panel.voiceEff":"Agora: {voice} · tom {pitch} · velocidade {rate}","chat.needSignIn":"Entre com a conta DeepSeek no DSH antes, senão não consigo usar o modelo.","chat.stuck":"Minha cabeça travou um pouco agora.","dot.thinking":"pensando…","dot.ok":"chat funcionando","dot.fail":"a última tentativa falhou (veja [dsh-pet] chat failed no console)","dot.idle":"ainda sem conversa","actor.tip":" (arraste-me / clique direito para o menu)","hint.notifyDenied":"A permissão de notificação não foi concedida. Ative-a na barra de endereço para usar os avisos.","chat.rateLimited":"Muitas mensagens, espere um minuto.","panel.clearMemory":"Limpar memória do chat","hint.memoryShared":"Trocou de personagem. A memória do chat é compartilhada; limpe nos ajustes se quiser começar do zero.","hint.renderFailed":"Algo falhou ao desenhar a mascote. Veja o console ([dsh-pet])."},"hi":{"panel.title":"Pet","panel.look":"Roop","panel.lang":"भाषा","panel.langAuto":"स्वतः (DSH के अनुसार)","panel.voice":"Aawaaz","panel.display":"Dikhaav","panel.actions":"Harkat","panel.effects":"प्रभाव","panel.persona":"Character","panel.always":"Hameshaa","panel.random":"कभी-कभी","panel.probability":"Prati ghantaa","panel.active":"Samay","panel.voiceOn":"Bole","panel.neural":"न्यूरल","voice.auto":"Persona ke hisaab se (default)","panel.voiceName":"Sur","panel.volume":"वॉल्यूम","panel.pitch":"पिच","panel.rate":"Raftaar","panel.inputBox":"इनपुट बॉक्स","panel.inputHover":"Hover par hi dikhe","panel.chatter":"Baat-cheet","panel.celebrate":"Jashn","panel.chaos":"Sharaarat","panel.size":"आकार","panel.dance":"Naacho","panel.hair":"Baal sarkaao","panel.summon":"Bulaao","panel.stay":"Thodi der ruko","panel.cheer":"Khush ho jao","panel.hide":"1 ghantaa chhupao","panel.dontDisturb":"1 घंटा परेशान न करें","panel.dontDisturbOn":"परेशान न करें बंद करें","panel.turnNotify":"खत्म होने पर बताएं","panel.turnNotifyHint":"जब आप दूर हों और लंबा दौर पूरा हो, तो एक सूचना।","panel.settings":"सेटिंग्स","panel.ink":"स्याही","panel.confetti":"कंफेटी","panel.cloud":"Baadal","panel.fog":"Dhundh","panel.bomb":"बम","panel.resetPos":"Kona","panel.resetAll":"Default","panel.close":"Band","voice.xiaoxiao":"Xiaoxiao · komaL","voice.xiaoyi":"Xiaoyi · meethi","pet.toggle":"Pet","pet.toggleOff":"Woh screen se bahar hai, wapas laane ke liye click karein","hint.neuralOff":"Neural aawaaz upalabdh nahi, system voice use ho rahi hai","hint.privacy":"न्यूरल आवाज़ बोले जाने वाले टेक्स्ट को माइक्रोसॉफ्ट के ऑनलाइन सेवा को भेजती है; नहीं भेजना चाहते तो «न्यूरल» बंद कर दें।","placeholder.chat":"{name} se kuchh kahein…","a11y.talkTo":"{name} se baat karein","a11y.send":"Bhejein","a11y.start":"Active kab se","a11y.end":"Active kab tak","voice.hsiaochen":"HsiaoChen · komal (TW)","voice.xiaobei":"Xiaobei · jeevant (NE)","panel.pitchTrim":"पिच समायोजन","panel.rateTrim":"गति समायोजन","panel.voiceEff":"अभी: {voice} · पिच {pitch} · गति {rate}","chat.needSignIn":"पहले DSH में DeepSeek पर साइन-इन करें, तभी मैं मॉडल इस्तेमाल कर पाऊँगी।","chat.stuck":"अभी मेरा दिमाग़ थोड़ा अटक गया है।","dot.thinking":"सोच रही है…","dot.ok":"चैट ठीक है","dot.fail":"पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)","dot.idle":"अभी तक कोई चैट नहीं","actor.tip":" (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)","hint.notifyDenied":"सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।","chat.rateLimited":"बहुत ज़्यादा संदेश, एक मिनट रुकिए।","panel.clearMemory":"चैट यादें साफ़ करें","hint.memoryShared":"किरदार बदला। चैट यादें सभी किरदारों में साझा हैं; नई शुरुआत के लिए सेटिंग्स में साफ़ करें।","hint.renderFailed":"पालतू को बनाते समय कुछ गड़बड़ हुई। कंसोल देखें ([dsh-pet])।"}}
     const PET_LANGS = ["en","zh","es","pt","hi"]
     const PET_LANG_KEY = 'dsh-pet.lang'
 
@@ -1544,6 +1567,106 @@ window.__ModuleLoader__.load({
 
     const STORAGE_KEY = 'dsh-pet.settings.v1'
 
+    /* —— 跨设备状态（P0-1，2026-10-29 审计）——
+     * 旧实现只写 localStorage，从不回传宿主；启动时又「宿主有就覆盖本地」，
+     * 于是改完设置一刷新就被首次安装的快照打回去。现在的约定：
+     *   - 每次本地保存都记一个时间戳（STATE_AT_KEY），作为 updatedAt 的来源；
+     *   - 保存后 500ms 防抖回传宿主（/state POST），用户的每一次改动都会落地；
+     *   - 宿主里的那份比本地新时，宿主在响应里回 stale + state，本地采纳它。
+     */
+    const STATE_AT_KEY = 'dsh-pet.stateAt.v1'
+    const STATE_PUSH_DELAY = 500
+    let statePushTimer = null
+
+    function localStateAt() {
+      try {
+        const n = Number(window.localStorage.getItem(STATE_AT_KEY))
+        return Number.isFinite(n) && n > 0 ? n : 0
+      } catch (e) {
+        return 0
+      }
+    }
+
+    function setLocalStateAt(at) {
+      try {
+        window.localStorage.setItem(STATE_AT_KEY, String(at || nowMs()))
+      } catch (e) {
+        /* 隐私模式：没有时间戳就退回「谁先到谁算」 */
+      }
+    }
+
+    /**
+     * 老用户升级迁移：localStorage 里已有设置、但没有时间戳时，把它视为「刚刚保存」。
+     * 否则本地那份（用户实际在用的）会被宿主里更旧的快照按 updatedAt 规则压回去，
+     * 正是审计 P0-1 里「改完刷新全回退」的现场。
+     */
+    function ensureLocalStateAt() {
+      try {
+        if (window.localStorage.getItem(STATE_AT_KEY)) return
+        if (window.localStorage.getItem(STORAGE_KEY)) setLocalStateAt(nowMs())
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    function stateEndpoint() {
+      const base = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
+      return base + '/dsh-pet/state'
+    }
+
+    function scheduleStatePush(delay) {
+      try {
+        if (typeof setTimeout !== 'function') return
+        if (statePushTimer) clearTimeout(statePushTimer)
+        statePushTimer = setTimeout(() => {
+          statePushTimer = null
+          pushStateNow()
+        }, typeof delay === 'number' ? delay : STATE_PUSH_DELAY)
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    /** 把本地状态推给宿主；宿主更新时（stale）采纳宿主的那份。 */
+    function pushStateNow() {
+      try {
+        if (typeof fetch !== 'function') return Promise.resolve()
+        // P0-1：历史只有**真的变过**才回传。否则「这台机器从没聊过天」的空数组会把
+        // 另一台设备刚同步过来的历史冲掉——这是跨设备状态最容易踩的数据丢失。
+        const withHistory = !!runtime.historyDirty
+        const payload = { settings: runtime.settings, updatedAt: localStateAt() || nowMs() }
+        if (withHistory) payload.history = runtime.history
+        const body = JSON.stringify(payload)
+        return fetch(stateEndpoint(), {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
+          body,
+        })
+          .then((res) => (res && res.ok ? res.json() : null))
+          .then((j) => {
+            if (j && j.stale && j.state) {
+              adoptHostState(j.state)
+              return
+            }
+            if (withHistory && runtime.historyDirty) runtime.historyDirty = false
+          })
+          .catch(() => {})
+      } catch (e) {
+        return Promise.resolve()
+      }
+    }
+
+    /** 只落 localStorage（不改宿主）：采纳宿主状态时用，避免「采纳 → 立刻回传」的抖动 */
+    function persistSettings(at) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(runtime.settings))
+        setLocalStateAt(at || nowMs())
+      } catch (e) {
+        /* 隐私模式等场景静默失败 */
+      }
+    }
+
     const DEFAULT_SETTINGS = {
       persona: 'violet',
       lang: 'auto', // 'auto' 跟随 DSH 界面语言 | en/zh/es/pt/hi 手动锁定
@@ -1645,11 +1768,9 @@ window.__ModuleLoader__.load({
     }
 
     function saveSettings() {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(runtime.settings))
-      } catch (e) {
-        /* 隐私模式等场景静默失败 */
-      }
+      persistSettings()
+      // P0-1：本地保存之后必须回传宿主，否则换浏览器/清缓存就回到旧快照
+      scheduleStatePush()
     }
 
     /* ================= 运行时状态 ================= */
@@ -1675,6 +1796,8 @@ window.__ModuleLoader__.load({
       action: null, // 正在播的动作序列 { name, frames, i, step, until }
       rootEl: null, // 宠物根节点，给视线跟随用
       history: [], // 跟它单聊的最近几轮（落 localStorage，刷新不失忆）
+      // 历史是否自上次回传后被改过（P0-1）：没改过就不往宿主传，避免用空历史冲掉别的设备
+      historyDirty: false,
       speaking: false,
       speakUntil: 0,
       subs: new Set(),
@@ -1688,6 +1811,8 @@ window.__ModuleLoader__.load({
       // —— 阶段机（F1）：idle / working / tool / error / speak / done ——
       phase: 'idle',
       running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
+      // 宿主是否真的传了 useSession（§11.1 未证实项兜底：没传时改用 /ping 的 phase 边沿推导）
+      sessionHookSeen: false,
       doneUntil: 0, // 一轮刚结束的庆祝窗口
       lastToolAt: 0, // 宿主最近一次 tools/result 的时间戳（来自 /ping）
       lastToolName: '',
@@ -1889,14 +2014,37 @@ window.__ModuleLoader__.load({
      * 运行期注册表替换（R-01）：宿主 /personas 成功返回非空表时整表换入。
      * 空表/坏表一律拒收（宿主扫描失败时保持内置表）；换表后当前 persona
      * 若不在新表里，回落到新表第一只，避免渲染一个查无此人的形象。
+     *
+     * P1-2（2026-10-29 审计）：逐条做形状过滤——宿主的 fail-closed 校验只保护
+     * 「读盘扫描」这条路径，老宿主版本或中间层仍可能灌进缺字段的包。坏条目跳过
+     * 并 warn，而不是让整表替换、然后在渲染期白屏。
      */
+    function usablePersona(p) {
+      if (!p || typeof p !== 'object' || !p.id) return false
+      if (typeof p.name !== 'string' || !p.name.trim()) return false
+      if (!p.clips || typeof p.clips !== 'object') return false
+      if (p.image) return true
+      const c = p.colors
+      if (!c || typeof c !== 'object') return false
+      for (const key of ['body', 'body2', 'belly', 'accent', 'eye']) {
+        if (typeof c[key] !== 'string' || !c[key]) return false
+      }
+      return true
+    }
+
     function setPersonas(list) {
       if (!Array.isArray(list) || !list.length) return false
       const map = {}
+      const skipped = []
       for (const p of list) {
-        if (p && typeof p === 'object' && p.id) map[p.id] = p
+        if (!usablePersona(p)) {
+          skipped.push(p && p.id ? String(p.id) : '(unknown)')
+          continue
+        }
+        map[p.id] = typeof p.tag === 'string' ? p : { ...p, tag: '', tagEn: p.tagEn || '' }
       }
       if (!Object.keys(map).length) return false
+      if (skipped.length) petLog('skipped unusable personas', skipped.join(','))
       PERSONA_REG.map = map
       if (!map[runtime.settings.persona]) {
         runtime.settings.persona = Object.keys(map)[0]
@@ -1918,7 +2066,8 @@ window.__ModuleLoader__.load({
         base = ''
       }
       const assetBase = (p && p.assetBase) || '/dsh-pet/assets'
-      return base + assetBase + '/' + name
+      // P3-10：带版本查询串（见 10-util.js 的 PET_ASSET_QS），升级后不吃旧缓存
+      return base + assetBase + '/' + name + PET_ASSET_QS
     }
 
     /* ================= 语音（TTS） ================= */
@@ -1932,14 +2081,28 @@ window.__ModuleLoader__.load({
         const voices = voiceCache || synth.getVoices() || []
         if (!voices.length) return null
         voiceCache = voices
-        const zh = voices.filter((v) => /zh|cmn|Chinese|Xiaoxiao|Huihui|Yaoyao|Kangkang|Yunxi/i.test(String(v.lang) + ' ' + String(v.name)))
-        return zh[0] || voices[0]
+        // P2-5（2026-10-29 审计）：按当前界面语言挑嗓子。旧写法硬编码中文关键字，
+        // 英/西/葡/印界面走 SAPI 兜底时会挑到中文嗓（u.lang 与 voice.lang 不一致，
+        // 读音全歪）。现在先按语言前缀筛，筛不到才退回第一个。
+        const want = String(SAPI_LANG[PET_LANG] || 'zh-CN').toLowerCase()
+        const byLang = voices.filter((v) => String(v.lang || '').toLowerCase().startsWith(want.slice(0, 2)))
+        return byLang[0] || voices[0]
       } catch (e) {
         return null
       }
     }
 
     let currentAudio = null
+    let currentAudioUrl = null
+    /** 回收 blob URL（P3-4）：打断/替换/卸载都要调，否则长会话会一直累积 */
+    function dropAudioUrl(url) {
+      try {
+        if (url) window.URL.revokeObjectURL(url)
+      } catch (e) {
+        /* ignore */
+      }
+      if (currentAudioUrl && currentAudioUrl === url) currentAudioUrl = null
+    }
 
     function stopVoice() {
       try {
@@ -1955,6 +2118,8 @@ window.__ModuleLoader__.load({
       } catch (e) {
         /* ignore */
       }
+      // P3-4：旧写法只 pause 不 revoke，被打断的那句 blob 永远不回收到
+      dropAudioUrl(currentAudioUrl)
       runtime.speaking = false
       runtime.speakUntil = 0
       if (runtime.mood === 'talk') runtime.mood = 'idle'
@@ -1963,10 +2128,25 @@ window.__ModuleLoader__.load({
     // 每说一句自增：异步拿到 blob 时用它判断这句是不是已经过期
     let speakSeq = 0
 
+    /**
+     * 这次失败是不是「一次性环境问题」：限流 / 自动播放被拦 / 网络抖动。
+     *
+     * P2-4（2026-10-29 审计）：旧实现把这些也计进「连续失败 3 次 → 本会话永久 SAPI」，
+     * 一次限流或一次手势策略抖动就把整场语音降级成机器人，而且开关切回也不恢复。
+     */
+    const isTransientNeuralFail = (reason) =>
+      /429|rate|too many|NotAllowed|play\(\)|AbortError|network|Failed to fetch|tts http 5\d\d/i.test(
+        String(reason || ''),
+      )
+
     /** 连续失败 3 次才降级成系统语音；成功一次就清零 */
     function noteNeuralFail(reason) {
-      runtime.neuralFails = (runtime.neuralFails || 0) + 1
       runtime.neuralReason = reason
+      if (isTransientNeuralFail(reason)) {
+        petLog('neural tts transient failure', { reason })
+        return
+      }
+      runtime.neuralFails = (runtime.neuralFails || 0) + 1
       petLog('neural tts failed', { n: runtime.neuralFails, reason })
       if (runtime.neuralFails >= 3) runtime.neuralOk = false
     }
@@ -1974,6 +2154,14 @@ window.__ModuleLoader__.load({
     function noteNeuralOk() {
       if (runtime.neuralFails) runtime.neuralFails = 0
       if (runtime.neuralOk === false && runtime.settings.neuralVoice !== false) runtime.neuralOk = undefined
+    }
+
+    /** 用户重新打开「神经」开关时恢复到「再试一次」——降级不该是永久的（P2-4） */
+    function resetNeural() {
+      runtime.neuralFails = 0
+      runtime.neuralOk = undefined
+      runtime.neuralReason = ''
+      neuralChecked = false
     }
 
     /** 系统语音用的 locale 标签（神经音色由宿主按 lang 选） */
@@ -1992,15 +2180,23 @@ window.__ModuleLoader__.load({
     function voiceParams(mood) {
       const p = persona()
       const s = runtime.settings
-      const dir = (p.voice && p.voice.moods && p.voice.moods[mood || runtime.mood]) || null
+      // P1-2：渲染/设置面板都会读这里。缺 voice（用户自建 pack）不能让整块 UI 抛错，
+      // 缺失时按「基座 1 / 1」处理——听感是普通音高语速，而不是崩掉面板。
+      const voice = p && p.voice && typeof p.voice === 'object' ? p.voice : {}
+      const dir = (voice.moods && voice.moods[mood || runtime.mood]) || null
       const pt = s.pitchTrim == null ? 1 : Number(s.pitchTrim)
       const rt = s.rateTrim == null ? 1 : Number(s.rateTrim)
-      const basePitch = Number(p.voice.pitch) * (isFinite(pt) ? pt : 1)
-      const baseRate = Number(p.voice.rate) * (isFinite(rt) ? rt : 1)
-      const pitch = basePitch * (1 + (dir && dir.pitch ? Number(dir.pitch) : 0) / 100)
-      const rate = baseRate * (dir && dir.rate ? Number(dir.rate) : 1)
+      const basePitchNum = Number(voice.pitch)
+      const baseRateNum = Number(voice.rate)
+      const basePitch = (Number.isFinite(basePitchNum) ? basePitchNum : 1) * (isFinite(pt) ? pt : 1)
+      const baseRate = (Number.isFinite(baseRateNum) ? baseRateNum : 1) * (isFinite(rt) ? rt : 1)
+      // mood 导演表的数字也要兜底：宿主校验挡不住老宿主/中间层灌进来的 'abc'
+      const dPitch = dir && Number.isFinite(Number(dir.pitch)) ? Number(dir.pitch) : 0
+      const dRate = dir && Number.isFinite(Number(dir.rate)) ? Number(dir.rate) : 1
+      const pitch = basePitch * (1 + dPitch / 100)
+      const rate = baseRate * dRate
       const manual = s.ttsVoice && s.ttsVoice !== 'auto' ? s.ttsVoice : ''
-      const own = (p.voice && p.voice.voiced && p.voice.voiced[PET_LANG]) || ''
+      const own = (voice.voiced && voice.voiced[PET_LANG]) || ''
       return {
         pitch: clamp(pitch, 0.5, 2),
         rate: clamp(rate, 0.5, 2),
@@ -2020,9 +2216,17 @@ window.__ModuleLoader__.load({
         fetch(base + '/dsh-pet/tts/status')
           .then((r) => (r.ok ? r.json() : null))
           .then((j) => {
-            // 探测失败不永久关闭：置 undefined，下次说话再试（3 次连续失败才降级）
-            runtime.neuralOk = j && j.available ? true : undefined
-            runtime.neuralReason = (j && j.reason) || ''
+            if (!j) {
+              // 端点异常（非 2xx / 空 body）：置「未知」并允许下次说话重试
+              runtime.neuralOk = undefined
+              neuralChecked = false
+              return
+            }
+            // P2-3（2026-10-29 审计）：宿主明确说 available:false（没装 edge-tts）
+            // 时直接降级成系统语音。旧写法把它写成 undefined（= 未知），于是每句
+            // 都要先去 /tts 白付一次 503，连续三次才降级。
+            runtime.neuralOk = j.available ? true : false
+            runtime.neuralReason = j.reason || ''
             petLog('tts status', { ok: runtime.neuralOk, reason: runtime.neuralReason })
             notify()
           })
@@ -2138,34 +2342,28 @@ window.__ModuleLoader__.load({
       checkNeural()
 
       try {
-        // 上一句还没播完就先掐掉，避免两句叠在一起
+        // 上一句还没播完就先掐掉，避免两句叠在一起。（P3-4：同时回收它的 blob URL）
         if (currentAudio) {
           try {
             currentAudio.pause()
           } catch (e) {
             /* ignore */
           }
+          currentAudio = null
+          dropAudioUrl(currentAudioUrl)
         }
         const seq = ++speakSeq
         ttsBlobUrl(text, mood)
           .then((url) => {
             // 期间又说了新的一句：丢掉这条，别让两句抢着播
             if (seq !== speakSeq) {
-              try {
-                window.URL.revokeObjectURL(url)
-              } catch (e) {
-                /* ignore */
-              }
+              dropAudioUrl(url)
               return
             }
             // 合成是异步的（几百毫秒）：等它回来时人可能已经被藏起来了，
             // 这时候不能再出声，否则就是「人不见了声音还在」。
             if (!onScreen()) {
-              try {
-                window.URL.revokeObjectURL(url)
-              } catch (e) {
-                /* ignore */
-              }
+              dropAudioUrl(url)
               restore()
               return
             }
@@ -2173,12 +2371,10 @@ window.__ModuleLoader__.load({
             runtime.lastTts = 'neural'
             a.volume = clamp(runtime.settings.volume, 0, 1)
             currentAudio = a
+            currentAudioUrl = url
             const drop = () => {
-              try {
-                window.URL.revokeObjectURL(url)
-              } catch (e) {
-                /* ignore */
-              }
+              dropAudioUrl(url)
+              if (currentAudio === a) currentAudio = null
             }
             a.onended = () => {
               drop()
@@ -2186,25 +2382,32 @@ window.__ModuleLoader__.load({
             }
             a.onerror = () => {
               drop()
-              currentAudio = null
-              noteNeuralFail('audio error ' + ((a.error && a.error.code) || '?') + ' size=' + (runtime.lastBlobSize || 0) + ' type=' + (runtime.lastBlobType || '-'))
-              saySapi(text, restore)
+              noteNeuralFail(
+                'audio error ' +
+                  ((a.error && a.error.code) || '?') +
+                  ' size=' +
+                  (runtime.lastBlobSize || 0) +
+                  ' type=' +
+                  (runtime.lastBlobType || '-'),
+              )
+              saySapi(text, restore, mood)
             }
             a.onplaying = () => noteNeuralOk()
             const pr = a.play()
             if (pr && typeof pr.catch === 'function') {
               pr.catch((err) => {
                 drop()
-                currentAudio = null
                 runtime.lastTts = 'neural-blocked:' + String((err && err.name) || err)
-                saySapi(text, restore)
+                // 自动播放被拦是一次性的手势策略问题，不算神经语音坏了（P2-4）
+                noteNeuralFail('NotAllowed ' + String((err && err.name) || err))
+                saySapi(text, restore, mood)
               })
             }
           })
           .catch((err) => {
             if (seq !== speakSeq) return
             noteNeuralFail(String((err && err.message) || err))
-            saySapi(text, restore)
+            saySapi(text, restore, mood)
           })
       } catch (e) {
         saySapi(text, restore)
@@ -2222,15 +2425,24 @@ window.__ModuleLoader__.load({
       try {
         if (runtime.settings.neuralVoice === false || runtime.neuralOk === false) return
         const p = persona()
+        // P2-2（2026-10-29 审计）：必须烤**当前语言**的台词。
+        // 旧写法只看 p.lines（中文原稿），英/西/葡/印用户预热全部无效。
+        const langKey = 'lines' + PET_LANG.charAt(0).toUpperCase() + PET_LANG.slice(1)
+        const pack =
+          (PET_LANG !== 'zh' && p[langKey]) ||
+          (PET_LANG === 'zh' || !p.linesEn ? p.lines : p.linesEn) ||
+          p.lines ||
+          {}
         const groups = []
-        for (const k of Object.keys(p.lines || {})) {
-          const lines = (p.lines[k] || []).map((x) => String(x)).filter(Boolean)
+        for (const k of Object.keys(pack)) {
+          const lines = (pack[k] || []).map((x) => String(x)).filter(Boolean)
           if (lines.length) groups.push({ mood: k, lines })
         }
         if (!groups.length) return
         groups.sort((a, b) => b.lines.length - a.lines.length)
         const warmBase = (typeof window !== 'undefined' && window.__DSH_PET_BASE__) || ''
         let budget = 18
+        const sends = []
         for (const g of groups.slice(0, 3)) {
           if (budget <= 0) break
           const lines = Array.from(new Set(g.lines)).slice(0, Math.min(8, budget))
@@ -2240,21 +2452,40 @@ window.__ModuleLoader__.load({
           const pitch = ((v.pitch - 1) * 100).toFixed(0)
           const rate = ((v.rate - 1) * 100).toFixed(0)
           const vol = ((v.volume - 1) * 100).toFixed(0)
-          fetch(warmBase + '/dsh-pet/tts/warm', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
+          sends.push({
+            mood: g.mood,
+            n: lines.length,
+            body: {
+              lang: v.lang,
               voice: v.voice,
               pitch: (pitch >= 0 ? '+' : '') + pitch + 'Hz',
               rate: (rate >= 0 ? '+' : '') + rate + '%',
               volume: (vol >= 0 ? '+' : '') + vol + '%',
               lines,
-            }),
+            },
           })
-            .then(() => petLog('warm voice queued', { mood: g.mood, n: lines.length }))
-            .catch(() => {})
         }
+        // P2-2：服务端是单飞预热（同一时刻只允许一条），三条并发只会被 429 掉两条。
+        // 客户端改为串行发送，并检查 res.ok —— 被限流/失败时不能记成 "queued"。
+        ;(async () => {
+          for (const item of sends) {
+            try {
+              const res = await fetch(warmBase + '/dsh-pet/tts/warm', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(item.body),
+              })
+              if (res && res.ok) {
+                petLog('warm voice queued', { mood: item.mood, n: item.n, lang: PET_LANG })
+              } else {
+                petLog('warm voice skipped', { mood: item.mood, status: res && res.status })
+              }
+            } catch (e) {
+              /* 预热是锦上添花：失败静默 */
+            }
+          }
+        })()
       } catch (e) {
         /* ignore */
       }
@@ -2495,7 +2726,13 @@ window.__ModuleLoader__.load({
           if (!cur.startsWith(tag)) document.title = tag + cur
         } else {
           if (runtime.notifyTaggedTitle) {
-            if (document.title === tag + runtime.notifyTaggedTitle) document.title = runtime.notifyTaggedTitle
+            const base = runtime.notifyTaggedTitle
+            const cur = document.title || ''
+            // P3-16（2026-10-29 审计）：严格相等就还原的话，期间标题被宿主改过
+            //（比如会话标题变了）那个 ● 会永久留在标签页上。规则改成：
+            // 「● + 原标题」→ 还原原标题；只以 ● 开头 → 只剥掉我们加的前缀。
+            if (cur === tag + base) document.title = base
+            else if (cur.startsWith(tag)) document.title = cur.slice(tag.length)
             runtime.notifyTaggedTitle = ''
           }
         }
@@ -2515,11 +2752,14 @@ window.__ModuleLoader__.load({
         /* ignore */
       }
       const title = pname
+      // P2-6（2026-10-29 审计）：文案语言要看**实际生效的界面语言** PET_LANG，
+      // 不是设置项。settings.lang 默认 'auto'，旧写法于是永远落到英文分支——
+      // 中文界面的默认通知是英文的。
       const body =
-        (runtime.settings.lang === 'zh' ? `跑完了，${mm} 分钟，回来验收吧` :
-         runtime.settings.lang === 'es' ? `Terminó, ${mm} min, vuelve a revisar.` :
-         runtime.settings.lang === 'pt' ? `Terminou, ${mm} min, volte para conferir.` :
-         runtime.settings.lang === 'hi' ? `${mm} मिनट में हो गया, वापस आकर देख लीजिए।` :
+        (PET_LANG === 'zh' ? `跑完了，${mm} 分钟，回来验收吧` :
+         PET_LANG === 'es' ? `Terminó, ${mm} min, vuelve a revisar.` :
+         PET_LANG === 'pt' ? `Terminou, ${mm} min, volte para conferir.` :
+         PET_LANG === 'hi' ? `${mm} मिनट में हो गया, वापस आकर देख लीजिए।` :
          `Done, ${mm} min. Come back and review.`)
       return { title, body }
     }
@@ -2758,7 +2998,9 @@ window.__ModuleLoader__.load({
       runtime.moodUntil = nowMs() + randInt(3000, 5000)
       if (!wasVisible && runtime.settings.chatter) {
         const k = kind === 'dance' ? 'dance' : 'appear'
-        bubble(randomLine(k), null, k)
+        // P2-1（2026-10-29 审计）：出现问候也是「自发台词」，statusBubbles:'off' 时必须闭嘴。
+        // 旧写法直接 bubble()，只有 tick 里的 appear 走 statusBubble()，两条路不一致。
+        statusBubble(randomLine(k), null, k)
       }
       notify()
     }
@@ -2770,6 +3012,17 @@ window.__ModuleLoader__.load({
       // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
       clearAction()
       stopVoice()
+      // P2-9（2026-10-29 审计）：这些运行态只在「看得见」时有意义，藏着不清就会
+      // 在下次出现时带上来——跳舞藏起来 → 再出现带着位移/放大；菜单/设置面板还开着
+      // → 再出现自己弹回来。
+      runtime.stage = null
+      // 还要作废在途的舞台相位排程（planStage 靠 stageGen 校验代际），
+      // 否则隐藏期间那几条 later() 仍会把 stage/心情改回去。
+      stageGen++
+      runtime.menu = null
+      runtime.panelOpen = false
+      runtime.hovering = false
+      runtime.inputPinned = false
       notify()
     }
 
@@ -2924,8 +3177,48 @@ window.__ModuleLoader__.load({
       const now = nowMs()
       const s = runtime.settings
 
-      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它
+      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它。
+      // P2-10（2026-10-29 审计）：安静态不只是静音——进入时要打哈欠趴下（sleep），
+      // 醒来时伸个懒腰；所以这里必须消费 syncQuiet 记下的边界（quietSince/wokeAt）。
       syncQuiet()
+
+      // §11.1（审计标注「未证实」的兜底）：宿主不传 props.useSession 时，`running`
+      // 永远是 false，于是 done 庆祝与 turnNotify（1.26 的头号功能）会静默失效。
+      // 用 /ping 的 hostPhase 边沿推导一轮的开始/结束——只在没有 session hook 时启用，
+      // 有 hook 时保持原语义（phase 只驱动表情，不驱动通知）。
+      if (!runtime.sessionHookSeen) {
+        const busy =
+          runtime.hostPhase === 'working' ||
+          runtime.hostPhase === 'thinking' ||
+          runtime.hostPhase === 'tool' ||
+          runtime.hostPhase === 'review'
+        if (busy && !runtime.running) {
+          runtime.running = true
+          runtime.turnStartedAt = now
+        } else if (!busy && runtime.running) {
+          const dur = now - (runtime.turnStartedAt || now)
+          runtime.running = false
+          runtime.turnStartedAt = 0
+          runtime.doneUntil = now + 4000
+          if (runtime.settings.turnNotify && dur >= TURN_NOTIFY_MIN_MS) sendTurnNotify(dur)
+        }
+      }
+      const quiet = isQuiet()
+      if (quiet) {
+        // quietSince 由 syncQuiet 在「进入安静」那一刻写入并一直保留到退出。
+        // 用它做「已经换成 sleep 了没有」的幂等判据：tick 每 5s 都会进来。
+        if (runtime.quietSince && runtime.mood !== 'sleep') {
+          runtime.mood = 'sleep'
+          runtime.moodUntil = now + 5 * 60 * 1000 // 睡着就别被随机心情打断
+        }
+      } else if (runtime.wokeAt) {
+        // wokeAt 由 syncQuiet 在「刚醒来」那一刻写入：伸个懒腰，只播一次。
+        // 有 hair（撩头发）片段/帧的形象用它，没有的只换个心情。
+        playAction('hair', { moodDriven: true })
+        runtime.mood = 'happy'
+        runtime.moodUntil = now + 4000
+        runtime.wokeAt = 0
+      }
 
       // 阶段机：先算阶段，再按阶段给一点情绪反馈
       const prevPhase = runtime.phase
@@ -2993,8 +3286,8 @@ window.__ModuleLoader__.load({
         notify()
       }
 
-      // 心情轮换（跳舞期间锁住，别被随机心情打断）
-      if (!runtime.stage && now > runtime.moodUntil && !runtime.speaking) scheduleMood()
+      // 心情轮换（跳舞期间锁住，别被随机心情打断；安静态保持 sleep 心情）
+      if (!quiet && !runtime.stage && now > runtime.moodUntil && !runtime.speaking) scheduleMood()
 
       // 闲聊
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
@@ -3003,11 +3296,11 @@ window.__ModuleLoader__.load({
         if (line) statusBubble(line, null, 'idle')
       }
 
-      // 偶尔撩一下头发（白天的「活人感」主要靠这个）
-      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
+      // 偶尔撩一下头发（白天的「活人感」主要靠这个）——安静态不发任何自发动作
+      if (!quiet && runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
 
-      // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次
-      if (s.chaos !== false && runtime.visible && !runtime.fx.length) {
+      // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次（安静态不恶作剧）
+      if (!quiet && s.chaos !== false && runtime.visible && !runtime.fx.length) {
         const roll = Math.random()
         if (roll < 0.00035) playFx('boom', { ttl: 2600 })
         else if (roll < 0.0011) playFx(Math.random() < 0.55 ? 'ink' : 'fog', { ttl: 6500 })
@@ -3028,16 +3321,35 @@ window.__ModuleLoader__.load({
 
     const HISTORY_KEY = 'dsh-pet.history.v1'
 
+    /** 历史条目只认 {role, content}：字符串（旧版本被 String() 成 "[object Object]" 的那批）一律丢弃 */
+    function normalizeHistoryList(list) {
+      const out = []
+      for (const m of Array.isArray(list) ? list.slice(-64) : []) {
+        if (!m || typeof m !== 'object' || Array.isArray(m)) continue
+        const content = typeof m.content === 'string' ? m.content : ''
+        if (!content.trim()) continue
+        out.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content })
+      }
+      return out.slice(-8)
+    }
+
+    function persistHistory(at) {
+      try {
+        window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history.slice(-8)))
+        setLocalStateAt(at || nowMs())
+      } catch (e) {
+        /* 隐私模式/配额满，忽略 */
+      }
+    }
+
     function pushHistory(role, content) {
       try {
         runtime.history.push({ role, content: String(content).slice(0, 800) })
         if (runtime.history.length > 8) runtime.history.splice(0, runtime.history.length - 8)
-        // 刷新页面也不失忆：只留最近 8 条
-        try {
-          window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history.slice(-8)))
-        } catch (e) {
-          /* 隐私模式/配额满，忽略 */
-        }
+        // 刷新页面也不失忆：只留最近 8 条；P0-1：同时回传宿主（跨浏览器/清缓存不丢）
+        persistHistory()
+        runtime.historyDirty = true
+        scheduleStatePush()
       } catch (e) {
         /* ignore */
       }
@@ -3047,40 +3359,56 @@ window.__ModuleLoader__.load({
       try {
         const raw = window.localStorage.getItem(HISTORY_KEY)
         const arr = raw ? JSON.parse(raw) : []
-        if (Array.isArray(arr)) {
-          runtime.history = arr
-            .filter((m) => m && typeof m.content === 'string')
-            .slice(-8)
-            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+        runtime.history = normalizeHistoryList(arr)
+        // 本地有历史就先当「待回传」：换设备时把本地历史推上去（有宿主状态时会先采纳宿主）
+        runtime.historyDirty = runtime.history.length > 0
+        if (Array.isArray(arr) && arr.length && !runtime.history.length) {
+          petLog('dropped corrupt local history', { n: arr.length })
         }
       } catch (e) {
         runtime.history = []
       }
     }
 
+    /** 清空聊天记忆（面板入口）：本地与宿主一起清，避免下次启动又被宿主旧历史灌回来 */
+    function clearHistory() {
+      runtime.history = []
+      persistHistory()
+      runtime.historyDirty = true
+      scheduleStatePush()
+      notify()
+    }
+
     /**
-     * 宿主状态合并（R-04，反哺报告 2026-10-27）：宿主侧 $DSH_HOME 的状态文件
-     * 是跨设备真相源——宿主有 → 宿主优先覆盖本地（同键才覆盖，本地多出来的键保留），
-     * 并归一化后落回 localStorage。history 直接替换（本就只留最近 8 条）。
+     * 采纳宿主状态（P0-1，2026-10-29 审计）：只在「宿主那份更新」或「本地没有状态」时调用。
+     * 与旧 mergeHostState 的区别：
+     *   - 不再无条件「宿主每个键覆盖本地」——是否采纳由 updatedAt 决定（见 99-entry.js）；
+     *   - 采纳时只落 localStorage，不立刻回传（否则两台机器会来回顶）；
+     *   - 宿主里的历史若是旧格式（"[object Object]" 字符串），丢弃并保留本地那份，
+     *     再把本地推上去把宿主文件冲干净（迁移只发生一次）。
      */
-    function mergeHostState(host) {
+    function adoptHostState(host) {
       try {
+        if (!host || typeof host !== 'object') return
+        const at = Number(host.updatedAt) || 0
         if (host.settings && typeof host.settings === 'object' && !Array.isArray(host.settings)) {
           runtime.settings = normalizeSettings({ ...runtime.settings, ...host.settings })
-          saveSettings()
+          persistSettings(at)
         }
-        if (Array.isArray(host.history) && host.history.length) {
-          runtime.history = host.history
-            .filter((m) => m && typeof m.content === 'string')
-            .slice(-8)
-            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-          try {
-            window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history))
-          } catch (e) {
-            /* 隐私模式/配额满，忽略 */
+        let corrupted = false
+        if (Array.isArray(host.history)) {
+          const cleaned = normalizeHistoryList(host.history)
+          if (cleaned.length) {
+            runtime.history = cleaned
+            persistHistory(at)
+            runtime.historyDirty = false
+          } else if (host.history.length) {
+            corrupted = true
+            petLog('host history corrupted, keeping local', { n: host.history.length })
           }
         }
         notify()
+        if (corrupted) scheduleStatePush(0)
       } catch (e) {
         /* ignore */
       }
@@ -3105,7 +3433,9 @@ window.__ModuleLoader__.load({
       let lastErr = null
       for (const url of urls) {
         // 客户端超时（R-09）：服务端默认 30s（可配到 120s），挂起的 fetch 不能
-        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）
+        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）。
+        // P3-8（2026-10-29 审计）：90s 与服务端默认 30s 差太多，改成 45s
+        // （默认超时 + 15s 余量）；服务端调大超时的用户仍能看到 504 文案。
         let ctrl = null
         let guard = 0
         if (typeof AbortController === 'function') {
@@ -3116,7 +3446,7 @@ window.__ModuleLoader__.load({
             } catch (e) {
               /* ignore */
             }
-          }, 90000)
+          }, 45000)
         }
         try {
           const res = await fetch(url, {
@@ -3134,13 +3464,18 @@ window.__ModuleLoader__.load({
             throw new Error('HTTP ' + res.status + ' 非 JSON')
           }
           if (!res.ok || !data.reply) {
-            throw new Error((data && (data.message || data.error)) || 'HTTP ' + res.status)
+            const err = new Error((data && (data.error || data.code)) || 'HTTP ' + res.status)
+            // P3-8：4xx 是「这次请求/这个地址本身不行」，换下一个地址也没用
+            //（429 只会在换地址后再赔一次额度，400 更是必然再失败）
+            err.retryable = !(res.status >= 400 && res.status < 500)
+            throw err
           }
           petLog('chat ok', { via: url })
           return String(data.reply)
         } catch (e) {
           lastErr = e
           petLog('chat attempt failed', { via: url, msg: String((e && e.message) || e) })
+          if (e && e.retryable === false) break
         } finally {
           if (guard) clearTimeout(guard)
         }
@@ -3171,21 +3506,15 @@ window.__ModuleLoader__.load({
           } catch (err) {
             /* ignore */
           }
+          // P2-7（2026-10-29 审计）：origin/api/上游原文只进 console。
+          // 用户要看的是「她没听懂/稍后再试」，不是调试信息。
           petLog('chat failed', { msg, origin, api })
           if (/SIGN_IN|ACCOUNT|auth/i.test(msg)) {
             bubble(t('chat.needSignIn'), 6000, 'chatErr')
+          } else if (/429|rate-limited|rate_limited/i.test(msg)) {
+            bubble(t('chat.rateLimited'), 8000, 'chatErr')
           } else {
-            bubble(
-              (pick(p.lines.error) || t('chat.stuck')) +
-                '\n[origin=' +
-                origin +
-                ' api=' +
-                api +
-                ']\n' +
-                msg.slice(0, 160),
-              15000,
-              'chatErr',
-            )
+            bubble(pick(p.lines.error) || t('chat.stuck'), 12000, 'chatErr')
           }
         })
         .finally(() => notify())
@@ -3375,15 +3704,20 @@ window.__ModuleLoader__.load({
 .dsh-pet-panel input[type=range]{flex:1;min-width:0;height:14px;accent-color:var(--pet-accent)}
 .dsh-pet-grid2{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin:1px 0;flex:0 0 auto}
 
-/* 自定义开关 */
-.dsh-pet-tg{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;min-height:19px}
-.dsh-pet-tg input{display:none}
+/* 自定义开关。P2-11（2026-10-29 审计）：旧写法 input{display:none} 让 Tab 永远
+   跳过这些开关（键盘完全无法操作）。改成「视觉隐藏但可聚焦」的写法，
+   并给 :focus-visible 一个可见轮廓——鼠标用户的观感不变，键盘用户能用空格切换。 */
+.dsh-pet-tg{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;min-height:19px;position:relative}
+.dsh-pet-tg input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;opacity:0}
 .dsh-pet-tg i{position:relative;flex:0 0 auto;width:22px;height:12px;border-radius:999px;
   background:var(--pet-border);transition:background .16s}
 .dsh-pet-tg i:after{content:"";position:absolute;top:1.5px;left:1.5px;width:9px;height:9px;border-radius:50%;
   background:var(--pet-bg);transition:transform .16s}
 .dsh-pet-tg input:checked + i{background:var(--pet-accent)}
 .dsh-pet-tg input:checked + i:after{transform:translateX(10px)}
+.dsh-pet-tg input:focus-visible + i{outline:2px solid var(--pet-accent);outline-offset:2px}
+.dsh-pet-tg input:focus-visible ~ span{opacity:1;text-decoration:underline}
 .dsh-pet-tg span{opacity:.78;font-size:11px}
 
 /* 自定义下拉（不用原生 select：Windows 弹出层是白底，深色主题下看不清） */
@@ -3447,20 +3781,20 @@ window.__ModuleLoader__.load({
 
 /* —— 立绘的表情贴纸（没有五官层时唯一的“表情”） —— */
 .dsh-pet-marks{position:absolute;inset:0;pointer-events:none}
-.fx-mark{position:absolute;font-style:normal;line-height:1}
-.fx-mark.blush{width:18px;height:10px;border-radius:50%;
+.dsh-pet-layer .fx-mark{position:absolute;font-style:normal;line-height:1}
+.dsh-pet-layer .fx-mark.blush{width:18px;height:10px;border-radius:50%;
   background:radial-gradient(closest-side,rgba(255,120,150,.55),rgba(255,120,150,0) 72%);
-  filter:blur(.6px);animation:mark-in .5s ease-out both}
-.fx-mark.sweat{width:5px;height:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-  background:rgba(140,200,255,.85);box-shadow:0 0 3px rgba(140,200,255,.6);animation:mark-in .55s .15s ease-out both}
-.fx-mark.vein{font-size:13px;animation:mark-pulse .6s ease-in-out infinite alternate}
-.fx-mark.zzz{font-size:12px;opacity:.75;color:var(--pet-fg);
-  animation:mark-float 2.4s ease-in-out infinite}
-.fx-mark.zzz.z2{font-size:9px;animation-delay:.6s}
-.fx-mark.spark{font-size:12px;animation:mark-pulse .9s ease-in-out infinite alternate}
-@keyframes mark-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-@keyframes mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
-@keyframes mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
+  filter:blur(.6px);animation:dsh-pet-mark-in .5s ease-out both}
+.dsh-pet-layer .fx-mark.sweat{width:5px;height:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:rgba(140,200,255,.85);box-shadow:0 0 3px rgba(140,200,255,.6);animation:dsh-pet-mark-in .55s .15s ease-out both}
+.dsh-pet-layer .fx-mark.vein{font-size:13px;animation:dsh-pet-mark-pulse .6s ease-in-out infinite alternate}
+.dsh-pet-layer .fx-mark.zzz{font-size:12px;opacity:.75;color:var(--pet-fg);
+  animation:dsh-pet-mark-float 2.4s ease-in-out infinite}
+.dsh-pet-layer .fx-mark.zzz.z2{font-size:9px;animation-delay:.6s}
+.dsh-pet-layer .fx-mark.spark{font-size:12px;animation:dsh-pet-mark-pulse .9s ease-in-out infinite alternate}
+@keyframes dsh-pet-mark-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes dsh-pet-mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
+@keyframes dsh-pet-mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
   30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.1)}}
 
 /* —— 视线跟随 —— */
@@ -3495,17 +3829,17 @@ window.__ModuleLoader__.load({
   78%{opacity:1}
   100%{transform:translate(18px,-14px);opacity:0}
 }
-.fx-bolt{animation:fx-bolt-flash 4s linear infinite}
+.dsh-pet-layer .fx-bolt{animation:fx-bolt-flash 4s linear infinite}
 @keyframes fx-bolt-flash{0%,40%,44%,100%{opacity:.12}42%,46%{opacity:1}}
-.fx-rain{opacity:.45;animation:fx-rain-drop 1.1s linear infinite}
+.dsh-pet-layer .fx-rain{opacity:.45;animation:fx-rain-drop 1.1s linear infinite}
 @keyframes fx-rain-drop{0%{transform:translateY(-6px);opacity:0}30%{opacity:.6}100%{transform:translateY(9px);opacity:0}}
 .dsh-pet-fx-fog{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;cursor:crosshair;
   animation:fx-fog-fade 7s ease-in-out forwards}
 @keyframes fx-fog-fade{0%{opacity:0}10%{opacity:1}82%{opacity:1}100%{opacity:0}}
-.fx-bomb{position:absolute;width:26px;height:26px;opacity:0;
+.dsh-pet-layer .fx-bomb{position:absolute;width:26px;height:26px;opacity:0;
   animation:fx-bomb-fly 1.5s cubic-bezier(.35,0,.9,.55) forwards}
-.fx-bomb svg{width:100%;height:100%;display:block;overflow:visible}
-.fx-spark{animation:fx-spark-pulse .28s ease-in-out infinite alternate}
+.dsh-pet-layer .fx-bomb svg{width:100%;height:100%;display:block;overflow:visible}
+.dsh-pet-layer .fx-spark{animation:fx-spark-pulse .28s ease-in-out infinite alternate}
 @keyframes fx-spark-pulse{from{opacity:.4;transform:scale(.8)}to{opacity:1;transform:scale(1.25)}}
 @keyframes fx-bomb-fly{
   0%{transform:translate(0,0) scale(.4) rotate(0deg);opacity:0}
@@ -3513,7 +3847,7 @@ window.__ModuleLoader__.load({
   60%{transform:translate(var(--tx,0),calc(var(--ty,0) * .45)) scale(1.05) rotate(180deg);opacity:1}
   100%{transform:translate(var(--tx,0),var(--ty,0)) scale(.5) rotate(360deg);opacity:0}
 }
-.fx-shake{position:absolute;inset:0;animation:fx-shake-k 2.6s ease-out forwards}
+.dsh-pet-layer .fx-shake{position:absolute;inset:0;animation:fx-shake-k 2.6s ease-out forwards}
 @keyframes fx-shake-k{
   0%,44%{transform:translate(0,0)}
   46%{transform:translate(-5px,3px)}
@@ -3523,12 +3857,12 @@ window.__ModuleLoader__.load({
   54%{transform:translate(-2px,1px)}
   57%,100%{transform:translate(0,0)}
 }
-.fx-flash{position:absolute;inset:0;background:#fff;opacity:0;animation:fx-flash 2.4s ease-out forwards}
+.dsh-pet-layer .fx-flash{position:absolute;inset:0;background:#fff;opacity:0;animation:fx-flash 2.4s ease-out forwards}
 @keyframes fx-flash{0%,44%{opacity:0}46%{opacity:.75}49%{opacity:0}100%{opacity:0}}
-.fx-crack{position:absolute;inset:0;width:100%;height:100%;opacity:0;animation:fx-crack-in 2.6s ease-out forwards;
+.dsh-pet-layer .fx-crack{position:absolute;inset:0;width:100%;height:100%;opacity:0;animation:fx-crack-in 2.6s ease-out forwards;
   color:var(--pet-fg);filter:drop-shadow(0 1px 0 rgba(255,255,255,.5))}
 @keyframes fx-crack-in{0%,45%{opacity:0}48%{opacity:1}78%{opacity:.8}100%{opacity:0}}
-.fx-impact{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:fx-impact 2.6s ease-out forwards}
+.dsh-pet-layer .fx-impact{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:fx-impact 2.6s ease-out forwards}
 @keyframes fx-impact{
   0%,45%{opacity:0;transform:scale(.3)}
   48%{opacity:.95;transform:scale(1)}
@@ -3539,6 +3873,19 @@ window.__ModuleLoader__.load({
 .dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-border);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
+/* 阶段机（P3-15，2026-10-29 审计）：data-phase 此前没有任何 CSS 消费者（死属性）。
+   这里只给三个「需要你注意」的阶段一个极轻的齿轮配色提示——不做位移/缩放，
+   保持用户「不要摇摆」的约束。data-phase 同时挂在 actor 与 actor-wrap 上。 */
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="error"] .dsh-pet-gear{color:#ff6b7d}
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="working"] .dsh-pet-gear{color:var(--pet-accent)}
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="tool"] .dsh-pet-gear{animation:dsh-pet-pulse 1.4s ease-in-out infinite}
+
+/* 渲染兜底（P1-2）：PetBoundary 捕获到渲染异常时显示的最小占位，样式不依赖任何 pack 数据 */
+.dsh-pet-layer .dsh-pet-fallback{position:absolute;right:26px;bottom:186px;display:flex;align-items:center;gap:6px;
+  max-width:220px;padding:8px 10px;border-radius:10px;font-size:12px;line-height:1.5;
+  background:var(--pet-bg);border:1px solid var(--pet-border);color:var(--pet-fg)}
+.dsh-pet-fallback-mark{font-size:14px;line-height:1}
+
 /* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
    旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
    rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：
@@ -3786,8 +4133,21 @@ window.__ModuleLoader__.load({
       )
     }
 
+    /**
+     * P1-2（2026-10-29 审计）：SVG 分支无条件读 p.colors.*，缺了就抛 TypeError
+     * 把整个 overlay slot 打白。注册表已按渲染契约收口，这里再兜一层——
+     * 旧客户端缓存的 pack、或 setPersonas 直接灌进来的数据也不至于让 UI 消失。
+     */
+    const SAFE_COLORS = {
+      body: '#8a8f99',
+      body2: '#6f747d',
+      belly: '#d8dbe0',
+      accent: '#f2a0b5',
+      eye: '#2b2f36',
+    }
+
     function PetArt({ persona: p, mood }) {
-      const c = p.colors
+      const c = (p && p.colors) || SAFE_COLORS
       // 有贴图的形象直接用立绘；表情靠整体动作 + 贴纸
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null
@@ -3919,10 +4279,18 @@ window.__ModuleLoader__.load({
         const prevPersona = runtime.settings.persona
         Object.assign(runtime.settings, patch)
         // 换形象：旧动作（以及它的片段/调度链）属于上一个人设，立刻收回
-        if (patch.persona && patch.persona !== prevPersona) clearAction()
+        if (patch.persona && patch.persona !== prevPersona) {
+          clearAction()
+          // P3-14（2026-10-29 审计）：聊天记忆是全局的（不按形象分），换形象时提示一次，
+          // 免得用户以为「换了人就换了记忆」；想清掉用下面的「清空聊天记忆」。
+          if (runtime.history.length) bubble(t('hint.memoryShared'), 6000, 'chatAck')
+        }
+        // P2-4：用户重新打开「神经」开关 = 明确要求再试一次——把本会话的降级状态清掉，
+        // 否则「切回开关也不恢复」。
+        if (patch.neuralVoice === true) resetNeural()
         saveSettings()
         notify()
-        if (patch.persona || patch.ttsVoice) {
+        if (patch.persona || patch.ttsVoice || patch.neuralVoice === true) {
           setTimeout(() => warmVoice(), 50)
         }
       }
@@ -4096,6 +4464,8 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.dragPos = null; update({ pos: null }) } }, t('panel.resetPos')),
+          // P3-14：聊天记忆的显式出口（此前只能靠浏览器清缓存）
+          h('button', { onClick: () => clearHistory() }, t('panel.clearMemory')),
           h(
             'button',
             {
@@ -4112,6 +4482,8 @@ window.__ModuleLoader__.load({
                 runtime.dragPos = null
                 runtime.autoPos = null
                 clearAction()
+                // P0-1：重置也要回传宿主，否则下次加载又被宿主旧快照覆盖回去（重置不生效）
+                saveSettings()
                 placePanel()
                 notify()
               },
@@ -4704,7 +5076,13 @@ window.__ModuleLoader__.load({
         return () => clearTimeout(t)
       }, [runtime.visible, runtime.panelOpen, s.pos, runtime.resizeTick])
 
-      if (!runtime.visible) return null
+      if (!runtime.visible) {
+        // P1-1（2026-10-29 审计）：整份 CSS 就挂在这个组件里，而 🐾 按钮（另一个 slot）
+        // 的全部样式也只存在于这份 CSS。旧写法藏着时直接 return null，样式表跟着消失，
+        // 输入框旁唯一的「叫回来」按钮就变成裸 <button>——正是最需要它的时候。
+        // 现在藏着也常驻一个只带 <style> 的轻壳：样式不消失，也不必反复解析 26KB CSS。
+        return h('div', { className: 'dsh-pet-layer dsh-pet-layer-idle' }, h('style', null, CSS))
+      }
 
       // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
       // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
@@ -4790,6 +5168,10 @@ window.__ModuleLoader__.load({
       return h(
         'div',
         { className: 'dsh-pet-layer' },
+        // 样式表放在 layer 的第一子节点：隐藏态渲染的是「layer > style」，
+        // 可见态是「layer > style + root…」——同一个父节点、同一个下标，
+        // React 会复用同一个 <style> 节点，show/hide 不再反复解析 26KB CSS。
+        h('style', null, CSS),
         h(
           'div',
           {
@@ -4800,7 +5182,6 @@ window.__ModuleLoader__.load({
               runtime.rootEl = el
             },
           },
-          h('style', null, CSS),
         runtime.panelOpen
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
@@ -4909,7 +5290,9 @@ window.__ModuleLoader__.load({
         ),
         h(
           'div',
-          { className: 'dsh-pet-actor-wrap', style: { position: 'relative' } },
+          // P3-15（2026-10-29 审计）：data-phase 之前没有任何 CSS 消费者（死属性）。
+          // 这里把阶段也挂到 wrap 上，样式表据此给齿轮一个极轻的状态提示。
+          { className: 'dsh-pet-actor-wrap', 'data-phase': runtime.phase, style: { position: 'relative' } },
           h(
             'div',
             {
@@ -4972,6 +5355,54 @@ window.__ModuleLoader__.load({
         h(FxLayer),
         h(PetMenu),
       )
+    }
+
+    /* ================= 渲染兜底（P1-2，2026-10-29 审计） ================= */
+
+    /**
+     * 最小安全占位：真实数据/组件出问题时回落到这一块，而不是让整个 slot 条目白屏。
+     * 只画一个静态标记 + 一行诊断，不依赖 persona、不读任何运行时数据。
+     */
+    function PetFallback() {
+      // 外面再包一层 .dsh-pet-layer：样式表里的兜底规则作用在这个作用域内
+      return h(
+        'div',
+        { className: 'dsh-pet-layer' },
+        h(
+          'div',
+          { className: 'dsh-pet-fallback', role: 'status' },
+          h('span', { className: 'dsh-pet-fallback-mark', 'aria-hidden': 'true' }, '🐾'),
+          h('span', null, t('hint.renderFailed')),
+        ),
+      )
+    }
+
+    // React 的错误边界只能是 class 组件。测试里的 React 桩没有 Component
+    //（它们直接调用组件函数、不走 React 渲染），所以这里按能力挂载：
+    // 真 React 下生效，桩环境退化成直通（数据层兜底由 PetArt / voiceParams / weighted 负责）。
+    const ReactComponent = React && typeof React.Component === 'function' ? React.Component : null
+    let PetBoundary = null
+    if (ReactComponent) {
+      PetBoundary = class PetBoundary extends ReactComponent {
+        constructor(props) {
+          super(props)
+          this.state = { failed: false }
+        }
+        static getDerivedStateFromError() {
+          return { failed: true }
+        }
+        componentDidCatch(err) {
+          petLog('render crashed', String((err && err.message) || err))
+        }
+        render() {
+          return this.state.failed ? h(PetFallback, null) : this.props.children
+        }
+      }
+    }
+
+    /** slot 入口：把 PetOverlay 包进 boundary（渲染期异常不再让整个 slot 条目白屏） */
+    function PetRoot() {
+      return PetBoundary ? h(PetBoundary, null, h(PetOverlay)) : h(PetOverlay)
     }
 
     /** 右键菜单：只做高频动作，设置还是走齿轮面板 */
@@ -5117,8 +5548,63 @@ window.__ModuleLoader__.load({
     function PetToggle(props) {
       useRuntime()
       const useSession = props && props.useSession
-      const running = typeof useSession === 'function' ? !!useSession((s) => s && s.running) : false
+      // P3-2（2026-10-29 审计）：不能在组件体里条件调用 hook——
+      // `typeof useSession === 'function' ? useSession(...) : false` 一旦宿主某次不传
+      // 该 prop，React 就报 "Rendered more hooks"。改成按需挂一个只负责观测的
+      // 子组件：hook 在子组件里无条件调用，不传就整块不挂（返回 null，不改布局）。
 
+      return h(
+        'button',
+        {
+          className: 'dsh-pet-toggle' +
+            (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
+          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
+          title: !runtime.visible
+            ? t('panel.summon')
+            : runtime.petOffscreen
+              ? t('pet.toggleOff')
+              : t('pet.toggle'),
+          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
+          onClick: () => {
+            if (!runtime.visible || runtime.petOffscreen) {
+              runtime.settings.pos = null
+              runtime.dragPos = null
+              runtime.autoPos = null
+              runtime.petOffscreen = false
+              saveSettings()
+              showPet('appear')
+            } else {
+              runtime.panelOpen = !runtime.panelOpen
+              // P2-12（2026-10-29 审计）：从 🐾 打开面板也要按她的位置摆
+              //（齿轮与右键菜单都调了 placePanel，只有这里漏了）
+              if (runtime.panelOpen) placePanel()
+              notify()
+            }
+          },
+        },
+        h(SessionWatcher, { useSession }),
+        h(PetMark),
+        runtime.petOffscreen && runtime.visible ? h('i', { className: 'dsh-pet-badge-dot' }) : null,
+      )
+    }
+
+    /**
+     * 宿主会话状态观测（P3-2）。只渲染 null，副作用写进 runtime：
+     * 一轮结束时触发庆祝与「跑完了」通知。
+     *
+     * 宿主没传 useSession 时用一个恒定返回 false 的兜底 hook——hook 仍**无条件**调用，
+     * 调用顺序不变（这正是 P3-2 要避免的那个崩法）。此时「一轮在跑」由 tick 里的
+     * hostPhase 边沿兜底推导（见 60-behavior.js 的 §11.1 注释）。
+     */
+    function useNoSession() {
+      return false
+    }
+
+    function SessionWatcher({ useSession }) {
+      const hook = typeof useSession === 'function' ? useSession : useNoSession
+      if (typeof useSession === 'function') runtime.sessionHookSeen = true
+      const running = !!hook((s) => s && s.running)
       // 事件联动：一轮跑完就庆祝。长活（>20s）她会跑到中间跳一段，
       // 短活只撒花；跳舞还要求窗口在前台 + 10 分钟冷却，免得打断你。
       useEffect(() => {
@@ -5161,37 +5647,7 @@ window.__ModuleLoader__.load({
         runtime.running = running
         if (syncPhase()) notify()
       }, [running])
-
-      return h(
-        'button',
-        {
-          className: 'dsh-pet-toggle' +
-            (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
-          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
-          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
-          title: !runtime.visible
-            ? t('panel.summon')
-            : runtime.petOffscreen
-              ? t('pet.toggleOff')
-              : t('pet.toggle'),
-          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
-          onClick: () => {
-            if (!runtime.visible || runtime.petOffscreen) {
-              runtime.settings.pos = null
-              runtime.dragPos = null
-              runtime.autoPos = null
-              runtime.petOffscreen = false
-              saveSettings()
-              showPet('appear')
-            } else {
-              runtime.panelOpen = !runtime.panelOpen
-              notify()
-            }
-          },
-        },
-        h(PetMark),
-        runtime.petOffscreen && runtime.visible ? h('i', { className: 'dsh-pet-badge-dot' }) : null,
-      )
+      return null
     }
 
     /** 输入框右侧的标记：跟插件 icon 同一个剪影。 */
@@ -5220,8 +5676,12 @@ window.__ModuleLoader__.load({
         if (petDebug) {
           globalThis.__dshPet = {
             runtime,
-            // R-01：debug 出口也读运行期注册表（与下拉一致）
-            PERSONAS: PERSONA_REG.map,
+            // R-01：debug 出口也读运行期注册表（与下拉一致）。
+            // 用 getter：/personas 整表替换后，旧引用会指向上一个对象（P1-2 回归测试踩到）。
+            get PERSONAS() {
+              return PERSONA_REG.map
+            },
+            setPersonas,
             inActiveWindow,
             toMinutes,
             weighted,
@@ -5235,6 +5695,13 @@ window.__ModuleLoader__.load({
             linesOf,
             maybeAside,
             clearAside,
+            // 跨设备状态（P0-1）：台架直接驱动「采纳宿主状态 / 回传」，不用等轮询时序
+            adoptHostState,
+            pushStateNow,
+            localStateAt,
+            saveSettings,
+            clearHistory,
+            loadHistory,
             // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
             voiceParams,
             playFx,
@@ -5331,6 +5798,8 @@ window.__ModuleLoader__.load({
           // 常驻模式立刻出现
           try {
             lastChatterAt = nowMs()
+            // P0-1：老用户升级时给现有本地设置补一个时间戳，避免被宿主旧快照按 updatedAt 压回去
+            ensureLocalStateAt()
             loadHistory()
             if (runtime.settings.mode === 'always') showPet('appear')
             setTimeout(() => warmVoice(), 2500)
@@ -5396,8 +5865,8 @@ window.__ModuleLoader__.load({
         })
 
         // 事件联动 + 阶段机：轮询 /ping 拿宿主的工具活动与失败时间戳。
-        // 宠物不可见时暂停轮询（省 CPU 和网络）——她被藏起来时没人看，
-        // 阶段数据缓一拍没影响，showPet / 斜杠命令唤醒时会补拉。
+        // 可见时 8s 一轮；藏起来时退到 30s（不是「暂停」——斜杠命令/公告要靠它唤醒），
+        // 省 CPU 与网络又不至于错过「叫出来」。
         ctx.effect(() => {
           let stop = false
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
@@ -5411,6 +5880,32 @@ window.__ModuleLoader__.load({
           // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000
+          // P2-8（2026-10-29 审计）：公告/命令的消费序号必须跨刷新持久化。
+          // 只放内存里的话，刷新一次就把上一条公告再念一遍、把 /dsh-pet hide 再执行一次。
+          const SEQ_KEY = 'dsh-pet.seq.v1'
+          const loadSeq = () => {
+            try {
+              const o = JSON.parse(window.localStorage.getItem(SEQ_KEY) || '{}')
+              return o && typeof o === 'object' ? o : {}
+            } catch (e) {
+              return {}
+            }
+          }
+          const saveSeq = (patch) => {
+            try {
+              const o = loadSeq()
+              Object.assign(o, patch)
+              window.localStorage.setItem(SEQ_KEY, JSON.stringify(o))
+            } catch (e) {
+              /* 隐私模式：退化为内存去重 */
+            }
+          }
+          if (!runtime.seqLoaded) {
+            runtime.seqLoaded = true
+            const seqs = loadSeq()
+            runtime.lastAnnounceSeq = Number(seqs.announce) || 0
+            runtime.lastCommandSeq = Number(seqs.command) || 0
+          }
           let ctrl = null
           let failures = 0
           const doPoll = async () => {
@@ -5444,6 +5939,20 @@ window.__ModuleLoader__.load({
                   // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
                   if (j.phase) runtime.hostPhase = String(j.phase)
                   if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // 宿主重启会把 seq 归零（P2-8 的持久化游标副作用）：检测到回退就把本地
+                  // 游标清掉，否则重启后的新公告/新命令会被当成「重放」永久忽略。
+                  if (typeof j.commandSeq === 'number' && j.commandSeq < (runtime.lastCommandSeq || 0)) {
+                    runtime.lastCommandSeq = 0
+                    saveSeq({ command: 0 })
+                  }
+                  if (
+                    j.announce &&
+                    typeof j.announce.seq === 'number' &&
+                    j.announce.seq < (runtime.lastAnnounceSeq || 0)
+                  ) {
+                    runtime.lastAnnounceSeq = 0
+                    saveSeq({ announce: 0 })
+                  }
                   // —— 公告（R-03）：序号变大才播，轮询重复拿到同一条不重放 ——
                   if (
                     j.announce &&
@@ -5452,12 +5961,14 @@ window.__ModuleLoader__.load({
                     j.announce.text
                   ) {
                     runtime.lastAnnounceSeq = j.announce.seq
+                    saveSeq({ announce: j.announce.seq })
                     // announce 是外部触发（脚本/其它插件点名要她说），不走 statusBubbles 闸
                     bubble(String(j.announce.text).slice(0, 300), null, 'announce')
                   }
                   // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
                   if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
                     runtime.lastCommandSeq = j.commandSeq
+                    saveSeq({ command: j.commandSeq })
                     if (j.command === 'hide') hidePet(60 * 60 * 1000)
                     else if (j.command === 'show') showPet()
                   }
@@ -5535,18 +6046,19 @@ window.__ModuleLoader__.load({
               if (!stop && res.ok) {
                 const j = await res.json()
                 const host = (j && j.state) || {}
+                const hostAt = Number(host.updatedAt) || 0
+                const localAt = localStateAt()
                 const hasHost =
                   (host.settings && Object.keys(host.settings).length) || (host.history && host.history.length)
-                if (hasHost) {
-                  mergeHostState(host)
-                } else {
-                  // 宿主还没有状态文件：把本地的推上去当初始真相
-                  await withTimeout(base + '/dsh-pet/state', 8000, {
-                    method: 'POST',
-                    headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ settings: runtime.settings, history: runtime.history }),
-                  }).catch(() => {})
-                }
+                // 新者胜（P0-1，2026-10-29 审计）：
+                //   - 本地从没保存过（localAt=0）且宿主有状态 → 采纳宿主（换浏览器/换设备恢复）；
+                //   - 宿主更新时间 >= 本地 → 采纳宿主（另一台机器刚改过）；
+                //   - 否则本地更新 → 把本地推上去覆盖宿主。
+                // 旧版本留下的宿主文件没有 updatedAt（hostAt=0），而本地升级时
+                // ensureLocalStateAt() 已经给现有设置打了「刚刚保存」的时间戳，
+                // 所以「旧快照打回新设置」这个 P0 场景自然落到最后一条。
+                if (hasHost && hostAt >= localAt) adoptHostState(host)
+                else pushStateNow()
               }
             } catch (e) {
               /* 老宿主没有这个端点：本地 localStorage 照旧 */
@@ -5590,7 +6102,8 @@ window.__ModuleLoader__.load({
         mountSlot(
           'shell.overlay',
           { name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' },
-          PetOverlay,
+          // P1-2：PetRoot = PetBoundary(PetOverlay)，渲染期异常回落到安全占位而不是白屏
+          PetRoot,
         )
 
         // 输入框右侧的常驻入口：宠物被挡住/藏起来时的唯一可靠入口

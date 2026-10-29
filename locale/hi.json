@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "डेस्कटॉप साथी",
-    "description": "Ek photo-real saathi jo kabhi-kabhi aataa hai, boltaa hai, naachataa hai aur chhote box se baat karta hai."
+    "description": "एक फ़ोटो-रियलिस्टिक साथी जो कभी-कभी आता है, बोलता है, नाचता है और छोटे बॉक्स से बात करता है।"
   },
   "pet": {
     "panel.title": "Pet",
@@ -72,6 +72,10 @@
     "dot.fail": "पिछली कोशिश नाकाम रही (कंसोल में [dsh-pet] chat failed देखें)",
     "dot.idle": "अभी तक कोई चैट नहीं",
     "actor.tip": " (मुझे खींचें / मेनू के लिए राइट-क्लिक करें)",
-    "hint.notifyDenied": "सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।"
+    "hint.notifyDenied": "सूचना अनुमति नहीं मिली। अनुस्मारक के लिए इसे पता पट्टी में चालू करें।",
+    "chat.rateLimited": "बहुत ज़्यादा संदेश, एक मिनट रुकिए।",
+    "panel.clearMemory": "चैट यादें साफ़ करें",
+    "hint.memoryShared": "किरदार बदला। चैट यादें सभी किरदारों में साझा हैं; नई शुरुआत के लिए सेटिंग्स में साफ़ करें।",
+    "hint.renderFailed": "पालतू को बनाते समय कुछ गड़बड़ हुई। कंसोल देखें ([dsh-pet])।"
   }
 }

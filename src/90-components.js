@@ -77,10 +77,18 @@
         const prevPersona = runtime.settings.persona
         Object.assign(runtime.settings, patch)
         // 换形象：旧动作（以及它的片段/调度链）属于上一个人设，立刻收回
-        if (patch.persona && patch.persona !== prevPersona) clearAction()
+        if (patch.persona && patch.persona !== prevPersona) {
+          clearAction()
+          // P3-14（2026-10-29 审计）：聊天记忆是全局的（不按形象分），换形象时提示一次，
+          // 免得用户以为「换了人就换了记忆」；想清掉用下面的「清空聊天记忆」。
+          if (runtime.history.length) bubble(t('hint.memoryShared'), 6000, 'chatAck')
+        }
+        // P2-4：用户重新打开「神经」开关 = 明确要求再试一次——把本会话的降级状态清掉，
+        // 否则「切回开关也不恢复」。
+        if (patch.neuralVoice === true) resetNeural()
         saveSettings()
         notify()
-        if (patch.persona || patch.ttsVoice) {
+        if (patch.persona || patch.ttsVoice || patch.neuralVoice === true) {
           setTimeout(() => warmVoice(), 50)
         }
       }
@@ -254,6 +262,8 @@
           'div',
           { className: 'dsh-pet-seg' },
           h('button', { onClick: () => { runtime.dragPos = null; update({ pos: null }) } }, t('panel.resetPos')),
+          // P3-14：聊天记忆的显式出口（此前只能靠浏览器清缓存）
+          h('button', { onClick: () => clearHistory() }, t('panel.clearMemory')),
           h(
             'button',
             {
@@ -270,6 +280,8 @@
                 runtime.dragPos = null
                 runtime.autoPos = null
                 clearAction()
+                // P0-1：重置也要回传宿主，否则下次加载又被宿主旧快照覆盖回去（重置不生效）
+                saveSettings()
                 placePanel()
                 notify()
               },

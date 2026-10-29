@@ -1,0 +1,60 @@
+# 1.27.0 修订台账（AUDIT-2026-10-29-v1.26.1 反哺）
+
+> 输入：`AUDIT-2026-10-29-v1.26.1.md`（总评 73/100，38 条：P0×1 / P1×4 / P2×17 / P3×16）。
+> 处理方式：先按审计给的路径逐条复现，确认真实成立后再改；**没有一条是「照单全收」**。
+> 本文是交付时的机械对照表，不是宣传稿——口径偏差与「选择另一条修法」的地方都写明。
+
+## 0. 核实结论
+
+| 结论 | 条数 | 说明 |
+|---|---:|---|
+| 真实成立、已修订 | 36 | 见下表 |
+| 成立但按审计给的**备选修法**处置 | 2 | P1-4（无法起 `dsh-app://` 真机，改为「与 /assets 同策略 + 单测」）、P3-14（选「换形象提示 + 清空入口」而非按形象分库） |
+| 口径与代码不完全一致 | 1（P2-4） | 审计说「429 / 自动播放被拦 / 音频 error 全算 noteNeuralFail」；实际代码里**自动播放被拦**那一支当时并没有计数。但「3 次后整场 SAPI 且开关切回不恢复」成立，已按更严的意图修好 |
+
+## 1. 逐条处置
+
+### P0
+
+| # | 处置 | 证据 |
+|---|---|---|
+| P0-1 宿主旧快照覆盖本地 / history 变 `[object Object]` | `mergeHostState` → `adoptHostState` + `updatedAt` 新者胜；客户端 500ms 防抖回传；宿主 settings 白名单（与 `DEFAULT_SETTINGS` 对账）；history 只收 `{role, content}`，读侧丢弃旧字符串；老用户升级补时间戳 | `tests/state.test.mjs` 10 条；本机 `~/.dsh/dsh-pet/state.json` 的 8 条 `[object Object]` 首次回传即自愈（读侧已先当空） |
+
+### P1
+
+| # | 处置 | 证据 |
+|---|---|---|
+| P1-1 隐藏态卸载整份 CSS | 隐藏时渲染 `dsh-pet-layer > style` 轻壳；可见态把 `<style>` 提到 layer 第一子节点，show/hide 复用同一节点 | `tests/overlay.dom.test.mjs`「藏起来后样式表仍在」；smoke 隐藏态断言改为「有 style、无 actor」 |
+| P1-2 pack 校验与渲染契约不一致 | registry 增加 colors / voice.pitch,rate / temper 正数校验 + tag 默认值；客户端 `setPersonas` 逐条过滤；`PetArt`/`voiceParams`/`weighted()` 数据兜底；`PetRoot = PetBoundary(PetOverlay)` | `tests/state.test.mjs` 5 条 pack 用例 + 2 条客户端兜底；坏包不再抛 TypeError |
+| P1-3 视觉门禁假绿 | `toHtml` 递归展开函数组件；每格补 `.dsh-pet-layer` 作用域；browser 断言 `document.images ≥ 40` 且无 `<function>` 伪标签 | `preview.html`：40 `<img>` / 0 伪标签；`browser.mjs OK`，截图已是真实立绘矩阵 |
+| P1-4 `/pets` 走三道闸、桌面壳 cross-site 403 | 新增 `applyAssetCors`（Host + Origin，不强制 Sec-Fetch-Site），`/assets` 与 `/pets` 统一；变更类端点仍 `applyCors` | `tests/state.test.mjs` 4 条（cross-site 放行 / 穿越与未注册 id 仍 404 / 变更端点仍 403） |
+
+### P2（17/17）
+
+P2-1 出现问候走 `statusBubble`；P2-2 预热烤 `PET_LANG` 台词 + 串行 + `res.ok`，服务端先读 body 再「检查+占位」；P2-3 `available:false` → `neuralOk=false`；P2-4 瞬态失败不计数 + `resetNeural()`；P2-5 按语言挑 SAPI 嗓；P2-6 通知文案读 `PET_LANG`；P2-7 失败气泡只显示本地化文案；P2-8 公告/命令序号持久化（含宿主重启回退检测）；P2-9 `hidePet` 清 stage/menu/panelOpen/hover + `stageGen++`；P2-10 安静态：`quietSince`→sleep、`wokeAt`→伸懒腰、停自发动作与恶作剧；P2-11 开关可聚焦（`clip-path` 隐藏 + `:focus-visible`）；P2-12 🐾 打开面板调 `placePanel()`；P2-13 `chmod 0700/0600`（POSIX）；P2-14 `pythonSearchOrder` 逐个试 runtime 内的 python；P2-15 `.fx-*` / 贴纸规则收进 `.dsh-pet-layer`，泛用 keyframes 加前缀；P2-16 CI 补 focus/notify/state 用例；P2-17 `install.ps1` 的 `$keep` 补 `pets/`。
+
+### P3（16/16）
+
+P3-1 死导入清理；P3-2 `SessionWatcher` 子组件（hook 无条件）；P3-3 包内补 `tools/gen-personas.cjs`、`tools/push-via-api.cjs`；P3-4 打断/替换/卸载都 revoke blob；P3-5 `refresh=1` 限流 6/分；P3-6 announce/tts/warm/state 先验后计；P3-7 Config 范围；P3-8 客户端 45s + 4xx 不换地址；P3-9 `for await` 里 `timedOut` 即 break；P3-10 资产 URL `?v=1.27.0`；P3-11 preview 两个产物已重新生成；P3-12 README/ROADMAP/NOTICES/prelude/轮询注释对齐；P3-13 `panel.langAuto`（zh/es/pt）+ hi 梵文 description；P3-14「清空聊天记忆」+ 换形象提示；P3-15 `data-phase` CSS 消费者；P3-16 标题 `●` 前缀可撤。
+
+## 2. 验证基线（本机实测，2026-10-29）
+
+```
+node build.mjs                   OK  17 parts / 6073 lines / 284.4 KB
+build 可复现性                    sha1 连跑两次一致：5b41fb52…
+npm test                         OK  167 tests / 166 pass / 1 skipped（Windows 无 POSIX mode）
+node tests/browser.mjs           OK  40 张立绘 / 3 条片段可播 / 减弱动效作用域正确
+npm pack --dry-run               OK  153 files / 17.8 MB（含 tools/gen-personas.cjs、tools/push-via-api.cjs）
+```
+
+## 3. 未验证 / 明确不做
+
+1. **`dsh-app://` 真机**：本机起不了桌面壳页面，P1-4 只能以「与内置 `/assets` 同策略 + 单测」收口；
+   若真机仍 403，回退点是 `applyAssetCors` 里再加 `Origin: dsh-app://*` 的显式分支。
+2. **POSIX 权限**：Windows 上 `chmod` 无效，`0600/0700` 断言在该平台 skip，由 CI ubuntu job 覆盖。
+3. **审计 §11.1 `props.useSession`（原文标注「未证实」）**：已按建议补兜底——
+   `SessionWatcher` 在宿主不传 hook 时用恒 false 的兜底 hook（hook 仍无条件调用，不破坏顺序），
+   并由 `tick()` 用 `/ping` 的 `hostPhase` 边沿推导一轮开始/结束，避免 done 庆祝与
+   `turnNotify` 静默失效；`tests/state.test.mjs` 有对应用例。
+4. **第三梯队（资产懒加载 / 可观测面板 / 按形象分记忆）**：属结构性改造，不在「修订 38 条」范围内。
+5. 本版**只改代码与文档，未 commit、未 publish**（按发版纪律：publish 前必须先跑 CI 门禁，尤其 browser job）。

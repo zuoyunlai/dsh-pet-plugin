@@ -21,6 +21,7 @@ const React = {
   useState: (v) => [typeof v === 'function' ? v() : v, () => {}],
   useEffect() {},
   useCallback: (fn) => fn,
+  useRef: (v) => ({ current: v }),
 }
 
 const ctx = createContext({ console, Date, Math, JSON, String, Number, Object, Array, Set, Map, RegExp, parseInt, setInterval: () => 0, clearInterval: () => {}, requestAnimationFrame: (f) => f() })
@@ -48,6 +49,17 @@ function toHtml(node) {
   if (node == null || node === false) return ''
   if (typeof node === 'string' || typeof node === 'number') return String(node)
   if (Array.isArray(node)) return node.map(toHtml).join('')
+  // 2026-10-29 审计 P1-3：旧写法把函数组件的**源码**当标签名拼进 HTML
+  //（<function CrossImage(...)>），于是 preview.html 整页是 JS 源码、
+  // document.images 为空，browser.mjs 的「立绘加载」断言天然通过（假绿）。
+  // 这里递归调用函数组件，拿它真正返回的元素树。
+  if (typeof node.type === 'function') {
+    const props = Object.assign({}, node.props)
+    if (node.children && node.children.length) {
+      props.children = node.children.length === 1 ? node.children[0] : node.children
+    }
+    return toHtml(node.type(props))
+  }
   const attrs = Object.entries(node.props || {})
     .filter(([, v]) => v != null && v !== false)
     .map(([k, v]) => ` ${attrName(k)}="${String(v).replace(/"/g, '&quot;')}"`)
@@ -63,7 +75,9 @@ for (const pid of Object.keys(api.PERSONAS)) {
   const p = api.PERSONAS[pid]
   grid += `<div class="row"><div class="who"><b>${p.name}</b><span>${p.tag}</span></div>`
   for (const mood of MOODS) {
-    grid += `<div class="cell"><div class="dsh-pet-actor mood-${mood}">${toHtml(api.PetArt({ persona: p, mood }))}</div><i>${moodLabel[mood]}</i></div>`
+    // P2-15 之后 action/贴纸规则都作用在 .dsh-pet-layer 之内；production 里宠物本来就挂在
+    // layer 里，所以预览也补一层（display:contents 让它不参与布局，只提供作用域）。
+    grid += `<div class="cell"><div class="dsh-pet-layer" style="display:contents"><div class="dsh-pet-actor mood-${mood}">${toHtml(api.PetArt({ persona: p, mood }))}</div></div><i>${moodLabel[mood]}</i></div>`
   }
   grid += '</div>'
 }
@@ -107,6 +121,7 @@ ${api.CSS}
   <div class="pane">
     <div class="tag">常驻 · 主动说话</div>
     <div class="fake">> 帮我把这个模块的测试补一下<br><br>好的，我先看一下现有用例⋯</div>
+    <div class="dsh-pet-layer" style="display:contents">
     <div class="dsh-pet-root" style="position:absolute;right:18px;bottom:16px">
       <div class="dsh-pet-bubble">刚刚那行报错我看见了，但我决定不说。</div>
       <div class="dsh-pet-row">
@@ -117,6 +132,7 @@ ${api.CSS}
         <div class="dsh-pet-actor mood-talk">${widgetArt}</div>
         <button class="dsh-pet-gear" style="opacity:1">⚙</button>
       </div>
+    </div>
     </div>
   </div>
   <div class="pane">

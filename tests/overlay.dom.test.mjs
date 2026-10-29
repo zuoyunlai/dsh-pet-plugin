@@ -182,11 +182,32 @@ test('动作视频 error → 撤掉 <video> 退回静帧', async () => {
   await tick()
 
   assert.equal(host.querySelector('video.dsh-pet-video'), null, 'error 后应撤掉 <video>（退回静帧）')
-  assert.equal(petApi.runtime.clipFailed[clip.split('/').pop()], true, '失败按片段记忆')
+  // P3-10：资产 URL 带 ?v=<version>，取片段名要先剥查询串
+  const clipName = String(clip).split('?')[0].split('/').pop()
+  assert.equal(petApi.runtime.clipFailed[clipName], true, '失败按片段记忆')
 
   // 收尾：让动作结束，避免影响后续用例
   petApi.runtime.action = null
   petApi.runtime.clipFailed = {}
   petApi.notify()
   await tick()
+})
+
+/* ---------- P1-1：隐藏态必须留下样式表（2026-10-29 审计） ---------- */
+// 输入框旁的 🐾 按钮挂在另一个 slot，它的全部样式只存在于这份 <style> 里。
+// 旧实现 hidePet 后整层 return null，样式跟着消失 → 最需要召唤按钮的时候它没有样式。
+test('P1-1：藏起来后样式表仍在（🐾 按钮不会变成裸 button）', async () => {
+  petApi.runtime.visible = true
+  petApi.notify()
+  await waitFor(() => host.querySelector('.dsh-pet-root'), '宠物本体应重新挂上')
+
+  petApi.hidePet()
+  await waitFor(() => host.querySelector('.dsh-pet-root') === null, '隐藏后宠物本体应卸载')
+
+  const styles = Array.from(host.querySelectorAll('style'))
+  assert.ok(styles.length >= 1, '隐藏后样式表必须仍挂在 DOM 里')
+  const css = styles.map((s) => String(s.textContent)).join('\n')
+  assert.ok(css.indexOf('.dsh-pet-toggle') >= 0, '样式表里应含 🐾 按钮的规则')
+  assert.equal(petApi.runtime.stage, null, '隐藏时 stage 必须一起清掉（P2-9）')
+  assert.equal(petApi.runtime.panelOpen, false, '隐藏时面板状态必须一起清掉（P2-9）')
 })

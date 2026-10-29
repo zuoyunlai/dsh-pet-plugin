@@ -1,5 +1,67 @@
 # Changelog
 
+## 1.27.0 — 2026-10-29
+
+> 依据 `AUDIT-2026-10-29-v1.26.1.md`（总评 73/100）：逐条核实后全部真实成立，本版按
+> P0 → P1 → P2 → P3 顺序修订。**P0-1 改变了跨设备状态的语义**，是本版最需要读的一条。
+
+### P0：跨设备状态（最该先修的一条）
+
+- **设置不再被宿主旧快照覆盖**：`mergeHostState` 的「宿主有就覆盖本地」改为
+  `updatedAt` 新者胜。客户端每次保存都记时间戳并 500ms 防抖回传 `/state`；宿主里那份
+  更新时在响应里回 `{ stale: true, state }`，客户端采纳。老用户升级时由
+  `ensureLocalStateAt()` 给现有 localStorage 补一个「刚刚保存」时间戳，保证本地不被旧快照打回。
+- **history 对象化**：宿主侧不再 `String(x)`（那会把每条消息变成 `"[object Object]"`），
+  只接受 `{ role: 'user'|'assistant', content: string }`；读侧把旧格式字符串丢弃并迁移
+  （首次回传即把坏文件冲干净）。本机真实受害文件（8 条 `[object Object]`）已可自愈。
+- `/state` 的 settings 走白名单（与 `DEFAULT_SETTINGS` 对账，测试会红）、POST 先验后计 +
+  60 次/分钟限流、state.json 0600 / 目录 0700（P2-13）。
+- 「恢复默认」现在也回传宿主（此前只清 localStorage，下次加载又被宿主旧值覆盖）。
+
+### P1
+
+- **P1-1 隐藏态不再卸载样式表**：`hidePet` 后只渲染一个带 `<style>` 的轻壳。
+  🐾 召唤按钮的样式全部来自这份 CSS，此前一藏起来它就变成裸 `<button>`。
+- **P1-2 pack 准入对齐渲染契约**：无 `image` 的包必须给完整 `colors`；
+  `voice.pitch/rate` 必须是 0.3–3 的有限数；`temper` 必须是「心情 → 正数」。
+  客户端 `setPersonas` 逐条过滤坏条目；渲染层给 `colors` / `voice` / `weighted()`
+  加数据兜底；`PetOverlay` 外套一层 error boundary（真 React 下生效）回落到安全占位。
+- **P1-3 视觉门禁不再假绿**：`tests/preview.mjs` 的 `toHtml` 递归展开函数组件
+  （此前把源码当标签名拼进 HTML，页面 0 张 `<img>`、断言天然通过）；
+  `tests/browser.mjs` 增加「≥40 张立绘 + 无 `<function>` 伪标签」断言。
+- **P1-4 /pets 与 /assets 统一为只读资产闸**：只要求 Host + Origin，不强制
+  `Sec-Fetch-Site`。桌面壳里 `<img>/<video>` 的 cross-site 加载不再 403
+  （此前内置形象正常、自定义 pack 全部不显示）。变更类端点仍走三道闸。
+
+### P2（功能/体验缺陷）
+
+- P2-1 `statusBubbles:'off'` 也压住出现问候；P2-2 预热烤当前语言台词、串行发送、检查 `res.ok`，
+  服务端单飞竞态修掉（先读 body 再「检查+占位」）；P2-3 `available:false` 直接降级为系统语音；
+  P2-4 限流/自动播放被拦不再计入「三次降级」，重新打开「神经」开关会重置；
+  P2-5 系统语音按界面语言挑嗓子；P2-6 通知文案读 `PET_LANG`；P2-7 聊天失败只显示本地化文案
+  （origin/api/原文只进 console）；P2-8 公告/命令序号持久化（刷新不再重播 `hide`）；
+  P2-9 `hidePet` 清 stage/menu/panelOpen/hover；P2-10 安静态补完（打哈欠趴下 / 醒来伸懒腰，
+  `quietSince`/`wokeAt` 有了消费者，安静时停自发动作与恶作剧）；P2-11 开关改成可聚焦
+  （`clip-path` 视觉隐藏 + `:focus-visible` 轮廓），Tab 能到、空格能切；P2-12 🐾 打开面板也调
+  `placePanel()`；P2-14 神经语音探测会逐个试 DSH runtime 里的所有 python；
+  P2-15 `.fx-*` 与表情贴纸规则全部收进 `.dsh-pet-layer`；P2-16 CI 补 focus/notify/state 用例；
+  P2-17 `install.ps1` 的 `$keep` 补 `pets/`（`-Update` 不再留下旧 pack.json）。
+
+### P3（工程债）
+
+- 死导入清理（index.js 10 个 + `useCallback`）；`PetToggle` 的条件 hook 改为
+  `SessionWatcher` 子组件；包里补 `tools/gen-personas.cjs` / `tools/push-via-api.cjs`
+  （`npm run build` 与 `push-api.test` 在安装包内也能跑）；打断语音时回收 blob URL；
+  `/tts/status?refresh=1` 限流 6/分；Config 的 maxTokens/temperature 补范围；
+  客户端 45s 超时、4xx 不再换地址重试；超时后 `for await` 立刻退出；
+  资产 URL 加 `?v=<version>` 击穿缓存；文档漂移（README 状态段、ROADMAP 版本、
+  THIRD_PARTY_NOTICES 素材位置、prelude 挂载点注释、轮询注释）修正；
+  i18n 补 `panel.langAuto`（zh/es/pt）与 hi 的梵文 description；
+  新增「清空聊天记忆」入口 + 换形象时提示记忆是共享的；`data-phase` 有了 CSS 消费者；
+  标题 `●` 前缀在标题被宿主改动后也能撤掉。
+- 新增 `tests/state.test.mjs`：/state 往返与迁移、白名单、限流、权限、
+  /pets 准入、pack 形状校验、客户端 updatedAt 语义与坏数据兜底。
+
 ## 1.26.1 — 2026-10-29
 
 > 1.26.0 的补丁：修两处 CI 门禁问题。**npm 上的 1.26.0 请勿使用**——

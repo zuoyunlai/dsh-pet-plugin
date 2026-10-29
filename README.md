@@ -126,7 +126,11 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
   (with its assets next to it; `license` is a release gate for the built-in packs — user
   packs are not license-checked at runtime) — the host scans it at startup, merges it
   with the built-in five, and serves it under `/dsh-pet/pets/<id>/…` (realpath containment +
-  extension whitelist + 413 oversize). The client picks the list up via `GET /dsh-pet/personas`
+  extension whitelist + 413 oversize). A pack must satisfy the render contract, or it is
+  refused **whole** at load (fail-closed, one warning in the host log): `name` + `clips`,
+  `image` (or, for SVG personas, a complete `colors` table), and — when `voice` / `temper`
+  are present — `voice.pitch` / `voice.rate` as finite numbers and `temper` as
+  `mood → positive number`. The client picks the list up via `GET /dsh-pet/personas`
   and falls back to the built-in table when absent.
 - **Line overrides**: `$DSH_HOME/dsh-pet/voice.json` —
   `{"<personaId>|*": {"lines|linesEn|linesEs|linesPt|linesHi": {"<mood>": ["…≤300 chars, ≤200 lines"]}}}`.
@@ -135,9 +139,12 @@ node <dsh-plugin-guide>/bin/dsh-plugin-dev.js verify --cwd .
 - **Make the pet speak**: `POST /dsh-pet/announce` `{"text": "…"}` (≤300 chars, 30/min rate
   limit). Poll `/dsh-pet/ping` for `phase` (`working|tool|review|done`, 15s freshness) and
   `announce` (seq-guarded) — phase drives walk/hair micro-actions while the agent works.
-- **State on the host**: `GET/POST /dsh-pet/state` (settings ≤64 keys, history ≤200 items
-  ×8000 chars). On startup the client merges host state first, otherwise uploads its
-  localStorage once — personas and chat history survive a browser wipe.
+- **State on the host**: `GET/POST /dsh-pet/state`. Both sides carry `updatedAt`
+  (newest wins, so an old host snapshot can never roll back a fresh local change);
+  the client debounces a POST 500 ms after every settings/history change. History is
+  stored as `{role, content}` objects — legacy `"[object Object]"` strings are dropped
+  and migrated instead of being written back. Settings keys are whitelisted host-side
+  (≤64 entries, history ≤200 items × 8000 chars).
 - **Silence auto chatter**: settings `statusBubbles: "auto" | "off"` mutes mood/greeting/idle
   bubbles; taps, drags and announce still speak.
 - **Licensing**: every pack declares `license`; third-party notices ship in

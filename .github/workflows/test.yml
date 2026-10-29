@@ -61,8 +61,10 @@ jobs:
 
       # 1.19.3：可控定时器/虚拟时钟的台架。smoke 只能证明"能渲染"，
       # 动作链、失败回退、面板夹取、轮询超时这类行为要靠这一层。
-      - name: Behavior regression (timers, clip fallback, layout, polling)
-        run: node --test tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs
+      # 2026-10-29 审计 P2-16：focus/notify（1.26 的两个核心特性）与 state/pack
+      # 之前不在 ubuntu 门禁里——而 P0-1 正好落在 /state 的盲区。
+      - name: Behavior regression (timers, clip fallback, layout, polling, focus, notify, state, pack)
+        run: node --test tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/focus.test.mjs tests/notify.test.mjs tests/state.test.mjs
 
       # 1.21.0 R-08：组件级测试（真 DOM 跑 client.js）。devDeps 里的 jsdom/react/react-dom
       # 只装在 CI，不进包；缺了这一步，键盘可达性与视频回退就没有任何自动化保护。

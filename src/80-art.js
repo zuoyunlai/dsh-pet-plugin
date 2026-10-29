@@ -230,8 +230,21 @@
       )
     }
 
+    /**
+     * P1-2（2026-10-29 审计）：SVG 分支无条件读 p.colors.*，缺了就抛 TypeError
+     * 把整个 overlay slot 打白。注册表已按渲染契约收口，这里再兜一层——
+     * 旧客户端缓存的 pack、或 setPersonas 直接灌进来的数据也不至于让 UI 消失。
+     */
+    const SAFE_COLORS = {
+      body: '#8a8f99',
+      body2: '#6f747d',
+      belly: '#d8dbe0',
+      accent: '#f2a0b5',
+      eye: '#2b2f36',
+    }
+
     function PetArt({ persona: p, mood }) {
-      const c = p.colors
+      const c = (p && p.colors) || SAFE_COLORS
       // 有贴图的形象直接用立绘；表情靠整体动作 + 贴纸
       if (p.image) {
         const variant = (p.images && p.images[mood]) || null

@@ -9,14 +9,12 @@
  * 闲聊写进主上下文，那是我们明确不想要的。
  */
 import Schema from '@deepseek-ai/schemastery'
-import { readFile, writeFile, mkdir, stat, readdir, unlink, rename } from 'node:fs/promises'
-import { existsSync, readdirSync } from 'node:fs'
-import { spawn } from 'node:child_process'
+// 2026-10-29 审计 P3-1：死导入清掉（readdir / unlink / existsSync / readdirSync / spawn /
+// tmpdir / homedir / dirname 从未使用；chmod 是 P2-13 新增的）。
+import { readFile, writeFile, mkdir, stat, rename, realpath, chmod } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { tmpdir, homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { join, basename, dirname, sep } from 'node:path'
-import { realpath } from 'node:fs/promises'
+import { join, basename, sep } from 'node:path'
 import {
   voiceFor,
   probeNeural,
@@ -25,16 +23,9 @@ import {
   trimCache,
   TTS_CACHE,
   TTS_VOICES,
-  LANG_NAMES,
 } from './lib/tts.js'
 import { personaById, systemPrompt } from './lib/prompt.js'
-import {
-  scanPersonas,
-  applyVoiceOverrides,
-  petDataDir,
-  safeFile as safePetFile,
-  PACK_MAX_BYTES,
-} from './lib/registry.js'
+import { scanPersonas, applyVoiceOverrides, petDataDir, safeFile as safePetFile } from './lib/registry.js'
 
 export const name = 'dsh-pet-plugin'
 export const inject = ['webServer']
@@ -52,8 +43,8 @@ const ASSET_TYPES = {
 export const Config = Schema.object({
   provider: Schema.string().default('deepseek-account').description('模型 provider 路由'),
   model: Schema.string().default('deepseek-flash').description('模型名'),
-  maxTokens: Schema.number().default(800).description('单次回复上限（越大越啰嗦）'),
-  temperature: Schema.number().default(1).description('0-2，越高越活蹦乱跳'),
+  maxTokens: Schema.number().min(1).max(1200).default(800).description('单次回复上限（1–1200，越大越啰嗦）'),
+  temperature: Schema.number().min(0).max(2).default(1).description('0-2，越高越活蹦乱跳'),
   // 2026-10-28 审计 R-11：这个键原先在 chatHandler 里被读取但不在 schema 里，用户配了不生效
   chatTimeoutMs: Schema.number().min(1000).max(120000).default(30000).description('单聊模型调用超时（毫秒，夹在 1s–120s）'),
   allowedHosts: Schema.array(Schema.string()).default([]).description(
@@ -64,6 +55,17 @@ export const Config = Schema.object({
 
 const MAX_BODY = 64 * 1024
 const MAX_TEXT = 2000
+/**
+ * /state 的 settings 白名单（P0-1）：键名与客户端 src/40-settings.js 的
+ * DEFAULT_SETTINGS 一一对应——tests/state.test.mjs 会把两边对账，
+ * 加设置项忘了同步这里会直接变红。
+ */
+export const STATE_SETTING_KEYS = [
+  'persona', 'lang', 'mode', 'probability', 'activeStart', 'activeEnd',
+  'voiceOn', 'volume', 'pitchTrim', 'rateTrim', 'neuralVoice', 'ttsVoice',
+  'chatter', 'showInput', 'inputMode', 'scale', 'chaos', 'celebrate',
+  'turnNotify', 'statusBubbles', 'pos',
+]
 // 用户宠物资产的单文件上限（R-06）：20MB——比我们最大内置片段还大一倍，
 // 挡的是「把宠物目录当免费文件服务器」的路径，不是正常素材。
 const ASSET_MAX_BYTES = 20 * 1024 * 1024
@@ -260,23 +262,84 @@ export function apply(ctx, config) {
   // —— 跨设备状态（R-04）：$DSH_HOME/dsh-pet/state.json ——
   // 客户端 localStorage 只在「这台机器这个浏览器」有效；落到宿主数据目录后，
   // 换浏览器/换设备（同一个 DSH_HOME）设置与聊天记忆跟着走。
+  //
+  // 2026-10-29 审计 P0-1：旧实现是「宿主有就覆盖本地」，且 history 逐条
+  // String() 落盘——客户端传的对象于是全变成 "[object Object]"，刷新后本地历史
+  // 被清空、设置被首次安装时的快照打回去。现在：
+  //   1. settings 只接受白名单键（宿主不解释语义，但挡住任意键膨胀）；
+  //   2. history 只存 {role, content}，读侧把旧格式（字符串）当坏数据丢弃；
+  //   3. 双方都带 updatedAt，时间新者胜（宿主比客户端新时回 stale，不覆盖）。
   const PET_DATA_DIR = petDataDir()
   const STATE_FILE = join(PET_DATA_DIR, 'state.json')
+  const STATE_HISTORY_MAX = 8
+  const STATE_CONTENT_MAX = 8000
+  const sanitizeSettings = (value) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+    const out = {}
+    for (const key of STATE_SETTING_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(value, key)) continue
+      const v = value[key]
+      if (v == null) continue
+      const kind = typeof v
+      if (kind === 'string') {
+        if (v.length <= 120) out[key] = v
+      } else if (kind === 'number') {
+        if (Number.isFinite(v)) out[key] = v
+      } else if (kind === 'boolean') {
+        out[key] = v
+      } else if (key === 'pos' && kind === 'object' && !Array.isArray(v)) {
+        const x = Number(v.x)
+        const y = Number(v.y)
+        if (Number.isFinite(x) && Number.isFinite(y)) out.pos = { x, y }
+      }
+    }
+    return out
+  }
+  const sanitizeHistory = (value) => {
+    if (!Array.isArray(value)) return []
+    const out = []
+    for (const item of value.slice(-STATE_HISTORY_MAX * 4)) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) continue
+      const role = item.role === 'assistant' ? 'assistant' : item.role === 'user' ? 'user' : ''
+      const content = typeof item.content === 'string' ? item.content.slice(0, STATE_CONTENT_MAX) : ''
+      if (!role || !content.trim()) continue
+      out.push({ role, content })
+    }
+    return out.slice(-STATE_HISTORY_MAX)
+  }
   const readHostState = async () => {
     try {
       const raw = await readFile(STATE_FILE, 'utf8')
       const parsed = JSON.parse(raw)
-      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+      return {
+        settings: sanitizeSettings(parsed.settings) || {},
+        history: sanitizeHistory(parsed.history),
+        updatedAt: Number.isFinite(Number(parsed.updatedAt)) ? Number(parsed.updatedAt) : 0,
+      }
     } catch (e) {
       return {} // 文件不存在 / 损坏：一律当空（损坏不写回，等下一次合法 POST 覆盖）
+    }
+  }
+  /** 权限修复（P2-13）：mkdir 的 mode 只对新建生效，既有目录/文件要显式 chmod */
+  const tryChmod = async (target, mode) => {
+    try {
+      await chmod(target, mode)
+    } catch (e) {
+      /* Windows / 无权限：忽略（NTFS 上没有 POSIX mode 这一说） */
     }
   }
   const writeHostState = async (state) => {
     // tmp+rename 原子写：写到一半断电不会留下半截 JSON（客户端读损坏文件回落空）
     await mkdir(PET_DATA_DIR, { recursive: true, mode: 0o700 })
+    // 2026-10-29 审计 P2-13：老版本建的目录是 0755、state.json 是 0644，
+    // 同机其他用户能读到聊天历史。这里每次都把权限拨正（失败不影响写入）。
+    await tryChmod(PET_DATA_DIR, 0o700)
     const tmp = join(PET_DATA_DIR, '.state.json.tmp-' + process.pid)
-    await writeFile(tmp, JSON.stringify(state), 'utf8')
+    await writeFile(tmp, JSON.stringify(state), { encoding: 'utf8', mode: 0o600 })
+    await tryChmod(tmp, 0o600)
     await rename(tmp, STATE_FILE)
+    await tryChmod(STATE_FILE, 0o600)
   }
 
   // —— 运行期注册表（R-01）：包内 pets/ + $DSH_HOME/dsh-pet/pets/ ——
@@ -396,9 +459,12 @@ export function apply(ctx, config) {
     return site === 'same-origin' || site === 'none'
   }
 
-  const applyCors = (req, res) => {
+  const applyGate = (req, res, { allowCrossSite }) => {
     const reqOrigin = req.headers && req.headers.origin
-    const ok = hostAllowed(req) && fetchSiteAllowed(req) && (!reqOrigin || originAllowed(req, reqOrigin))
+    const ok =
+      hostAllowed(req) &&
+      (allowCrossSite || fetchSiteAllowed(req)) &&
+      (!reqOrigin || originAllowed(req, reqOrigin))
     if (ok && reqOrigin) {
       res.setHeader('access-control-allow-origin', reqOrigin)
       res.setHeader('access-control-allow-credentials', 'true')
@@ -418,6 +484,19 @@ export function apply(ctx, config) {
     }
     return false
   }
+
+  /** 变更类端点：三道闸全开（Host / Origin / Sec-Fetch-Site） */
+  const applyCors = (req, res) => applyGate(req, res, { allowCrossSite: false })
+
+  /**
+   * 只读资产闸（2026-10-29 审计 P1-4）：只要求 Host 与 Origin 合法，**不强制**
+   * Sec-Fetch-Site。原因与 /assets 的注释一致——桌面壳（dsh-app://app）里
+   * <img>/<video> 的 no-cors 加载可能带 `Sec-Fetch-Site: cross-site`，按三道闸会
+   * 直接 403 断图断片。内置 /assets 一直因此完全不设闸；用户包 /pets 之前误用了
+   * applyCors，导致「内置形象正常、自定义形象在桌面壳里全部不显示」。
+   * 现在两条只读路由统一走这一档；变更类端点仍是 applyCors。
+   */
+  const applyAssetCors = (req, res) => applyGate(req, res, { allowCrossSite: true })
 
   const pingHandler = (req, res) => {
     if (applyCors(req, res)) return
@@ -614,7 +693,10 @@ export function apply(ctx, config) {
         signal: streamCtrl ? streamCtrl.signal : undefined,
       })
       for await (const chunk of stream) {
-        if (aborted) break
+        // 2026-10-29 审计 P3-9：超时也必须在循环里退出。旧写法只判 aborted（客户端断开），
+        // 而 timeout 走的是 signal.abort()——如果上游不理会 signal，for await 会一直
+        // 等到流自己结束，504 迟迟发不出去（用户看到的是「一直转」）。
+        if (aborted || timedOut) break
         if (chunk && chunk.type === 'finish') finish = chunk.reason
         if (chunk && chunk.type === 'text-delta' && typeof chunk.text === 'string') out += chunk.text
       }
@@ -688,11 +770,12 @@ export function apply(ctx, config) {
   )
 
   // 宠物贴图：从包内 assets/ 直接读，只放行白名单扩展名，路径只取 basename。
-  // 这里有意不走 applyCors（2026-10-28 审计 V17）：<img>/<video> 的 no-cors 加载会带
-  // Sec-Fetch-Site: cross-site，桌面壳形态下加闸可能直接断图断片；且本路由只服务
-  // 包内公开素材（npm 上人人可下）、无副作用、basename + 20MB 双防线，风险面极小。
-  // 用户包路由 /pets（服务本机私有数据）则必须走三道准入，见 petAssetHandler。
+  // 只读资产走 applyAssetCors（不强制 Sec-Fetch-Site）：<img>/<video> 的 no-cors
+  // 加载在桌面壳形态下会带 Sec-Fetch-Site: cross-site，按三道闸会直接断图断片。
+  // 2026-10-29 审计 P1-4：/pets 已改为同一策略（此前只有 /assets 不受这条限制，
+  // 用户自定义形象因此在桌面壳里 403）。
   const assetHandler = async (req, res) => {
+    if (applyAssetCors(req, res)) return
     let name = ''
     try {
       // 畸形 %（如 %zz）会让 decodeURIComponent 抛错，不能让它抛穿到宿主
@@ -743,7 +826,8 @@ export function apply(ctx, config) {
    *   4. 扩展名白名单 + 20MB 单文件上限。
    */
   const petAssetHandler = async (req, res) => {
-    if (applyCors(req, res)) return
+    // 只读资产闸（P1-4）：不强制 Sec-Fetch-Site，理由见 applyAssetCors 的注释。
+    if (applyAssetCors(req, res)) return
     let path = ''
     try {
       path = decodeURIComponent((req.url || '').split('?')[0] || '')
@@ -814,6 +898,16 @@ export function apply(ctx, config) {
   }
 
   // —— 跨设备状态（R-04）：GET 读 / POST 合并白名单键 ——
+  // POST 限流（P3-6）：/state 是客户端会周期性回传的端点，没有上限时一个写坏的
+  // 客户端能把它当免费磁盘写入口刷。只对「形状合法、真的要落盘」的请求计数。
+  const stateHits = []
+  const stateLimited = () => {
+    const now = Date.now()
+    while (stateHits.length && now - stateHits[0] > 60000) stateHits.shift()
+    if (stateHits.length >= 60) return true
+    stateHits.push(now)
+    return false
+  }
   const stateHandler = async (req, res) => {
     if (applyCors(req, res)) return
     if (req.method === 'GET') {
@@ -834,26 +928,43 @@ export function apply(ctx, config) {
       reply(res, 400, { error: 'bad-request' })
       return
     }
-    // 白名单键 + 形状约束：宿主不解释语义（normalize 在客户端做），只挡体积滥用
+    const hasSettings = payload.settings != null
+    const hasHistory = payload.history != null
+    if (!hasSettings && !hasHistory) {
+      reply(res, 400, { error: 'empty-state' })
+      return
+    }
+    // 白名单键 + 形状约束：宿主不解释语义（normalize 在客户端做），只挡形状与体积滥用
+    const settings = hasSettings ? sanitizeSettings(payload.settings) : null
+    if (hasSettings && settings == null) {
+      reply(res, 400, { error: 'bad-settings' })
+      return
+    }
+    if (hasHistory && (!Array.isArray(payload.history) || payload.history.length > 200)) {
+      reply(res, 400, { error: 'bad-history' })
+      return
+    }
+    const history = hasHistory ? sanitizeHistory(payload.history) : null
+    if (stateLimited()) {
+      reply(res, 429, { error: 'rate-limited' })
+      return
+    }
     const next = await readHostState()
-    if (payload.settings && typeof payload.settings === 'object' && !Array.isArray(payload.settings)) {
-      const keys = Object.keys(payload.settings)
-      if (keys.length > 64) {
-        reply(res, 400, { error: 'too-many-keys' })
-        return
-      }
-      next.settings = payload.settings
+    const hostAt = next.updatedAt || 0
+    const incomingAt = Number.isFinite(Number(payload.updatedAt)) && Number(payload.updatedAt) > 0
+      ? Number(payload.updatedAt)
+      : Date.now()
+    // 新者胜（P0-1）：宿主里那份比这次保存更新 → 不覆盖，把宿主状态回给客户端让它采纳。
+    if (hostAt && incomingAt < hostAt) {
+      reply(res, 200, { ok: true, stale: true, state: next })
+      return
     }
-    if (Array.isArray(payload.history)) {
-      if (payload.history.length > 200) {
-        reply(res, 400, { error: 'too-many-items' })
-        return
-      }
-      next.history = payload.history.map((x) => String(x).slice(0, 8000))
-    }
+    if (settings) next.settings = settings
+    if (history) next.history = history
+    next.updatedAt = incomingAt
     try {
       await writeHostState(next)
-      reply(res, 200, { ok: true })
+      reply(res, 200, { ok: true, updatedAt: incomingAt })
     } catch (e) {
       reply(res, 500, { error: 'write-failed', ref: failRef(e && e.message) })
     }
@@ -872,13 +983,14 @@ export function apply(ctx, config) {
     } catch (e) {
       payload = {}
     }
-    if (announceLimited()) {
-      reply(res, 429, { error: 'rate-limited' })
-      return
-    }
+    // 先验后计（P3-6）：空文本不占额度，否则 30 条空 body 就能把公告通道锁死
     const text = typeof payload.text === 'string' ? payload.text.trim().slice(0, 300) : ''
     if (!text) {
       reply(res, 400, { error: 'empty-text' })
+      return
+    }
+    if (announceLimited()) {
+      reply(res, 429, { error: 'rate-limited' })
       return
     }
     announceSeq++
@@ -894,10 +1006,25 @@ export function apply(ctx, config) {
     reply(res, 200, { ok: true, seq: announceSeq })
   }
   // —— 神经语音可用性探测：客户端据此决定用神经音色还是系统语音 ——
+  const statusHits = []
+  const statusRefreshLimited = () => {
+    const now = Date.now()
+    while (statusHits.length && now - statusHits[0] > 60000) statusHits.shift()
+    if (statusHits.length >= 6) return true
+    statusHits.push(now)
+    return false
+  }
   const ttsStatusHandler = async (req, res) => {
     if (applyCors(req, res)) return
     // ?refresh=1 跳过 5 分钟缓存（含负结果）：用户刚装完 edge-tts 能当场刷出来，不用等或重启
+    // 2026-10-29 审计 P3-5：这条路径每次最多串行 spawn 5 个 python（每个 8s），
+    // 没有上限时页面一个循环就能把 CPU 打满。限 6 次/分钟，超了直接 429（而不是静默降级，
+    // 免得用户以为「刷新成功了但其实读的是旧缓存」）。
     const refresh = /[?&]refresh=1\b/.test(String((req && req.url) || ''))
+    if (refresh && statusRefreshLimited()) {
+      reply(res, 429, { error: 'rate-limited' })
+      return
+    }
     const st = await probeNeural({ force: refresh })
     reply(res, 200, {
       available: st.ok,
@@ -945,19 +1072,20 @@ export function apply(ctx, config) {
     } catch (e) {
       payload = {}
     }
-    if (ttsLimited()) {
-      reply(res, 429, { error: 'rate-limited' })
-      return
-    }
+    // 先验后计（P3-6）：必须是 POST + 有文本，才消耗合成额度
     const text = typeof payload.text === 'string' ? payload.text.trim().slice(0, 300) : ''
-    const voice = voiceFor(payload.voice, payload.lang)
-    const pitch = pitchOf(payload.pitch)
-    const rate = rateOf(payload.rate)
-    const volume = volumeOf(payload.volume)
     if (!text) {
       reply(res, 400, { error: 'empty-text' })
       return
     }
+    if (ttsLimited()) {
+      reply(res, 429, { error: 'rate-limited' })
+      return
+    }
+    const voice = voiceFor(payload.voice, payload.lang)
+    const pitch = pitchOf(payload.pitch)
+    const rate = rateOf(payload.rate)
+    const volume = volumeOf(payload.volume)
     const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text, volume) + '.mp3')
     try {
       await stat(file)
@@ -1001,10 +1129,14 @@ export function apply(ctx, config) {
 
   const warmHandler = async (req, res) => {
     if (applyCors(req, res)) return
-    if (warmLimited() || warming) {
-      reply(res, 429, { error: 'rate-limited' })
+    if (req.method !== 'POST') {
+      reply(res, 405, { error: 'method-not-allowed' })
       return
     }
+    // 2026-10-29 审计 P2-2：旧写法在 `await readBody` **之前**判 warming，
+    // 于是三条并发预热都能通过检查再各自置 true（竞态），单飞形同虚设。
+    // 现在先把 body 读完、参数验完，再在同一个同步段里「检查 + 占位」，
+    // 中间没有 await，天然原子。空 body 也不占额度（P3-6）。
     let payload = {}
     try {
       payload = JSON.parse((await readBody(req)) || '{}')
@@ -1016,6 +1148,17 @@ export function apply(ctx, config) {
     const rate = rateOf(payload.rate)
     const volume = volumeOf(payload.volume)
     const lines = Array.isArray(payload.lines) ? payload.lines.slice(0, 30) : []
+    const texts = lines
+      .map((raw) => String(raw || '').trim().slice(0, 300))
+      .filter(Boolean)
+    if (!texts.length) {
+      reply(res, 400, { error: 'empty-lines' })
+      return
+    }
+    if (warmLimited() || warming) {
+      reply(res, 429, { error: 'rate-limited' })
+      return
+    }
     warming = true
     res.writeHead(202, { 'content-type': 'application/json; charset=utf-8' })
     res.end('{"ok":true}')
@@ -1027,10 +1170,8 @@ export function apply(ctx, config) {
         return
       }
       try {
-        for (const raw of lines) {
+        for (const text of texts) {
           if (disposed) return
-          const text = String(raw || '').trim().slice(0, 300)
-          if (!text) continue
           const file = join(TTS_CACHE, ttsKey(voice, pitch, rate, text, volume) + '.mp3')
           try {
             await stat(file)

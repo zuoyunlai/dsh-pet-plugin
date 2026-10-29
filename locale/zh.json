@@ -7,7 +7,7 @@
     "panel.title": "桌面伴侣",
     "panel.look": "形象",
     "panel.lang": "语言",
-    "panel.langAuto": "Auto (follow DSH)",
+    "panel.langAuto": "自动（跟随 DSH）",
     "panel.voice": "声音",
     "panel.display": "显示",
     "panel.actions": "动作",
@@ -72,6 +72,10 @@
     "dot.fail": "刚才那次没接上（看控制台 [dsh-pet] chat failed）",
     "dot.idle": "还没聊过",
     "actor.tip": "（可以拖走 / 右键有菜单）",
-    "hint.notifyDenied": "没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。"
+    "hint.notifyDenied": "没有拿到通知权限。想用跑完提醒的话，去地址栏把通知权限打开。",
+    "chat.rateLimited": "说得太快啦，缓一分钟再聊。",
+    "panel.clearMemory": "清空聊天记忆",
+    "hint.memoryShared": "换形象了：聊天记忆跨形象共用，想清掉就在设置里点「清空聊天记忆」。",
+    "hint.renderFailed": "画她的时候出错了，详情看控制台 [dsh-pet]。"
   }
 }

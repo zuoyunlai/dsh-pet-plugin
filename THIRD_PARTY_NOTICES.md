@@ -9,9 +9,10 @@
 
 ## 2. 形象素材（本项目自有，AI 生成）
 
-- `pets/<id>/`（violet / crimson / indigo / silver / azure / example）下的
-  `.webp` 立绘与 `.webm` 动作视频，均由本项目通过生成式工具链制作并授权分发，
-  未使用任何第三方美术素材。每个形象的 `pack.json` 均带 `license` 字段（当前全部 MIT）。
+- 内置形象的 `.webp` 立绘与 `.webm` 动作视频实际存放在包内 `assets/`（`pets/<id>/pack.json`
+  只描述引用关系，构建期由 `tools/gen-personas.cjs` 生成 `src/30-personas.js`），均由本项目
+  通过生成式工具链制作并授权分发，未使用任何第三方美术素材。每个形象的 `pack.json` 均带
+  `license` 字段（当前全部 MIT）。用户自建 pack 的素材放在 `$DSH_HOME/dsh-pet/pets/<id>/` 同目录。
 - 例：`pets/example/` 是文档示例目录，同样为本项目生成。
 
 ## 3. 运行期依赖（不随包再分发）

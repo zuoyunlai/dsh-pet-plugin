@@ -50,7 +50,7 @@ $destDir = Split-Path -Parent $dest
 $legacyDir  = Join-Path $profileDir 'node_modules\@local\dsh-pet'
 $legacyPkg  = '@local/dsh-pet'
 # 安装/更新/test 模式共用的文件清单（只带运行时需要的东西）
-$keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'locale', 'tools', 'tests', 'lib', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
+$keep = @('index.js', 'client.js', 'cordis.patch.yml', 'package.json', 'icon.svg', 'assets', 'pets', 'locale', 'tools', 'tests', 'lib', 'README.md', 'README-zh.md', 'LICENSE', 'CHANGELOG.md')
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $fileSpec  = 'file:' + ($src -replace '\\', '/')

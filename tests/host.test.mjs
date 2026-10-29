@@ -324,15 +324,20 @@ test('tts 的 volume 也过白名单，并参与缓存键', async () => {
   assert.match(src, /volumeOf\(payload\.volume\)/, '处理器要解析 volume')
 })
 
-test('tts/warm 也有独立限流', async () => {
+test('tts/warm 也有独立限流（空 lines 不占额度，且单飞真的单飞）', async () => {
   const ctx = makeCtx()
   apply(ctx, {})
   const handler = ctx.routes.get('/dsh-pet/tts/warm')
-  let last
-  for (let i = 0; i < 8; i++) {
-    last = await call(handler, { method: 'POST', url: '/dsh-pet/tts/warm', body: '{"lines":[]}' })
+  // P3-6：空 lines 是无效请求，不该消耗额度
+  for (let i = 0; i < 10; i++) {
+    const r = await call(handler, { method: 'POST', url: '/dsh-pet/tts/warm', body: '{"lines":[]}' })
+    assert.equal(r.statusCode, 400, '空 lines 应 400')
   }
-  assert.equal(last.statusCode, 429)
+  // P2-2：单飞——第一条受理（202），预热期间的第二条立刻 429
+  const first = await call(handler, { method: 'POST', url: '/dsh-pet/tts/warm', body: '{"lines":["hi"]}' })
+  assert.equal(first.statusCode, 202)
+  const second = await call(handler, { method: 'POST', url: '/dsh-pet/tts/warm', body: '{"lines":["hi"]}' })
+  assert.equal(second.statusCode, 429, '同一时刻只允许一条预热在跑')
 })
 
 test('assets 畸形百分号不抛穿（400 而不是 500 崩溃）', async () => {

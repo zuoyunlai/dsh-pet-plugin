@@ -172,9 +172,28 @@ for (const personaId of Object.keys(petApi.PERSONAS)) {
   }
 }
 
-// 隐藏态应当返回 null（不占 DOM）
+// 隐藏态（P1-1，2026-10-29 审计）：宠物本体不渲染，但整份 CSS 必须常驻——
+// 输入框旁的 🐾 按钮在另一个 slot，它的全部样式只存在于这份样式表里。
+// 旧实现隐藏时直接 return null，样式表跟着消失，召唤按钮变成裸 <button>。
 petApi.runtime.visible = false
-assert.equal(pet({ ...baseProps }), null, '隐藏时不应渲染')
+const hiddenTree = pet({ ...baseProps })
+assert.ok(hiddenTree, '隐藏时仍要挂样式壳（否则 🐾 按钮会失去样式）')
+let hiddenHasStyle = false
+let hiddenHasActor = false
+const scanHidden = (node, depth = 0) => {
+  if (!node || typeof node !== 'object' || depth > 40) return
+  if (typeof node.type === 'function') {
+    scanHidden(node.type(node.props || {}), depth + 1)
+    return
+  }
+  if (node.type === 'style') hiddenHasStyle = true
+  const cls = node.props && node.props.className
+  if (typeof cls === 'string' && cls.indexOf('dsh-pet-actor') >= 0) hiddenHasActor = true
+  for (const c of node.children || []) scanHidden(c, depth + 1)
+}
+scanHidden(hiddenTree)
+assert.ok(hiddenHasStyle, '隐藏时样式表必须仍在渲染树里')
+assert.equal(hiddenHasActor, false, '隐藏时不应渲染宠物本体')
 
 // 设置面板打开时也要能渲染（曾经漏了 persona 变量，点齿轮整个宠物崩掉）
 petApi.runtime.visible = true
@@ -439,7 +458,8 @@ assert.equal(inActiveWindow(at(12, 0), '22:00', '03:00'), false, '跨零点时�
   }
   walk(pet({ ...baseProps }))
   assert.equal(found.length, 1, '应该渲染一个 .dsh-pet-video')
-  assert.ok(String(found[0].src).endsWith('.webm'), '视频源应是 .webm，实际 ' + found[0].src)
+  // P3-10：资产 URL 带 ?v=<version> 作为缓存击穿参数，断言扩展名时先剥掉查询串
+  assert.ok(String(found[0].src).split('?')[0].endsWith('.webm'), '视频源应是 .webm，实际 ' + found[0].src)
   assert.equal(found[0].muted, true, '必须静音，否则浏览器不给自动播放')
   assert.equal(found[0].autoPlay, true)
   // 1.26.1：人物占比补偿必须真的写到 video 上，且取自 pack 的 clipFit。

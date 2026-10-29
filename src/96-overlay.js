@@ -94,7 +94,13 @@
         return () => clearTimeout(t)
       }, [runtime.visible, runtime.panelOpen, s.pos, runtime.resizeTick])
 
-      if (!runtime.visible) return null
+      if (!runtime.visible) {
+        // P1-1（2026-10-29 审计）：整份 CSS 就挂在这个组件里，而 🐾 按钮（另一个 slot）
+        // 的全部样式也只存在于这份 CSS。旧写法藏着时直接 return null，样式表跟着消失，
+        // 输入框旁唯一的「叫回来」按钮就变成裸 <button>——正是最需要它的时候。
+        // 现在藏着也常驻一个只带 <style> 的轻壳：样式不消失，也不必反复解析 26KB CSS。
+        return h('div', { className: 'dsh-pet-layer dsh-pet-layer-idle' }, h('style', null, CSS))
+      }
 
       // 输入框的显示方式（1.22.0）：hover = 悬停才滑出（默认）；always = 常显。
       // 聊天框已经打开、或鼠标正停在人物上时，视为「应该展开」。
@@ -180,6 +186,10 @@
       return h(
         'div',
         { className: 'dsh-pet-layer' },
+        // 样式表放在 layer 的第一子节点：隐藏态渲染的是「layer > style」，
+        // 可见态是「layer > style + root…」——同一个父节点、同一个下标，
+        // React 会复用同一个 <style> 节点，show/hide 不再反复解析 26KB CSS。
+        h('style', null, CSS),
         h(
           'div',
           {
@@ -190,7 +200,6 @@
               runtime.rootEl = el
             },
           },
-          h('style', null, CSS),
         runtime.panelOpen
           ? h('div', { className: 'dsh-pet-panelwrap', style: runtime.panelPos || undefined }, h(SettingsPanel))
           : null,
@@ -299,7 +308,9 @@
         ),
         h(
           'div',
-          { className: 'dsh-pet-actor-wrap', style: { position: 'relative' } },
+          // P3-15（2026-10-29 审计）：data-phase 之前没有任何 CSS 消费者（死属性）。
+          // 这里把阶段也挂到 wrap 上，样式表据此给齿轮一个极轻的状态提示。
+          { className: 'dsh-pet-actor-wrap', 'data-phase': runtime.phase, style: { position: 'relative' } },
           h(
             'div',
             {
@@ -362,6 +373,54 @@
         h(FxLayer),
         h(PetMenu),
       )
+    }
+
+    /* ================= 渲染兜底（P1-2，2026-10-29 审计） ================= */
+
+    /**
+     * 最小安全占位：真实数据/组件出问题时回落到这一块，而不是让整个 slot 条目白屏。
+     * 只画一个静态标记 + 一行诊断，不依赖 persona、不读任何运行时数据。
+     */
+    function PetFallback() {
+      // 外面再包一层 .dsh-pet-layer：样式表里的兜底规则作用在这个作用域内
+      return h(
+        'div',
+        { className: 'dsh-pet-layer' },
+        h(
+          'div',
+          { className: 'dsh-pet-fallback', role: 'status' },
+          h('span', { className: 'dsh-pet-fallback-mark', 'aria-hidden': 'true' }, '🐾'),
+          h('span', null, t('hint.renderFailed')),
+        ),
+      )
+    }
+
+    // React 的错误边界只能是 class 组件。测试里的 React 桩没有 Component
+    //（它们直接调用组件函数、不走 React 渲染），所以这里按能力挂载：
+    // 真 React 下生效，桩环境退化成直通（数据层兜底由 PetArt / voiceParams / weighted 负责）。
+    const ReactComponent = React && typeof React.Component === 'function' ? React.Component : null
+    let PetBoundary = null
+    if (ReactComponent) {
+      PetBoundary = class PetBoundary extends ReactComponent {
+        constructor(props) {
+          super(props)
+          this.state = { failed: false }
+        }
+        static getDerivedStateFromError() {
+          return { failed: true }
+        }
+        componentDidCatch(err) {
+          petLog('render crashed', String((err && err.message) || err))
+        }
+        render() {
+          return this.state.failed ? h(PetFallback, null) : this.props.children
+        }
+      }
+    }
+
+    /** slot 入口：把 PetOverlay 包进 boundary（渲染期异常不再让整个 slot 条目白屏） */
+    function PetRoot() {
+      return PetBoundary ? h(PetBoundary, null, h(PetOverlay)) : h(PetOverlay)
     }
 
     /** 右键菜单：只做高频动作，设置还是走齿轮面板 */
@@ -507,8 +566,63 @@
     function PetToggle(props) {
       useRuntime()
       const useSession = props && props.useSession
-      const running = typeof useSession === 'function' ? !!useSession((s) => s && s.running) : false
+      // P3-2（2026-10-29 审计）：不能在组件体里条件调用 hook——
+      // `typeof useSession === 'function' ? useSession(...) : false` 一旦宿主某次不传
+      // 该 prop，React 就报 "Rendered more hooks"。改成按需挂一个只负责观测的
+      // 子组件：hook 在子组件里无条件调用，不传就整块不挂（返回 null，不改布局）。
 
+      return h(
+        'button',
+        {
+          className: 'dsh-pet-toggle' +
+            (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
+          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
+          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
+          title: !runtime.visible
+            ? t('panel.summon')
+            : runtime.petOffscreen
+              ? t('pet.toggleOff')
+              : t('pet.toggle'),
+          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
+          onClick: () => {
+            if (!runtime.visible || runtime.petOffscreen) {
+              runtime.settings.pos = null
+              runtime.dragPos = null
+              runtime.autoPos = null
+              runtime.petOffscreen = false
+              saveSettings()
+              showPet('appear')
+            } else {
+              runtime.panelOpen = !runtime.panelOpen
+              // P2-12（2026-10-29 审计）：从 🐾 打开面板也要按她的位置摆
+              //（齿轮与右键菜单都调了 placePanel，只有这里漏了）
+              if (runtime.panelOpen) placePanel()
+              notify()
+            }
+          },
+        },
+        h(SessionWatcher, { useSession }),
+        h(PetMark),
+        runtime.petOffscreen && runtime.visible ? h('i', { className: 'dsh-pet-badge-dot' }) : null,
+      )
+    }
+
+    /**
+     * 宿主会话状态观测（P3-2）。只渲染 null，副作用写进 runtime：
+     * 一轮结束时触发庆祝与「跑完了」通知。
+     *
+     * 宿主没传 useSession 时用一个恒定返回 false 的兜底 hook——hook 仍**无条件**调用，
+     * 调用顺序不变（这正是 P3-2 要避免的那个崩法）。此时「一轮在跑」由 tick 里的
+     * hostPhase 边沿兜底推导（见 60-behavior.js 的 §11.1 注释）。
+     */
+    function useNoSession() {
+      return false
+    }
+
+    function SessionWatcher({ useSession }) {
+      const hook = typeof useSession === 'function' ? useSession : useNoSession
+      if (typeof useSession === 'function') runtime.sessionHookSeen = true
+      const running = !!hook((s) => s && s.running)
       // 事件联动：一轮跑完就庆祝。长活（>20s）她会跑到中间跳一段，
       // 短活只撒花；跳舞还要求窗口在前台 + 10 分钟冷却，免得打断你。
       useEffect(() => {
@@ -551,37 +665,7 @@
         runtime.running = running
         if (syncPhase()) notify()
       }, [running])
-
-      return h(
-        'button',
-        {
-          className: 'dsh-pet-toggle' +
-            (runtime.petOffscreen && runtime.visible ? ' ' + 'offscreen' : ''),
-          // 她藏起来时（!visible）这颗按钮就是唯一的「叫出来」入口，
-          // 所以悬停标题要跟着变成「叫出来」，而不是一直写「桌面伴侣」。
-          title: !runtime.visible
-            ? t('panel.summon')
-            : runtime.petOffscreen
-              ? t('pet.toggleOff')
-              : t('pet.toggle'),
-          'aria-label': !runtime.visible ? t('panel.summon') : t('pet.toggle'),
-          onClick: () => {
-            if (!runtime.visible || runtime.petOffscreen) {
-              runtime.settings.pos = null
-              runtime.dragPos = null
-              runtime.autoPos = null
-              runtime.petOffscreen = false
-              saveSettings()
-              showPet('appear')
-            } else {
-              runtime.panelOpen = !runtime.panelOpen
-              notify()
-            }
-          },
-        },
-        h(PetMark),
-        runtime.petOffscreen && runtime.visible ? h('i', { className: 'dsh-pet-badge-dot' }) : null,
-      )
+      return null
     }
 
     /** 输入框右侧的标记：跟插件 icon 同一个剪影。 */

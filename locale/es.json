@@ -7,7 +7,7 @@
     "panel.title": "Mascota",
     "panel.look": "Aspecto",
     "panel.lang": "Idioma",
-    "panel.langAuto": "Auto (follow DSH)",
+    "panel.langAuto": "Auto (seguir DSH)",
     "panel.voice": "Voz",
     "panel.display": "Pantalla",
     "panel.actions": "Acciones",
@@ -72,6 +72,10 @@
     "dot.fail": "el último intento falló (mira [dsh-pet] chat failed en la consola)",
     "dot.idle": "aún sin chatear",
     "actor.tip": " (arrástrame / clic derecho para el menú)",
-    "hint.notifyDenied": "No se concedió permiso de notificación. Actívalo en la barra de direcciones para usar los avisos."
+    "hint.notifyDenied": "No se concedió permiso de notificación. Actívalo en la barra de direcciones para usar los avisos.",
+    "chat.rateLimited": "Demasiados mensajes, espera un minuto.",
+    "panel.clearMemory": "Borrar memoria del chat",
+    "hint.memoryShared": "Cambiaste de personaje. La memoria del chat se comparte entre personajes; bórrala en ajustes si quieres empezar de cero.",
+    "hint.renderFailed": "Algo falló al dibujar la mascota. Revisa la consola ([dsh-pet])."
   }
 }

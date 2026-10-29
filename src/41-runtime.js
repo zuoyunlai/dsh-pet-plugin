@@ -21,6 +21,8 @@
       action: null, // 正在播的动作序列 { name, frames, i, step, until }
       rootEl: null, // 宠物根节点，给视线跟随用
       history: [], // 跟它单聊的最近几轮（落 localStorage，刷新不失忆）
+      // 历史是否自上次回传后被改过（P0-1）：没改过就不往宿主传，避免用空历史冲掉别的设备
+      historyDirty: false,
       speaking: false,
       speakUntil: 0,
       subs: new Set(),
@@ -34,6 +36,8 @@
       // —— 阶段机（F1）：idle / working / tool / error / speak / done ——
       phase: 'idle',
       running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
+      // 宿主是否真的传了 useSession（§11.1 未证实项兜底：没传时改用 /ping 的 phase 边沿推导）
+      sessionHookSeen: false,
       doneUntil: 0, // 一轮刚结束的庆祝窗口
       lastToolAt: 0, // 宿主最近一次 tools/result 的时间戳（来自 /ping）
       lastToolName: '',
@@ -235,14 +239,37 @@
      * 运行期注册表替换（R-01）：宿主 /personas 成功返回非空表时整表换入。
      * 空表/坏表一律拒收（宿主扫描失败时保持内置表）；换表后当前 persona
      * 若不在新表里，回落到新表第一只，避免渲染一个查无此人的形象。
+     *
+     * P1-2（2026-10-29 审计）：逐条做形状过滤——宿主的 fail-closed 校验只保护
+     * 「读盘扫描」这条路径，老宿主版本或中间层仍可能灌进缺字段的包。坏条目跳过
+     * 并 warn，而不是让整表替换、然后在渲染期白屏。
      */
+    function usablePersona(p) {
+      if (!p || typeof p !== 'object' || !p.id) return false
+      if (typeof p.name !== 'string' || !p.name.trim()) return false
+      if (!p.clips || typeof p.clips !== 'object') return false
+      if (p.image) return true
+      const c = p.colors
+      if (!c || typeof c !== 'object') return false
+      for (const key of ['body', 'body2', 'belly', 'accent', 'eye']) {
+        if (typeof c[key] !== 'string' || !c[key]) return false
+      }
+      return true
+    }
+
     function setPersonas(list) {
       if (!Array.isArray(list) || !list.length) return false
       const map = {}
+      const skipped = []
       for (const p of list) {
-        if (p && typeof p === 'object' && p.id) map[p.id] = p
+        if (!usablePersona(p)) {
+          skipped.push(p && p.id ? String(p.id) : '(unknown)')
+          continue
+        }
+        map[p.id] = typeof p.tag === 'string' ? p : { ...p, tag: '', tagEn: p.tagEn || '' }
       }
       if (!Object.keys(map).length) return false
+      if (skipped.length) petLog('skipped unusable personas', skipped.join(','))
       PERSONA_REG.map = map
       if (!map[runtime.settings.persona]) {
         runtime.settings.persona = Object.keys(map)[0]
@@ -264,5 +291,6 @@
         base = ''
       }
       const assetBase = (p && p.assetBase) || '/dsh-pet/assets'
-      return base + assetBase + '/' + name
+      // P3-10：带版本查询串（见 10-util.js 的 PET_ASSET_QS），升级后不吃旧缓存
+      return base + assetBase + '/' + name + PET_ASSET_QS
     }

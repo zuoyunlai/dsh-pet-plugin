@@ -1,9 +1,9 @@
 /**
  * dsh-pet — 桌面宠物（DSH Web 客户端插件）
  *
- * 挂载点：
- *   shell.overlay              → 宠物本体（全窗浮动层，root 作用域）
- *   conversation.input.overlay → 隐形桥接（session 作用域，拿到 inputActions 才能替用户发消息）
+ * 挂载点（2026-10-29 审计 P3-12：旧注释还写着早已删除的 conversation.input.overlay 桥）：
+ *   shell.overlay            → 宠物本体（全窗浮动层，root 作用域）
+ *   conversation.input.right → 输入框右侧的 🐾 常驻入口（宠物藏起来时的唯一召唤按钮）
  *
  * 约束（官方红线，别改坏）：
  *   - 不 iframe、不往 document.body 追加、不 require 任何 @deepseek-ai/dsh-client-* 包
@@ -16,4 +16,5 @@ window.__ModuleLoader__.load({
     'use strict'
     const React = require('react')
     const h = React.createElement
-    const { useState, useEffect, useCallback, useRef } = React
+    // P3-1：useCallback 从未使用（旧的死导入）
+    const { useState, useEffect, useRef } = React

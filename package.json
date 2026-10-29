@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.26.1",
+  "version": "1.27.0",
   "description": "DSH 桌面伴侣插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
@@ -18,6 +18,8 @@
     "icon.svg",
     "assets/*.webp",
     "tools/tts_worker.py",
+    "tools/gen-personas.cjs",
+    "tools/push-via-api.cjs",
     "CHANGELOG.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
@@ -72,8 +74,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node build.mjs && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs tests/focus.test.mjs tests/notify.test.mjs tests/readme.test.mjs",
-    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs tests/focus.test.mjs tests/notify.test.mjs tests/readme.test.mjs",
+    "test": "node build.mjs && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs tests/focus.test.mjs tests/notify.test.mjs tests/readme.test.mjs tests/state.test.mjs",
+    "prepublishOnly": "node build.mjs && node --check index.js && node tests/smoke.mjs && node --test tests/host.test.mjs tests/assets.test.mjs tests/runtime.test.mjs tests/push-api.test.mjs tests/voice.test.mjs tests/overlay.dom.test.mjs tests/focus.test.mjs tests/notify.test.mjs tests/readme.test.mjs tests/state.test.mjs",
     "gen": "node tools/gen-personas.cjs",
     "gen:check": "node tools/gen-personas.cjs --check"
   },

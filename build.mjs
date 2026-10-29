@@ -41,6 +41,10 @@ function localeDict() {
 
 generatePersonas()
 
+// P3-10（2026-10-29 审计）：把 package.json 的 version 注入产物。
+// 客户端用它给资产 URL 加 ?v=（升级后不被 1 小时公共缓存钉在旧立绘上）。
+const pkgVersion = JSON.parse(readFileSync('package.json', 'utf8')).version
+
 const parts = readdirSync('src')
   .filter((f) => f.endsWith('.js'))
   .sort()
@@ -61,6 +65,10 @@ for (const p of parts) {
   }
   out += (out ? '\n' : '') + code
 }
+
+// 版本占位符替换（单一源 = package.json；可复现构建不受影响）
+if (!/__PET_VERSION__/.test(out)) console.warn('warning: __PET_VERSION__ placeholder not found')
+out = out.split("'__PET_VERSION__'").join(JSON.stringify(pkgVersion))
 
 if (!injected) console.warn('warning: no @locales marker found — dictionaries are not injected')
 

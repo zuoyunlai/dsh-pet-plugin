@@ -133,7 +133,9 @@
       runtime.moodUntil = nowMs() + randInt(3000, 5000)
       if (!wasVisible && runtime.settings.chatter) {
         const k = kind === 'dance' ? 'dance' : 'appear'
-        bubble(randomLine(k), null, k)
+        // P2-1（2026-10-29 审计）：出现问候也是「自发台词」，statusBubbles:'off' 时必须闭嘴。
+        // 旧写法直接 bubble()，只有 tick 里的 appear 走 statusBubble()，两条路不一致。
+        statusBubble(randomLine(k), null, k)
       }
       notify()
     }
@@ -145,6 +147,17 @@
       // 藏起来就把在播的动作收回：不留一条还在跑的调度链（R03/R08）
       clearAction()
       stopVoice()
+      // P2-9（2026-10-29 审计）：这些运行态只在「看得见」时有意义，藏着不清就会
+      // 在下次出现时带上来——跳舞藏起来 → 再出现带着位移/放大；菜单/设置面板还开着
+      // → 再出现自己弹回来。
+      runtime.stage = null
+      // 还要作废在途的舞台相位排程（planStage 靠 stageGen 校验代际），
+      // 否则隐藏期间那几条 later() 仍会把 stage/心情改回去。
+      stageGen++
+      runtime.menu = null
+      runtime.panelOpen = false
+      runtime.hovering = false
+      runtime.inputPinned = false
       notify()
     }
 
@@ -299,8 +312,48 @@
       const now = nowMs()
       const s = runtime.settings
 
-      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它
+      // 失焦感知（1.26.0）：先更新安静态，后面所有「要不要出声」的判定都读它。
+      // P2-10（2026-10-29 审计）：安静态不只是静音——进入时要打哈欠趴下（sleep），
+      // 醒来时伸个懒腰；所以这里必须消费 syncQuiet 记下的边界（quietSince/wokeAt）。
       syncQuiet()
+
+      // §11.1（审计标注「未证实」的兜底）：宿主不传 props.useSession 时，`running`
+      // 永远是 false，于是 done 庆祝与 turnNotify（1.26 的头号功能）会静默失效。
+      // 用 /ping 的 hostPhase 边沿推导一轮的开始/结束——只在没有 session hook 时启用，
+      // 有 hook 时保持原语义（phase 只驱动表情，不驱动通知）。
+      if (!runtime.sessionHookSeen) {
+        const busy =
+          runtime.hostPhase === 'working' ||
+          runtime.hostPhase === 'thinking' ||
+          runtime.hostPhase === 'tool' ||
+          runtime.hostPhase === 'review'
+        if (busy && !runtime.running) {
+          runtime.running = true
+          runtime.turnStartedAt = now
+        } else if (!busy && runtime.running) {
+          const dur = now - (runtime.turnStartedAt || now)
+          runtime.running = false
+          runtime.turnStartedAt = 0
+          runtime.doneUntil = now + 4000
+          if (runtime.settings.turnNotify && dur >= TURN_NOTIFY_MIN_MS) sendTurnNotify(dur)
+        }
+      }
+      const quiet = isQuiet()
+      if (quiet) {
+        // quietSince 由 syncQuiet 在「进入安静」那一刻写入并一直保留到退出。
+        // 用它做「已经换成 sleep 了没有」的幂等判据：tick 每 5s 都会进来。
+        if (runtime.quietSince && runtime.mood !== 'sleep') {
+          runtime.mood = 'sleep'
+          runtime.moodUntil = now + 5 * 60 * 1000 // 睡着就别被随机心情打断
+        }
+      } else if (runtime.wokeAt) {
+        // wokeAt 由 syncQuiet 在「刚醒来」那一刻写入：伸个懒腰，只播一次。
+        // 有 hair（撩头发）片段/帧的形象用它，没有的只换个心情。
+        playAction('hair', { moodDriven: true })
+        runtime.mood = 'happy'
+        runtime.moodUntil = now + 4000
+        runtime.wokeAt = 0
+      }
 
       // 阶段机：先算阶段，再按阶段给一点情绪反馈
       const prevPhase = runtime.phase
@@ -368,8 +421,8 @@
         notify()
       }
 
-      // 心情轮换（跳舞期间锁住，别被随机心情打断）
-      if (!runtime.stage && now > runtime.moodUntil && !runtime.speaking) scheduleMood()
+      // 心情轮换（跳舞期间锁住，别被随机心情打断；安静态保持 sleep 心情）
+      if (!quiet && !runtime.stage && now > runtime.moodUntil && !runtime.speaking) scheduleMood()
 
       // 闲聊
       if (runtime.visible && s.chatter && !runtime.speaking && now - lastChatterAt > randInt(150, 300) * 1000) {
@@ -378,11 +431,11 @@
         if (line) statusBubble(line, null, 'idle')
       }
 
-      // 偶尔撩一下头发（白天的「活人感」主要靠这个）
-      if (runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
+      // 偶尔撩一下头发（白天的「活人感」主要靠这个）——安静态不发任何自发动作
+      if (!quiet && runtime.visible && !runtime.action && Math.random() < 0.008) playAction('hair')  // 自动发起：不显式、时长取片长（R02）
 
-      // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次
-      if (s.chaos !== false && runtime.visible && !runtime.fx.length) {
+      // 低频恶作剧：墨水/起雾 ~2 小时一次，炸弹 ~4 小时一次（安静态不恶作剧）
+      if (!quiet && s.chaos !== false && runtime.visible && !runtime.fx.length) {
         const roll = Math.random()
         if (roll < 0.00035) playFx('boom', { ttl: 2600 })
         else if (roll < 0.0011) playFx(Math.random() < 0.55 ? 'ink' : 'fog', { ttl: 6500 })
@@ -403,16 +456,35 @@
 
     const HISTORY_KEY = 'dsh-pet.history.v1'
 
+    /** 历史条目只认 {role, content}：字符串（旧版本被 String() 成 "[object Object]" 的那批）一律丢弃 */
+    function normalizeHistoryList(list) {
+      const out = []
+      for (const m of Array.isArray(list) ? list.slice(-64) : []) {
+        if (!m || typeof m !== 'object' || Array.isArray(m)) continue
+        const content = typeof m.content === 'string' ? m.content : ''
+        if (!content.trim()) continue
+        out.push({ role: m.role === 'assistant' ? 'assistant' : 'user', content })
+      }
+      return out.slice(-8)
+    }
+
+    function persistHistory(at) {
+      try {
+        window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history.slice(-8)))
+        setLocalStateAt(at || nowMs())
+      } catch (e) {
+        /* 隐私模式/配额满，忽略 */
+      }
+    }
+
     function pushHistory(role, content) {
       try {
         runtime.history.push({ role, content: String(content).slice(0, 800) })
         if (runtime.history.length > 8) runtime.history.splice(0, runtime.history.length - 8)
-        // 刷新页面也不失忆：只留最近 8 条
-        try {
-          window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history.slice(-8)))
-        } catch (e) {
-          /* 隐私模式/配额满，忽略 */
-        }
+        // 刷新页面也不失忆：只留最近 8 条；P0-1：同时回传宿主（跨浏览器/清缓存不丢）
+        persistHistory()
+        runtime.historyDirty = true
+        scheduleStatePush()
       } catch (e) {
         /* ignore */
       }
@@ -422,40 +494,56 @@
       try {
         const raw = window.localStorage.getItem(HISTORY_KEY)
         const arr = raw ? JSON.parse(raw) : []
-        if (Array.isArray(arr)) {
-          runtime.history = arr
-            .filter((m) => m && typeof m.content === 'string')
-            .slice(-8)
-            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
+        runtime.history = normalizeHistoryList(arr)
+        // 本地有历史就先当「待回传」：换设备时把本地历史推上去（有宿主状态时会先采纳宿主）
+        runtime.historyDirty = runtime.history.length > 0
+        if (Array.isArray(arr) && arr.length && !runtime.history.length) {
+          petLog('dropped corrupt local history', { n: arr.length })
         }
       } catch (e) {
         runtime.history = []
       }
     }
 
+    /** 清空聊天记忆（面板入口）：本地与宿主一起清，避免下次启动又被宿主旧历史灌回来 */
+    function clearHistory() {
+      runtime.history = []
+      persistHistory()
+      runtime.historyDirty = true
+      scheduleStatePush()
+      notify()
+    }
+
     /**
-     * 宿主状态合并（R-04，反哺报告 2026-10-27）：宿主侧 $DSH_HOME 的状态文件
-     * 是跨设备真相源——宿主有 → 宿主优先覆盖本地（同键才覆盖，本地多出来的键保留），
-     * 并归一化后落回 localStorage。history 直接替换（本就只留最近 8 条）。
+     * 采纳宿主状态（P0-1，2026-10-29 审计）：只在「宿主那份更新」或「本地没有状态」时调用。
+     * 与旧 mergeHostState 的区别：
+     *   - 不再无条件「宿主每个键覆盖本地」——是否采纳由 updatedAt 决定（见 99-entry.js）；
+     *   - 采纳时只落 localStorage，不立刻回传（否则两台机器会来回顶）；
+     *   - 宿主里的历史若是旧格式（"[object Object]" 字符串），丢弃并保留本地那份，
+     *     再把本地推上去把宿主文件冲干净（迁移只发生一次）。
      */
-    function mergeHostState(host) {
+    function adoptHostState(host) {
       try {
+        if (!host || typeof host !== 'object') return
+        const at = Number(host.updatedAt) || 0
         if (host.settings && typeof host.settings === 'object' && !Array.isArray(host.settings)) {
           runtime.settings = normalizeSettings({ ...runtime.settings, ...host.settings })
-          saveSettings()
+          persistSettings(at)
         }
-        if (Array.isArray(host.history) && host.history.length) {
-          runtime.history = host.history
-            .filter((m) => m && typeof m.content === 'string')
-            .slice(-8)
-            .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content }))
-          try {
-            window.localStorage.setItem(HISTORY_KEY, JSON.stringify(runtime.history))
-          } catch (e) {
-            /* 隐私模式/配额满，忽略 */
+        let corrupted = false
+        if (Array.isArray(host.history)) {
+          const cleaned = normalizeHistoryList(host.history)
+          if (cleaned.length) {
+            runtime.history = cleaned
+            persistHistory(at)
+            runtime.historyDirty = false
+          } else if (host.history.length) {
+            corrupted = true
+            petLog('host history corrupted, keeping local', { n: host.history.length })
           }
         }
         notify()
+        if (corrupted) scheduleStatePush(0)
       } catch (e) {
         /* ignore */
       }
@@ -480,7 +568,9 @@
       let lastErr = null
       for (const url of urls) {
         // 客户端超时（R-09）：服务端默认 30s（可配到 120s），挂起的 fetch 不能
-        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）
+        // 让「……」气泡和 busy 状态一直挂到浏览器自身超时（约 5 分钟）。
+        // P3-8（2026-10-29 审计）：90s 与服务端默认 30s 差太多，改成 45s
+        // （默认超时 + 15s 余量）；服务端调大超时的用户仍能看到 504 文案。
         let ctrl = null
         let guard = 0
         if (typeof AbortController === 'function') {
@@ -491,7 +581,7 @@
             } catch (e) {
               /* ignore */
             }
-          }, 90000)
+          }, 45000)
         }
         try {
           const res = await fetch(url, {
@@ -509,13 +599,18 @@
             throw new Error('HTTP ' + res.status + ' 非 JSON')
           }
           if (!res.ok || !data.reply) {
-            throw new Error((data && (data.message || data.error)) || 'HTTP ' + res.status)
+            const err = new Error((data && (data.error || data.code)) || 'HTTP ' + res.status)
+            // P3-8：4xx 是「这次请求/这个地址本身不行」，换下一个地址也没用
+            //（429 只会在换地址后再赔一次额度，400 更是必然再失败）
+            err.retryable = !(res.status >= 400 && res.status < 500)
+            throw err
           }
           petLog('chat ok', { via: url })
           return String(data.reply)
         } catch (e) {
           lastErr = e
           petLog('chat attempt failed', { via: url, msg: String((e && e.message) || e) })
+          if (e && e.retryable === false) break
         } finally {
           if (guard) clearTimeout(guard)
         }
@@ -546,21 +641,15 @@
           } catch (err) {
             /* ignore */
           }
+          // P2-7（2026-10-29 审计）：origin/api/上游原文只进 console。
+          // 用户要看的是「她没听懂/稍后再试」，不是调试信息。
           petLog('chat failed', { msg, origin, api })
           if (/SIGN_IN|ACCOUNT|auth/i.test(msg)) {
             bubble(t('chat.needSignIn'), 6000, 'chatErr')
+          } else if (/429|rate-limited|rate_limited/i.test(msg)) {
+            bubble(t('chat.rateLimited'), 8000, 'chatErr')
           } else {
-            bubble(
-              (pick(p.lines.error) || t('chat.stuck')) +
-                '\n[origin=' +
-                origin +
-                ' api=' +
-                api +
-                ']\n' +
-                msg.slice(0, 160),
-              15000,
-              'chatErr',
-            )
+            bubble(pick(p.lines.error) || t('chat.stuck'), 12000, 'chatErr')
           }
         })
         .finally(() => notify())

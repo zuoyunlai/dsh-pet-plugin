@@ -15,8 +15,12 @@
         if (petDebug) {
           globalThis.__dshPet = {
             runtime,
-            // R-01：debug 出口也读运行期注册表（与下拉一致）
-            PERSONAS: PERSONA_REG.map,
+            // R-01：debug 出口也读运行期注册表（与下拉一致）。
+            // 用 getter：/personas 整表替换后，旧引用会指向上一个对象（P1-2 回归测试踩到）。
+            get PERSONAS() {
+              return PERSONA_REG.map
+            },
+            setPersonas,
             inActiveWindow,
             toMinutes,
             weighted,
@@ -30,6 +34,13 @@
             linesOf,
             maybeAside,
             clearAside,
+            // 跨设备状态（P0-1）：台架直接驱动「采纳宿主状态 / 回传」，不用等轮询时序
+            adoptHostState,
+            pushStateNow,
+            localStateAt,
+            saveSettings,
+            clearHistory,
+            loadHistory,
             // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
             voiceParams,
             playFx,
@@ -126,6 +137,8 @@
           // 常驻模式立刻出现
           try {
             lastChatterAt = nowMs()
+            // P0-1：老用户升级时给现有本地设置补一个时间戳，避免被宿主旧快照按 updatedAt 压回去
+            ensureLocalStateAt()
             loadHistory()
             if (runtime.settings.mode === 'always') showPet('appear')
             setTimeout(() => warmVoice(), 2500)
@@ -191,8 +204,8 @@
         })
 
         // 事件联动 + 阶段机：轮询 /ping 拿宿主的工具活动与失败时间戳。
-        // 宠物不可见时暂停轮询（省 CPU 和网络）——她被藏起来时没人看，
-        // 阶段数据缓一拍没影响，showPet / 斜杠命令唤醒时会补拉。
+        // 可见时 8s 一轮；藏起来时退到 30s（不是「暂停」——斜杠命令/公告要靠它唤醒），
+        // 省 CPU 与网络又不至于错过「叫出来」。
         ctx.effect(() => {
           let stop = false
           // 1.10.0 起 /api 前缀已删除，只剩这一个相对路径 + 注入的绝对地址
@@ -206,6 +219,32 @@
           // 一次轮询的预算（R08）：没有这个，一个永不返回的 fetch 会让整条链
           // 永远停在这里，而 showPet 的补拉还会再起一条同样会挂的链。
           const POLL_TIMEOUT = 8000
+          // P2-8（2026-10-29 审计）：公告/命令的消费序号必须跨刷新持久化。
+          // 只放内存里的话，刷新一次就把上一条公告再念一遍、把 /dsh-pet hide 再执行一次。
+          const SEQ_KEY = 'dsh-pet.seq.v1'
+          const loadSeq = () => {
+            try {
+              const o = JSON.parse(window.localStorage.getItem(SEQ_KEY) || '{}')
+              return o && typeof o === 'object' ? o : {}
+            } catch (e) {
+              return {}
+            }
+          }
+          const saveSeq = (patch) => {
+            try {
+              const o = loadSeq()
+              Object.assign(o, patch)
+              window.localStorage.setItem(SEQ_KEY, JSON.stringify(o))
+            } catch (e) {
+              /* 隐私模式：退化为内存去重 */
+            }
+          }
+          if (!runtime.seqLoaded) {
+            runtime.seqLoaded = true
+            const seqs = loadSeq()
+            runtime.lastAnnounceSeq = Number(seqs.announce) || 0
+            runtime.lastCommandSeq = Number(seqs.command) || 0
+          }
           let ctrl = null
           let failures = 0
           const doPoll = async () => {
@@ -239,6 +278,20 @@
                   // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
                   if (j.phase) runtime.hostPhase = String(j.phase)
                   if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // 宿主重启会把 seq 归零（P2-8 的持久化游标副作用）：检测到回退就把本地
+                  // 游标清掉，否则重启后的新公告/新命令会被当成「重放」永久忽略。
+                  if (typeof j.commandSeq === 'number' && j.commandSeq < (runtime.lastCommandSeq || 0)) {
+                    runtime.lastCommandSeq = 0
+                    saveSeq({ command: 0 })
+                  }
+                  if (
+                    j.announce &&
+                    typeof j.announce.seq === 'number' &&
+                    j.announce.seq < (runtime.lastAnnounceSeq || 0)
+                  ) {
+                    runtime.lastAnnounceSeq = 0
+                    saveSeq({ announce: 0 })
+                  }
                   // —— 公告（R-03）：序号变大才播，轮询重复拿到同一条不重放 ——
                   if (
                     j.announce &&
@@ -247,12 +300,14 @@
                     j.announce.text
                   ) {
                     runtime.lastAnnounceSeq = j.announce.seq
+                    saveSeq({ announce: j.announce.seq })
                     // announce 是外部触发（脚本/其它插件点名要她说），不走 statusBubbles 闸
                     bubble(String(j.announce.text).slice(0, 300), null, 'announce')
                   }
                   // 斜杠命令：序号变大才执行，轮询重复拿到同一条不会重放
                   if (j.commandSeq && j.commandSeq > (runtime.lastCommandSeq || 0)) {
                     runtime.lastCommandSeq = j.commandSeq
+                    saveSeq({ command: j.commandSeq })
                     if (j.command === 'hide') hidePet(60 * 60 * 1000)
                     else if (j.command === 'show') showPet()
                   }
@@ -330,18 +385,19 @@
               if (!stop && res.ok) {
                 const j = await res.json()
                 const host = (j && j.state) || {}
+                const hostAt = Number(host.updatedAt) || 0
+                const localAt = localStateAt()
                 const hasHost =
                   (host.settings && Object.keys(host.settings).length) || (host.history && host.history.length)
-                if (hasHost) {
-                  mergeHostState(host)
-                } else {
-                  // 宿主还没有状态文件：把本地的推上去当初始真相
-                  await withTimeout(base + '/dsh-pet/state', 8000, {
-                    method: 'POST',
-                    headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ settings: runtime.settings, history: runtime.history }),
-                  }).catch(() => {})
-                }
+                // 新者胜（P0-1，2026-10-29 审计）：
+                //   - 本地从没保存过（localAt=0）且宿主有状态 → 采纳宿主（换浏览器/换设备恢复）；
+                //   - 宿主更新时间 >= 本地 → 采纳宿主（另一台机器刚改过）；
+                //   - 否则本地更新 → 把本地推上去覆盖宿主。
+                // 旧版本留下的宿主文件没有 updatedAt（hostAt=0），而本地升级时
+                // ensureLocalStateAt() 已经给现有设置打了「刚刚保存」的时间戳，
+                // 所以「旧快照打回新设置」这个 P0 场景自然落到最后一条。
+                if (hasHost && hostAt >= localAt) adoptHostState(host)
+                else pushStateNow()
               }
             } catch (e) {
               /* 老宿主没有这个端点：本地 localStorage 照旧 */
@@ -385,7 +441,8 @@
         mountSlot(
           'shell.overlay',
           { name: 'shell.overlay', id: 'dsh-pet', order: 200, label: t('panel.title'), locale: 'pet' },
-          PetOverlay,
+          // P1-2：PetRoot = PetBoundary(PetOverlay)，渲染期异常回落到安全占位而不是白屏
+          PetRoot,
         )
 
         // 输入框右侧的常驻入口：宠物被挡住/藏起来时的唯一可靠入口

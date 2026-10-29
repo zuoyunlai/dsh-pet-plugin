@@ -72,6 +72,10 @@
     "dot.fail": "last attempt failed (see [dsh-pet] chat failed in the console)",
     "dot.idle": "no chat yet",
     "actor.tip": " (drag me / right-click for a menu)",
-    "hint.notifyDenied": "Notification permission was not granted. Enable it in the address bar to use turn reminders."
+    "hint.notifyDenied": "Notification permission was not granted. Enable it in the address bar to use turn reminders.",
+    "chat.rateLimited": "Too many messages just now — give it a minute.",
+    "panel.clearMemory": "Clear chat memory",
+    "hint.memoryShared": "Persona switched. Chat memory is shared across personas — clear it in settings if you want a fresh start.",
+    "hint.renderFailed": "Something broke while drawing the pet. Check the console ([dsh-pet])."
   }
 }

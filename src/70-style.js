@@ -182,15 +182,20 @@
 .dsh-pet-panel input[type=range]{flex:1;min-width:0;height:14px;accent-color:var(--pet-accent)}
 .dsh-pet-grid2{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;margin:1px 0;flex:0 0 auto}
 
-/* 自定义开关 */
-.dsh-pet-tg{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;min-height:19px}
-.dsh-pet-tg input{display:none}
+/* 自定义开关。P2-11（2026-10-29 审计）：旧写法 input{display:none} 让 Tab 永远
+   跳过这些开关（键盘完全无法操作）。改成「视觉隐藏但可聚焦」的写法，
+   并给 :focus-visible 一个可见轮廓——鼠标用户的观感不变，键盘用户能用空格切换。 */
+.dsh-pet-tg{display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;min-height:19px;position:relative}
+.dsh-pet-tg input{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;opacity:0}
 .dsh-pet-tg i{position:relative;flex:0 0 auto;width:22px;height:12px;border-radius:999px;
   background:var(--pet-border);transition:background .16s}
 .dsh-pet-tg i:after{content:"";position:absolute;top:1.5px;left:1.5px;width:9px;height:9px;border-radius:50%;
   background:var(--pet-bg);transition:transform .16s}
 .dsh-pet-tg input:checked + i{background:var(--pet-accent)}
 .dsh-pet-tg input:checked + i:after{transform:translateX(10px)}
+.dsh-pet-tg input:focus-visible + i{outline:2px solid var(--pet-accent);outline-offset:2px}
+.dsh-pet-tg input:focus-visible ~ span{opacity:1;text-decoration:underline}
 .dsh-pet-tg span{opacity:.78;font-size:11px}
 
 /* 自定义下拉（不用原生 select：Windows 弹出层是白底，深色主题下看不清） */
@@ -254,20 +259,20 @@
 
 /* —— 立绘的表情贴纸（没有五官层时唯一的“表情”） —— */
 .dsh-pet-marks{position:absolute;inset:0;pointer-events:none}
-.fx-mark{position:absolute;font-style:normal;line-height:1}
-.fx-mark.blush{width:18px;height:10px;border-radius:50%;
+.dsh-pet-layer .fx-mark{position:absolute;font-style:normal;line-height:1}
+.dsh-pet-layer .fx-mark.blush{width:18px;height:10px;border-radius:50%;
   background:radial-gradient(closest-side,rgba(255,120,150,.55),rgba(255,120,150,0) 72%);
-  filter:blur(.6px);animation:mark-in .5s ease-out both}
-.fx-mark.sweat{width:5px;height:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-  background:rgba(140,200,255,.85);box-shadow:0 0 3px rgba(140,200,255,.6);animation:mark-in .55s .15s ease-out both}
-.fx-mark.vein{font-size:13px;animation:mark-pulse .6s ease-in-out infinite alternate}
-.fx-mark.zzz{font-size:12px;opacity:.75;color:var(--pet-fg);
-  animation:mark-float 2.4s ease-in-out infinite}
-.fx-mark.zzz.z2{font-size:9px;animation-delay:.6s}
-.fx-mark.spark{font-size:12px;animation:mark-pulse .9s ease-in-out infinite alternate}
-@keyframes mark-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-@keyframes mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
-@keyframes mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
+  filter:blur(.6px);animation:dsh-pet-mark-in .5s ease-out both}
+.dsh-pet-layer .fx-mark.sweat{width:5px;height:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  background:rgba(140,200,255,.85);box-shadow:0 0 3px rgba(140,200,255,.6);animation:dsh-pet-mark-in .55s .15s ease-out both}
+.dsh-pet-layer .fx-mark.vein{font-size:13px;animation:dsh-pet-mark-pulse .6s ease-in-out infinite alternate}
+.dsh-pet-layer .fx-mark.zzz{font-size:12px;opacity:.75;color:var(--pet-fg);
+  animation:dsh-pet-mark-float 2.4s ease-in-out infinite}
+.dsh-pet-layer .fx-mark.zzz.z2{font-size:9px;animation-delay:.6s}
+.dsh-pet-layer .fx-mark.spark{font-size:12px;animation:dsh-pet-mark-pulse .9s ease-in-out infinite alternate}
+@keyframes dsh-pet-mark-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes dsh-pet-mark-pulse{from{opacity:.55;transform:scale(.9)}to{opacity:1;transform:scale(1.12)}}
+@keyframes dsh-pet-mark-float{0%{opacity:0;transform:translateY(0) scale(.8)}
   30%{opacity:.85}100%{opacity:0;transform:translateY(-9px) scale(1.1)}}
 
 /* —— 视线跟随 —— */
@@ -302,17 +307,17 @@
   78%{opacity:1}
   100%{transform:translate(18px,-14px);opacity:0}
 }
-.fx-bolt{animation:fx-bolt-flash 4s linear infinite}
+.dsh-pet-layer .fx-bolt{animation:fx-bolt-flash 4s linear infinite}
 @keyframes fx-bolt-flash{0%,40%,44%,100%{opacity:.12}42%,46%{opacity:1}}
-.fx-rain{opacity:.45;animation:fx-rain-drop 1.1s linear infinite}
+.dsh-pet-layer .fx-rain{opacity:.45;animation:fx-rain-drop 1.1s linear infinite}
 @keyframes fx-rain-drop{0%{transform:translateY(-6px);opacity:0}30%{opacity:.6}100%{transform:translateY(9px);opacity:0}}
 .dsh-pet-fx-fog{position:absolute;inset:0;width:100%;height:100%;pointer-events:auto;cursor:crosshair;
   animation:fx-fog-fade 7s ease-in-out forwards}
 @keyframes fx-fog-fade{0%{opacity:0}10%{opacity:1}82%{opacity:1}100%{opacity:0}}
-.fx-bomb{position:absolute;width:26px;height:26px;opacity:0;
+.dsh-pet-layer .fx-bomb{position:absolute;width:26px;height:26px;opacity:0;
   animation:fx-bomb-fly 1.5s cubic-bezier(.35,0,.9,.55) forwards}
-.fx-bomb svg{width:100%;height:100%;display:block;overflow:visible}
-.fx-spark{animation:fx-spark-pulse .28s ease-in-out infinite alternate}
+.dsh-pet-layer .fx-bomb svg{width:100%;height:100%;display:block;overflow:visible}
+.dsh-pet-layer .fx-spark{animation:fx-spark-pulse .28s ease-in-out infinite alternate}
 @keyframes fx-spark-pulse{from{opacity:.4;transform:scale(.8)}to{opacity:1;transform:scale(1.25)}}
 @keyframes fx-bomb-fly{
   0%{transform:translate(0,0) scale(.4) rotate(0deg);opacity:0}
@@ -320,7 +325,7 @@
   60%{transform:translate(var(--tx,0),calc(var(--ty,0) * .45)) scale(1.05) rotate(180deg);opacity:1}
   100%{transform:translate(var(--tx,0),var(--ty,0)) scale(.5) rotate(360deg);opacity:0}
 }
-.fx-shake{position:absolute;inset:0;animation:fx-shake-k 2.6s ease-out forwards}
+.dsh-pet-layer .fx-shake{position:absolute;inset:0;animation:fx-shake-k 2.6s ease-out forwards}
 @keyframes fx-shake-k{
   0%,44%{transform:translate(0,0)}
   46%{transform:translate(-5px,3px)}
@@ -330,12 +335,12 @@
   54%{transform:translate(-2px,1px)}
   57%,100%{transform:translate(0,0)}
 }
-.fx-flash{position:absolute;inset:0;background:#fff;opacity:0;animation:fx-flash 2.4s ease-out forwards}
+.dsh-pet-layer .fx-flash{position:absolute;inset:0;background:#fff;opacity:0;animation:fx-flash 2.4s ease-out forwards}
 @keyframes fx-flash{0%,44%{opacity:0}46%{opacity:.75}49%{opacity:0}100%{opacity:0}}
-.fx-crack{position:absolute;inset:0;width:100%;height:100%;opacity:0;animation:fx-crack-in 2.6s ease-out forwards;
+.dsh-pet-layer .fx-crack{position:absolute;inset:0;width:100%;height:100%;opacity:0;animation:fx-crack-in 2.6s ease-out forwards;
   color:var(--pet-fg);filter:drop-shadow(0 1px 0 rgba(255,255,255,.5))}
 @keyframes fx-crack-in{0%,45%{opacity:0}48%{opacity:1}78%{opacity:.8}100%{opacity:0}}
-.fx-impact{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:fx-impact 2.6s ease-out forwards}
+.dsh-pet-layer .fx-impact{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:fx-impact 2.6s ease-out forwards}
 @keyframes fx-impact{
   0%,45%{opacity:0;transform:scale(.3)}
   48%{opacity:.95;transform:scale(1)}
@@ -346,6 +351,19 @@
 .dsh-pet-menu{position:fixed;min-width:132px;padding:4px;border-radius:10px;background:var(--pet-bg);border:1px solid var(--pet-border);box-shadow:0 12px 32px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px}
 .dsh-pet-menu-item{appearance:none;border:0;background:transparent;color:var(--pet-fg);text-align:left;font:inherit;font-size:12.5px;padding:7px 10px;border-radius:7px;cursor:pointer}
 .dsh-pet-menu-item:hover{background:rgba(127,127,127,.16)}
+/* 阶段机（P3-15，2026-10-29 审计）：data-phase 此前没有任何 CSS 消费者（死属性）。
+   这里只给三个「需要你注意」的阶段一个极轻的齿轮配色提示——不做位移/缩放，
+   保持用户「不要摇摆」的约束。data-phase 同时挂在 actor 与 actor-wrap 上。 */
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="error"] .dsh-pet-gear{color:#ff6b7d}
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="working"] .dsh-pet-gear{color:var(--pet-accent)}
+.dsh-pet-layer .dsh-pet-actor-wrap[data-phase="tool"] .dsh-pet-gear{animation:dsh-pet-pulse 1.4s ease-in-out infinite}
+
+/* 渲染兜底（P1-2）：PetBoundary 捕获到渲染异常时显示的最小占位，样式不依赖任何 pack 数据 */
+.dsh-pet-layer .dsh-pet-fallback{position:absolute;right:26px;bottom:186px;display:flex;align-items:center;gap:6px;
+  max-width:220px;padding:8px 10px;border-radius:10px;font-size:12px;line-height:1.5;
+  background:var(--pet-bg);border:1px solid var(--pet-border);color:var(--pet-fg)}
+.dsh-pet-fallback-mark{font-size:14px;line-height:1}
+
 /* ===== 减弱动效（1.19.3 R10）：统一策略，不再按类名逐条列举 =====
    旧写法只列了 ink/confetti/cloud/bomb/crack/flash 六个选择器，漏了 bolt（闪电频闪）、
    rain、spark、shake（整层震屏）、impact，以及所有表情贴纸的 mark-*。这里一次关断：

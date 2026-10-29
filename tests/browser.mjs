@@ -78,6 +78,19 @@ try {
 
   // 1) 形象渲染 + 立绘加载
   await page.locator('.dsh-pet-root, .dsh-pet-actor').first().waitFor({ timeout: 5000 })
+  // 2026-10-29 审计 P1-3：这条门禁曾经是假绿——preview 把函数组件源码当标签名拼进
+  // HTML，页面里一张 <img> 都没有，而旧断言只遍历 document.images（空列表天然通过）。
+  // 现在先断言「真的有 40 张立绘」和「没有 <function …> 伪标签」，再查加载失败。
+  const render = await page.evaluate(() => {
+    const all = Array.from(document.querySelectorAll('*'))
+    return {
+      imgs: document.images.length,
+      functionTags: all.filter((el) => String(el.tagName).toUpperCase().indexOf('FUNCTION') === 0).length,
+      textLen: (document.body.innerText || '').length,
+    }
+  })
+  if (render.functionTags) fail(`preview.html 里有 ${render.functionTags} 个 <function …> 伪标签（toHtml 没展开函数组件）`)
+  if (render.imgs < 40) fail(`立绘数量不足：document.images=${render.imgs}（五只 × 八种心情至少要 40 张）`)
   const badImgs = await page.evaluate(() =>
     Array.from(document.images)
       .filter((im) => !im.complete || im.naturalWidth === 0)
@@ -111,8 +124,11 @@ try {
   }
 
   // 3) R-03 端到端：减弱动效下，宿主探针动画必须还在；插件 CSS 必须只在
-  //    .dsh-pet-layer 之内关动画（preview.html 的网格没有 layer 包裹，所以把宠物
-  //    元素临时收养进一个 layer 里读 computed style——三个方向都断言，缺一不可）
+  //    .dsh-pet-layer 之内关动画。
+  //    2026-10-29（P1-3 修复后）：preview 的每一格现在自带 .dsh-pet-layer 作用域
+  //    （P2-15 收口后贴纸/特效规则都在 layer 内），所以「不在 layer 里」不能再靠
+  //    原父节点——把整个 .dsh-pet-actor 临时提到 body 上量（保留 mood 类，
+  //    否则 .mood-* 的动画规则本身就不生效），量完放回。
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const probe = await page.evaluate(() => {
     const style = document.createElement('style')
@@ -121,16 +137,18 @@ try {
     const d = document.createElement('div')
     d.style.animation = 'host-probe 1s infinite'
     document.body.appendChild(d)
-    const pet = document.querySelector('.dsh-pet-imgwrap') || document.querySelector('.dsh-pet-figure')
-    if (!pet) return { error: 'no pet element' }
+    const actor = document.querySelector('.dsh-pet-actor')
+    if (!actor) return { error: 'no pet element' }
+    const pet = actor.querySelector('.dsh-pet-body') || actor.querySelector('.dsh-pet-figure') || actor
+    const parent = actor.parentElement
+    document.body.appendChild(actor) // 不在任何 .dsh-pet-layer 下（mood 类仍在 actor 上）
     const outside = getComputedStyle(pet).animationName
-    const parent = pet.parentElement
     const layer = document.createElement('div')
     layer.className = 'dsh-pet-layer'
     document.body.appendChild(layer) // 必须先进文档：detached 节点的 computed style 全是空串
-    layer.appendChild(pet)
+    layer.appendChild(actor)
     const inside = getComputedStyle(pet).animationName
-    parent.appendChild(pet)
+    if (parent) parent.appendChild(actor)
     layer.remove()
     return { probeAnim: getComputedStyle(d).animationName, outside, inside }
   })

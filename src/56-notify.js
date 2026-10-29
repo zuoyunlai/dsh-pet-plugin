@@ -72,7 +72,13 @@
           if (!cur.startsWith(tag)) document.title = tag + cur
         } else {
           if (runtime.notifyTaggedTitle) {
-            if (document.title === tag + runtime.notifyTaggedTitle) document.title = runtime.notifyTaggedTitle
+            const base = runtime.notifyTaggedTitle
+            const cur = document.title || ''
+            // P3-16（2026-10-29 审计）：严格相等就还原的话，期间标题被宿主改过
+            //（比如会话标题变了）那个 ● 会永久留在标签页上。规则改成：
+            // 「● + 原标题」→ 还原原标题；只以 ● 开头 → 只剥掉我们加的前缀。
+            if (cur === tag + base) document.title = base
+            else if (cur.startsWith(tag)) document.title = cur.slice(tag.length)
             runtime.notifyTaggedTitle = ''
           }
         }
@@ -92,11 +98,14 @@
         /* ignore */
       }
       const title = pname
+      // P2-6（2026-10-29 审计）：文案语言要看**实际生效的界面语言** PET_LANG，
+      // 不是设置项。settings.lang 默认 'auto'，旧写法于是永远落到英文分支——
+      // 中文界面的默认通知是英文的。
       const body =
-        (runtime.settings.lang === 'zh' ? `跑完了，${mm} 分钟，回来验收吧` :
-         runtime.settings.lang === 'es' ? `Terminó, ${mm} min, vuelve a revisar.` :
-         runtime.settings.lang === 'pt' ? `Terminou, ${mm} min, volte para conferir.` :
-         runtime.settings.lang === 'hi' ? `${mm} मिनट में हो गया, वापस आकर देख लीजिए।` :
+        (PET_LANG === 'zh' ? `跑完了，${mm} 分钟，回来验收吧` :
+         PET_LANG === 'es' ? `Terminó, ${mm} min, vuelve a revisar.` :
+         PET_LANG === 'pt' ? `Terminou, ${mm} min, volte para conferir.` :
+         PET_LANG === 'hi' ? `${mm} मिनट में हो गया, वापस आकर देख लीजिए।` :
          `Done, ${mm} min. Come back and review.`)
       return { title, body }
     }
