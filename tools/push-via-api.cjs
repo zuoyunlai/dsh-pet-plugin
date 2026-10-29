@@ -79,9 +79,12 @@ if (remoteUrl) {
 
 /* ---------- 2) 远端现状 ---------- */
 
-const files = read('git', ['ls-files'])
-  .split('\n')
-  .map((l) => l.trim())
+// -z：NUL 分隔 + 原样路径。旧写法用换行 + trim 解析，非 ASCII 文件名会被
+// git 的 C-quote 包成 "…\344\277\256…"，再被下面的 .replace(/\\/g, '/') 变成带
+// 斜杠的目录名——远端就出现一个 "FANFEED-…/344/277/256…" 的坏路径，
+// Windows runner checkout 直接 exit 128（2026-10-29 v1.27.0 实际踩中）。
+const files = read('git', ['ls-files', '-z'])
+  .split('\0')
   .filter(Boolean)
 
 let parent = null
@@ -115,13 +118,13 @@ const adds = []
 const unchanged = []
 const deletions = []
 for (let i = 0; i < files.length; i++) {
-  const p = files[i].replace(/\\/g, '/')
+  const p = files[i]
   const sha = shas[i]
   if (remoteTree[p] === sha) unchanged.push(p)
   else adds.push({ path: p, sha })
 }
 for (const p of Object.keys(remoteTree)) {
-  if (!files.some((f) => f.replace(/\\/g, '/') === p)) deletions.push(p)
+  if (!files.some((f) => f === p)) deletions.push(p)
 }
 
 console.log(

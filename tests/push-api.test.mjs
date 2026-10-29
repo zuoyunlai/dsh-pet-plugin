@@ -75,6 +75,23 @@ test('R05 新分支：tree 不带 base_tree，blob 全部上传', () => {
   assert.ok(st.calls.some((c) => c.key.includes('POST')), '应该有真正的写调用')
 })
 
+test('R05p 非 ASCII 文件名原样上传（git C-quote 不能变成 /344/277… 坏路径）', () => {
+  const repo = makeRepo()
+  writeFileSync(join(repo.dir, '中文 说明.md'), '说明\n')
+  repo.git('add', '-A')
+  repo.git('commit', '-qm', 'cn name')
+  const statePath = seed(repo.dir, { refs: {}, commits: {}, trees: {}, calls: [] })
+  const r = run(repo, statePath, ['--apply'])
+  assert.equal(r.code, 0, r.err || r.out)
+  const st = readState(statePath)
+  const paths = st.lastTree.entries.map((e) => e.path)
+  assert.ok(paths.includes('中文 说明.md'), '非 ASCII 文件名必须原样进 tree：' + paths.join(','))
+  assert.ok(
+    !paths.some((p) => p.indexOf('/344') >= 0 || p.startsWith('"')),
+    '不能把 git 的 C-quote 残片当路径：' + paths.join(','),
+  )
+})
+
 test('R05 更新：带 base_tree，远端独有文件默认保留', () => {
   const repo = makeRepo()
   const remoteOnly = 'REMOTE-ONLY.txt'
