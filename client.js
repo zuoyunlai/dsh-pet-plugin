@@ -3275,10 +3275,16 @@ window.__ModuleLoader__.load({
    图片形象的元素同时带 .dsh-pet-body 与 .dsh-pet-figure 两个类，而基础规则
    .dsh-pet-body 挂着 dsh-pet-breathe（上下浮 1.5px）、.mood-walk 还有
    dsh-pet-stroll（±18px 横移）。只删 .mood-idle 那层不够，基础层仍在动。
-   !important 是刻意的：要压过所有 .mood-* 与基础 .dsh-pet-body 规则；
-   作用域仅限 .dsh-pet-figure（SVG 形象不含该类，不受影响）。 */
-.dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%;
+   !important 是刻意的：要压过所有 .mood-* 与基础 .dsh-pet-body 规则。
+   ⚠ 选择器必须写成后代形式限定在 .dsh-pet-layer 内（审计 R-03 回归门）：
+   裸选择器 .dsh-pet-figure 会命中 DSH 应用里任何同名元素，作用域大于声明 ——
+   tests/browser.mjs 的 reduced-motion 探针会判「宠物元素移出 layer 后动画
+   仍被关掉」而红。
+   ⚠ imgwrap 也要覆盖：探针优先取 .dsh-pet-imgwrap（没有才取 figure），
+   只关 figure 的话探针在 layer 内测到的会是 imgwrap 的动画名。 */
+.dsh-pet-layer .dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%;
   animation:none!important}
+.dsh-pet-layer .dsh-pet-imgwrap{animation:none!important}
 .dsh-pet-figbox{position:relative;height:100%;display:flex;align-items:flex-end}
 .dsh-pet-img{height:100%;width:auto;display:block;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));user-select:none;-webkit-user-drag:none;pointer-events:none}

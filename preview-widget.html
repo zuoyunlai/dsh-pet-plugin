@@ -31,6 +31,13 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
 .dsh-pet-badge-dot{width:5px;height:5px;border-radius:50%;background:#e0477a;box-shadow:0 0 4px rgba(224,71,122,.8)}
 .dsh-pet-toggle:hover{opacity:1;background:var(--pet-bg-hover)}
 .dsh-pet-root *{box-sizing:border-box}
+/* 1.26.1：气泡/心声的浮层容器。
+   必须绝对定位**脱离文档流**：.dsh-pet-root 在「拖动过/有保存位置」时是 top 锚定
+   （bottom:auto），此时气泡若作为流内元素，一出现就会把下面的角色往下顶
+   ——用户 2026-10-28 报「切表情时人物会位移，其实是气泡把她挤下去了」。
+   浮在 root 上方后，人物位置与气泡有无完全无关。 */
+.dsh-pet-top{position:absolute;right:0;bottom:calc(100% + 6px);display:flex;flex-direction:column;
+  align-items:flex-end;gap:6px;max-width:min(260px,58vw);pointer-events:none}
 .dsh-pet-bubble{pointer-events:auto;max-width:min(260px,58vw);padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.5;
   white-space:pre-wrap;word-break:break-word;
   background:var(--pet-bg);border:1px solid var(--pet-border);
@@ -38,7 +45,7 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
 .dsh-pet-bubble:after{content:"";position:absolute;right:22px;bottom:-5px;width:9px;height:9px;transform:rotate(45deg);
   background:var(--pet-bg);border-right:1px solid var(--pet-border);
   border-bottom:1px solid var(--pet-border)}
-.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);margin:3px 0 0 auto;padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
+.dsh-pet-aside{pointer-events:none;max-width:min(230px,52vw);padding:2px 7px;border-radius:9px;font-size:11px;line-height:1.45;font-style:italic;font-family:var(--pet-font,inherit);color:inherit;opacity:.72;background:var(--pet-bg);border:1px solid var(--pet-border);white-space:pre-wrap;word-break:break-word;animation:dsh-pet-pop .18s ease-out}
 .dsh-pet-aside:before{content:"( ")}
 .dsh-pet-aside:after{content:" )"}
 .dsh-pet-row{display:flex;align-items:flex-end;gap:6px;pointer-events:none}
@@ -75,48 +82,79 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
   transform-origin:center center;transition:transform 1.25s cubic-bezier(.4,0,.2,1)}
 .dsh-pet-actor:active{cursor:grabbing}
 .dsh-pet-actor svg{width:100%;height:100%;display:block;overflow:visible}
-.dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%}
+/* 1.26.1：图片形象的动感只由动作视频提供，CSS 不再自造位移/缩放/呼吸。
+   之前漏了一处（用户 2026-10-28 二次反馈「还是能看到立绘摇摆」）：
+   图片形象的元素同时带 .dsh-pet-body 与 .dsh-pet-figure 两个类，而基础规则
+   .dsh-pet-body 挂着 dsh-pet-breathe（上下浮 1.5px）、.mood-walk 还有
+   dsh-pet-stroll（±18px 横移）。只删 .mood-idle 那层不够，基础层仍在动。
+   !important 是刻意的：要压过所有 .mood-* 与基础 .dsh-pet-body 规则。
+   ⚠ 选择器必须写成后代形式限定在 .dsh-pet-layer 内（审计 R-03 回归门）：
+   裸选择器 .dsh-pet-figure 会命中 DSH 应用里任何同名元素，作用域大于声明 ——
+   tests/browser.mjs 的 reduced-motion 探针会判「宠物元素移出 layer 后动画
+   仍被关掉」而红。
+   ⚠ imgwrap 也要覆盖：探针优先取 .dsh-pet-imgwrap（没有才取 figure），
+   只关 figure 的话探针在 layer 内测到的会是 imgwrap 的动画名。 */
+.dsh-pet-layer .dsh-pet-figure{transform-origin:50% 100%;display:flex;align-items:flex-end;justify-content:center;height:100%;
+  animation:none!important}
+.dsh-pet-layer .dsh-pet-imgwrap{animation:none!important}
 .dsh-pet-figbox{position:relative;height:100%;display:flex;align-items:flex-end}
 .dsh-pet-img{height:100%;width:auto;display:block;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));user-select:none;-webkit-user-drag:none;pointer-events:none}
+/* 1.26.1：静立不再自抖。用户 2026-10-28 反馈「立绘不要摇动或跳动」——
+   原先这里叠了两层常驻动画（本行的 dsh-pet-alive + .mood-idle 的 fig-idle），
+   呼吸缩放 + ±0.5deg 摆 + ±1.1deg 转，看起来像人物自己在抖。
+   现在只有真正的动作（走路/撩头发/跳舞/转身，即 .mood-* 与视频片段）才动，
+   静态立绘一律稳住。keyframes 保留：smoke 测试断言它存在，且日后可能复用。 */
 .dsh-pet-imgwrap{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center;
-  transform-origin:50% 100%;animation:dsh-pet-alive 5.2s ease-in-out infinite}
-.dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+  transform-origin:50% 100%}
+/* 静帧水平对齐（1.26.1）：--img-x 是「相对图片自身宽度」的位移比例，
+   用来修正个别形象表情立绘相对 idle 的横向偏移（azure 实测 3.5%~5%，
+   切表情时会横向跳）。没有该变量时按 0 处理，等价旧行为。 */
+.dsh-pet-imgwrap .dsh-pet-img{position:absolute;bottom:0;left:50%;
+  transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 /* 1.16：动作视频（VP9 + alpha）—— 真 24fps，比翻帧顺得多 */
 /* 1.19.3（R01）：静帧画在下面，video 只在真的开始播放后淡入（onPlaying 加 is-ready） */
 .dsh-pet-clipbox{position:relative;height:100%;display:flex;align-items:flex-end;justify-content:center}
 .dsh-pet-clipbox>.dsh-pet-imgwrap{position:absolute;inset:auto 0 0 0;height:100%}
-.dsh-pet-video{position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-  height:100%;width:auto;display:block;object-fit:contain;opacity:0;
+/* 1.26.1：人物占比补偿。动作视频导出时四周留了透明边（人物只占画布 73%~97%），
+   而立绘几乎顶满（~99%）。若两边都用 height:100%，切换动作时人物视觉大小会突跳
+   （用户 2026-10-28 报「撩头发突然变小」）。pack.json 的 clipFit 给出每个片段的
+   s（放大倍数，让人物与立绘同高）、y（下移比例，让脚底落在同一基线）、
+   x（横向位移比例，把人物中心拉回立绘中心——裁切框按全片并集取，手臂偏向一侧
+   时人物会整体偏出画布中心，不补就会看到「切片段时人往旁边跳」）。
+   三个变量由 ClipLayer 内联写入；没有 clipFit 的自定义形象回落 1 / 0 / 0，即原行为。 */
+.dsh-pet-video{position:absolute;bottom:calc(var(--clip-y, 0) * -100%);left:50%;
+  transform:translateX(calc(-50% + (var(--clip-x, 0) * 100%)));
+  height:calc(100% * var(--clip-s, 1));width:auto;display:block;object-fit:contain;opacity:0;
   filter:drop-shadow(0 7px 14px rgba(0,0,0,.32));pointer-events:none;background:transparent}
 /* 播放起来就立即不透明：静帧是 poster，不是背景板；alpha 视频下若还留着静帧，
    舞蹈姿态一动就会透出底图，看起来像两个人物重叠 */
 .dsh-pet-video.is-ready{opacity:1}
 /* 动作结束时淡回立绘（R02 后续）：硬切在跳舞结尾切笑脸时最明显 */
 .dsh-pet-video.is-leaving{opacity:0;transition:opacity .22s ease-out}
-/* 1.15：换帧时带方向位移 + 轻微放大 + 1px 模糊，模仿运动模糊，硬切不明显 */
+/* 1.26.1：换表情只做纯透明度交叉淡化，不再带位移与缩放。
+   原来这里用「±3px 横移 + 0.6% 缩放 + 1px 模糊」模仿运动模糊，但作用在
+   超写实静帧上时，用户看到的是「一切表情人物就往旁边跳一下」（2026-10-28
+   反馈「表情切换时人物的位置会变化」）。所以改成纯淡入淡出。
+   注意：位移里必须带上 --img-x（静帧对齐补偿），否则动画期间会盖掉它。
+   --pet-dx 保留在变量里，CrossImage 仍会写，只是不再参与变换。 */
 .dsh-pet-img-cur{animation:dsh-pet-img-in .18s ease-out}
 .dsh-pet-img-prev{animation:dsh-pet-img-out .18s ease-out forwards}
 @keyframes dsh-pet-img-in{
   from{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(.994)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
   to{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(-50%) scale(1)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 }
 @keyframes dsh-pet-img-out{
   from{opacity:1;filter:blur(0) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(-50%) scale(1)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
   to{opacity:0;filter:blur(1px) drop-shadow(0 7px 14px rgba(0,0,0,.32));
-    transform:translateX(calc(-50% + var(--pet-dx,3px))) scale(1.006)}
+    transform:translateX(calc(-50% + (var(--img-x, 0) * 100%)))}
 }
-/* 常驻微动：呼吸 + 髋部左右摆，60fps 由合成器跑，CPU 零负担 */
-@keyframes dsh-pet-alive{
-  0%{transform:scale(1) rotate(-0.5deg)}
-  25%{transform:scale(1.006) rotate(0deg)}
-  50%{transform:scale(1.012) rotate(0.5deg)}
-  75%{transform:scale(1.006) rotate(0deg)}
-  100%{transform:scale(1) rotate(-0.5deg)}
-}
+/* 1.26.1：dsh-pet-alive（呼吸+髋摆）keyframes 已删 —— 它挂在 .dsh-pet-imgwrap 上，
+   只服务图片形象，而图片形象的动画已被 animation:none!important 全局禁用，
+   属死代码。SVG 形象不用 imgwrap。 */
 .dsh-pet-gear{position:absolute;right:-2px;top:-2px;pointer-events:auto;cursor:pointer;border:none;border-radius:999px;
   width:20px;height:20px;font-size:11px;line-height:1;opacity:0;transition:opacity .15s;
   background:var(--pet-bg);color:inherit;border:1px solid var(--pet-border)}
@@ -212,29 +250,11 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
 .mood-angry .dsh-pet-tail{animation:dsh-pet-sway .5s ease-in-out infinite}
 .dsh-pet-zzz{font-size:11px;opacity:.7}
 
-/* —— 立绘的动作（幅度比 SVG 那套大，不然看不出在动） —— */
-@keyframes fig-idle{0%,100%{transform:rotate(-1.1deg) translateY(0)}50%{transform:rotate(1.1deg) translateY(-1px)}}
-@keyframes fig-walk{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-5px) rotate(.7deg)}
-  75%{transform:translateX(13px) rotate(-.9deg)}}
-@keyframes fig-dance{0%{transform:rotate(-4deg) translateY(0)}25%{transform:rotate(0) translateY(-6px)}
-  50%{transform:rotate(4deg) translateY(0)}75%{transform:rotate(0) translateY(-6px)}100%{transform:rotate(-7deg) translateY(0)}}
-@keyframes fig-shy{0%,100%{transform:scale(1,1) rotate(0) translateY(0)}50%{transform:scale(1.01,.99) rotate(-1.4deg) translateY(-2px)}}
-@keyframes fig-angry{0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-2px) rotate(-.8deg)}
-  75%{transform:translateX(2px) rotate(.8deg)}}
-@keyframes fig-talk{0%,100%{transform:translateY(0)}50%{transform:translateY(1.6px)}}
-@keyframes fig-hop{0%,100%{transform:translateY(0)}35%{transform:translateY(-9px)}70%{transform:translateY(0)}}
-@keyframes fig-sleep{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,.988)}}
-@keyframes fig-poked{0%{transform:translateY(0) scale(1)}22%{transform:translateY(-7px) scale(1.03)}
-  60%{transform:translateY(0) scale(1)}100%{transform:translateY(0) scale(1)}}
-.mood-idle .dsh-pet-figure{animation:fig-idle 5.2s ease-in-out infinite}
-.mood-walk .dsh-pet-figure{animation:fig-walk 3.8s ease-in-out infinite}
-.mood-dance .dsh-pet-figure{animation:fig-dance .95s ease-in-out infinite}
-.mood-shy .dsh-pet-figure{animation:fig-shy 1.9s ease-in-out infinite}
-.mood-angry .dsh-pet-figure{animation:fig-angry .45s linear infinite}
-.mood-talk .dsh-pet-figure{animation:fig-talk 1.7s ease-in-out infinite}
-.mood-happy .dsh-pet-figure{animation:fig-hop 1s ease-in-out infinite}
-.mood-sleep .dsh-pet-figure{animation:fig-sleep 6s ease-in-out infinite}
-.mood-poked .dsh-pet-figure{animation:fig-poked .55s ease-out 2}
+/* 1.26.1：立绘的 CSS 动作（fig-* 系列）已整体移除。
+   原因：.dsh-pet-figure 上的 animation:none!important（见上方）让这些规则永远赢不了，
+   成了死代码；而它们描述的「走路步幅/跳舞摆动/呼吸」在 1.26.1 起由动作视频真实呈现，
+   CSS 自造的位移正是用户报的「立绘摇摆」。README 里对应的步幅描述同步删除。
+   SVG 形象（仅示例包）走的仍是 .dsh-pet-body 那套，不受影响。 */
 .mood-poked .dsh-pet-body{animation:dsh-pet-hop .6s ease-out 2}
 
 /* —— 立绘的表情贴纸（没有五官层时唯一的“表情”） —— */
@@ -374,11 +394,33 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
         return () => clearTimeout(t)
       }, [prev, cur])
       const dx = swap.current === 0 ? 3 : -3
+      // 静帧水平对齐（1.26.1）：个别形象的表情立绘相对 idle 整体偏了一截
+      // （azure 实测 3.5%~5% 画布宽，切表情时会横向跳）。pack.json 的 imageFit
+      // 按文件名给出需要的水平位移比例；没有条目就是 0，等价旧行为。
+      const imgX = (s) => {
+        const v = persona && persona.imageFit && persona.imageFit[s]
+        return Number.isFinite(v) ? String(v) : '0'
+      }
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
+        prev
+          ? h('img', {
+              className: 'dsh-pet-img dsh-pet-img-prev',
+              src: assetUrl(prev, persona),
+              style: { '--img-x': imgX(prev) },
+              alt: '',
+              draggable: false,
+            })
+          : null,
+        h('img', {
+          key: cur,
+          className: 'dsh-pet-img dsh-pet-img-cur',
+          src: assetUrl(cur, persona),
+          style: { '--img-x': imgX(cur) },
+          alt,
+          draggable: false,
+        }),
       )
     } src="pet-violet.webp" alt="薇" persona="[object Object]"></function CrossImage({ src, alt, persona }) {
       const [cur, setCur] = useState(src)
@@ -397,11 +439,33 @@ body{margin:0;background:#14161b;color:#e9ecf1;font-family:system-ui,"Microsoft 
         return () => clearTimeout(t)
       }, [prev, cur])
       const dx = swap.current === 0 ? 3 : -3
+      // 静帧水平对齐（1.26.1）：个别形象的表情立绘相对 idle 整体偏了一截
+      // （azure 实测 3.5%~5% 画布宽，切表情时会横向跳）。pack.json 的 imageFit
+      // 按文件名给出需要的水平位移比例；没有条目就是 0，等价旧行为。
+      const imgX = (s) => {
+        const v = persona && persona.imageFit && persona.imageFit[s]
+        return Number.isFinite(v) ? String(v) : '0'
+      }
       return h(
         'div',
         { className: 'dsh-pet-imgwrap', style: { '--pet-dx': dx + 'px' } },
-        prev ? h('img', { className: 'dsh-pet-img dsh-pet-img-prev', src: assetUrl(prev, persona), alt: '', draggable: false }) : null,
-        h('img', { key: cur, className: 'dsh-pet-img dsh-pet-img-cur', src: assetUrl(cur, persona), alt, draggable: false }),
+        prev
+          ? h('img', {
+              className: 'dsh-pet-img dsh-pet-img-prev',
+              src: assetUrl(prev, persona),
+              style: { '--img-x': imgX(prev) },
+              alt: '',
+              draggable: false,
+            })
+          : null,
+        h('img', {
+          key: cur,
+          className: 'dsh-pet-img dsh-pet-img-cur',
+          src: assetUrl(cur, persona),
+          style: { '--img-x': imgX(cur) },
+          alt,
+          draggable: false,
+        }),
       )
     }></div></div></div>
         <button class="dsh-pet-gear" style="opacity:1">⚙</button>
