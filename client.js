@@ -31,7 +31,7 @@ window.__ModuleLoader__.load({
      * 用途（P3-10，2026-10-29 审计）：资产 URL 带 ?v=<version>，升级后不会被 1 小时
      * 公共缓存钉在旧立绘上。未构建（占位符还在）时不加参数，方便本地调试。
      */
-    const PET_BUILD_VERSION = "1.27.0"
+    const PET_BUILD_VERSION = "1.27.1"
     const PET_ASSET_QS =
       PET_BUILD_VERSION.indexOf('__') === 0 ? '' : '?v=' + encodeURIComponent(PET_BUILD_VERSION)
 

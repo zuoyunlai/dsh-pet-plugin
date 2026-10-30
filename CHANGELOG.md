@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.27.1 — 2026-10-30
+
+> 1.27.0 的补丁：神经音色在「DSH runtime 晚于插件装载」的宿主上会**永久不可用**。
+> 现场是 Win10 22H2 —— 面板里「神经」开着，出声却是系统 SAPI，且没有任何提示。
+
+### P0：解释器发现不再做进程级快照
+
+- `resolvePython()` 只在缓存指向一个**仍然存在**的具体路径时才采信；落回 `python`
+  时下次探测必然重扫。旧写法把首次结果钉死在模块变量里：DSH 的 runtime 若晚几秒才
+  物化，一次「扫不到」就等于永久「没有」——连 `/tts/status?refresh=1` 也救不回来，
+  只能重启宿主。这条是唯一会让用户做出错误归因的缺陷。
+- 新增 `scanPythons()`：每次探测重新扫盘（`readdir` 很便宜）。候选根除
+  `~/.dsh/dsh-runtimes` 外，加入 `<install>/resources/runtime` —— 安装目录自带的那份
+  runtime 此前完全不在视野里，同一台机器上明明有可用解释器却被判成「没装」。
+- 跳过 0 字节的 Microsoft Store App Execution Alias：`where python` 能找到它，
+  `import edge_tts` 必失败，旧逻辑会把「没装依赖」伪装成「解释器坏了」。
+- 解释器文件名按平台选择（Windows `python.exe` / 其余 `bin/python3`），非 Windows
+  宿主不再永远找不到解释器。
+
+### P1：降级不再无声
+
+- 面板提示带出宿主给的 `neuralReason`：「神经音色不可用，改用系统语音：没装 edge-tts
+  （试过 python / python3 / py）」——此前只有一句固定文案，用户无法区分「缺依赖 /
+  没网 / 被限流」。`reason` 早就取到了，只是一直没渲染。
+
+### P3（工程债）
+
+- 新增 2 条回归：`usablePython` 拒绝 0 字节存根与不存在的路径；`scanPythons()` 只返回
+  真实存在、且不含 `windowsapps` 的解释器。
+
+**验证**：`npm test` — 171 tests / 170 pass / 0 fail / 1 skip（Win10 22H2，Node 24.21.0）；
+`node build.mjs` 通过，`client.js` 仅 +8 行（提示那处）；补丁以 `git am` 回放后与原提交树
+逐字节一致。
+
 ## 1.27.0 — 2026-10-29
 
 > 依据 `AUDIT-2026-10-29-v1.26.1.md`（总评 73/100）：逐条核实后全部真实成立，本版按
