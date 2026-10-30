@@ -4393,7 +4393,15 @@ window.__ModuleLoader__.load({
         ),
         h('div', { className: 'dsh-pet-field wide' }, h(PetSelect, { value: s.ttsVoice || 'auto', options: voiceOpts, onChange: (v) => update({ ttsVoice: v }) })),
         runtime.neuralOk === false
-          ? h('div', { className: 'dsh-pet-hint' }, t('hint.neuralOff'))
+          ? h(
+              'div',
+              { className: 'dsh-pet-hint' },
+              // 2026-10-30：把宿主给的原因带出来。「不可用」三个字没有信息量——
+              // 用户没法区分「没装依赖」「没网」「被限流」，只能来问作者。
+              runtime.neuralReason
+                ? t('hint.neuralOff') + '：' + runtime.neuralReason
+                : t('hint.neuralOff'),
+            )
           : null,
         s.neuralVoice ? h('div', { className: 'dsh-pet-hint' }, t('hint.privacy')) : null,
         h(Slider, { label: t('panel.volume'), min: 0, max: 1, step: 0.1, value: s.volume, onChange: (v) => update({ volume: v }) }),

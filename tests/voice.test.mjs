@@ -10,11 +10,11 @@
  */
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { homedir } from 'node:os'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { probeNeural, pythonCandidates, resolvePython, TTS_VOICES } from '../lib/tts.js'
+import { probeNeural, pythonCandidates, resolvePython, scanPythons, usablePython, TTS_VOICES } from '../lib/tts.js'
 import { applyVoiceOverrides } from '../lib/registry.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -182,4 +182,28 @@ test('R-07：不就地修改入参（注册表扫描结果可复用）', () => {
   const snapshot = JSON.stringify(BASE_PERSONAS[0])
   applyVoiceOverrides(BASE_PERSONAS, { violet: { lines: { idle: ['mutate?'] } } })
   assert.equal(JSON.stringify(BASE_PERSONAS[0]), snapshot)
+})
+
+// —— 2026-10-30 跨宿主兼容性反哺（Win10 采样机：PATH 上的 python 是 Store 别名） ——
+
+test('usablePython 拒绝 0 字节的 Store 别名存根与不存在的路径', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'pet-py-'))
+  try {
+    const stub = join(dir, 'python.exe')
+    writeFileSync(stub, '')
+    assert.equal(usablePython(stub), false, '0 字节 = App Execution Alias，不能当解释器')
+    writeFileSync(stub, 'MZfake')
+    assert.equal(usablePython(stub), true)
+    assert.equal(usablePython(join(dir, 'nope.exe')), false, '不存在的路径必须为 false')
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
+test('scanPythons 只返回真实存在的解释器，且不含 Store 别名', () => {
+  for (const p of scanPythons()) {
+    const st = statSync(p)
+    assert.ok(st.isFile() && st.size > 0, '解释器不能是空文件：' + p)
+    assert.ok(!p.toLowerCase().includes('windowsapps'), '不能把 Store 别名当成解释器：' + p)
+  }
 })
