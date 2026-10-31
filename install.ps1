@@ -114,6 +114,15 @@ if ($Update) {
     if (Test-Path -LiteralPath $toolsDst) {
       Get-ChildItem -LiteralPath $toolsDst -Force | Where-Object { $_.Name -ne 'tts_worker.py' } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
     }
+    # 运行时副本只带运行时需要的东西：src/ 与 build.mjs 不在 $keep 里，旧版本残留的
+    # 那份会过期（2026-10-31 实测：装到 1.27.1 后 src/90-components.js 还是 1.27.0 的，
+    # 万一在 profile 里跑 build.mjs 就会生成错版本）。这里显式清掉。
+    foreach ($stale in @('src', 'build.mjs')) {
+      $stalePath = Join-Path $dest $stale
+      if (Test-Path -LiteralPath $stalePath) {
+        Remove-Item -LiteralPath $stalePath -Recurse -Force -ErrorAction SilentlyContinue
+      }
+    }
     Write-Host "[ok] refreshed $dest"
   }
   $node = Get-Command node -ErrorAction SilentlyContinue
