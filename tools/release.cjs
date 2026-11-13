@@ -162,8 +162,11 @@ if (promote) {
     console.log('\n计划模式：加 --apply 才会真的转正。')
     process.exit(0)
   }
-  const rel = api('GET', 'repos/' + REPO + '/releases/tags/' + tag)
-  if (!rel || rel.__existed || !rel.id) throw new Error('找不到 ' + tag + ' 的 Release')
+  // draft Release 在 /releases/tags/<tag> 上返回 404（该端点不列 draft），
+  // 所以必须从列表里按 tag_name 找——v1.28.0 发版时这条路径第一次真跑，直接 404 挂住。
+  const list = api('GET', 'repos/' + REPO + '/releases?per_page=100')
+  const rel = Array.isArray(list) ? list.find((r) => r && r.tag_name === tag) : null
+  if (!rel || !rel.id) throw new Error('找不到 ' + tag + ' 的 Release')
   if (!rel.draft) {
     console.log('已经是正式 Release：', rel.html_url)
     process.exit(0)
