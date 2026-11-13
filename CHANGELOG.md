@@ -1,5 +1,63 @@
 # Changelog
 
+## 1.28.0 — 2026-11-13
+
+> 依据 `FANFEED-2026-11-13-v1.27.1-趋势审计反哺.md`（趋势审计 9 条 + 1 条新发现）。
+> 逐条复现后：**4 条坐实照做、4 条修正口径后执行、1 条降级**，另补 1 条审计没提的（N1）。
+> 改口径的地方写在反哺报告里，这里只记代码面。
+
+### P1：agent 能叫宠物了（S3）
+
+- 新增工具 `pet_say(text)`：与 `POST /dsh-pet/announce` 共用同一条气泡通道、同一套限流与 seq 防重放。
+  此前全仓没有任何 `ctx.tools.register`——宠物会看 agent，agent 叫不动宠物，方向只做了一半。
+- 宿主没有 `tools` 服务时照常启动（try/catch 跳过，HTTP 入口仍可用）。
+
+### P1：相位带 agent 归属（S1）
+
+- 宿主侧 `projectPhase(phase, agent)` 改成按 agent 记录（`phaseByAgent`，只留最近 16 个），
+  `/ping` 增 `activeAgent` / `phaseByAgent`；**原 `phase` 字段保留**，旧客户端不受影响。
+- 客户端 `computePhase` 优先取 activeAgent 的相位；没有归属信息（旧宿主）时回落全局，行为与 1.27.1 一致。
+- `tools/result` 的 `exec.agent` 从「取了就丢」改成真的用上。
+
+### P1：生态元数据补齐（S4）
+
+- `package.json` 增 `dsh.capabilities` / `commitments` / `compatibility`（含 profiles、dshReleases、dshOperations）/
+  `disclosure`；补 `peerDependenciesMeta`（react 由宿主提供 → optional）；`engines.dsh` 加上界 `<0.3.0`。
+- `dshOperations` 如实写 `unknown`：本机没有干净 profile 可跑 install→start→uninstall，不编造 `passed`。
+
+### P2：双窗口写状态不再互相覆盖（S8）
+
+- `/state` POST 增 `writerId`（落盘并随 GET 返回，能查「谁最后写的」）；
+- `settings` 改**按键合并**（旧写法整份替换：A 只改音量、B 只改缩放会互相打回）；
+- `history` 改**按条去重追加**（旧写法整体替换：B 的快照会冲掉 A 的记录），仍受 8 条上限约束；
+- 冲突语义不变：`updatedAt` 时间新者胜 + 回 `stale` 让客户端采纳。
+
+### P2：资产预算加告警（S6）
+
+- 20MB 硬门禁不动；总量 ≥18MB 时 `tests/readme.test.mjs` 打一行告警。
+  实测 87 文件 / 16,705,415 B = 16.71MB，余量 3.29MB——再加一只形象（webp×5 + webm×3）大概率撞墙。
+
+### P2：跟手性折中（S2，SSE 仍待决策）
+
+- 8s 轮询 vs 4s 相位窗口是结构性失配，但 `webServer` 是否支持 SSE 未验证，本轮**不上推送**。
+- 折中：客户端暴露 `pollNow()`，会话刚结束那一拍立刻补拉一次 `/ping`，把 `done` 窗口抢在采样间隔之内。
+
+### P3：工程债
+
+- **S5 构建期哨兵**：拼接后扫 `factory` 体第一层的 `function` / `var` 重名，命中即非零退出并列出符号。
+  （`const`/`let` 重名本来就是 SyntaxError，`node --check` 会拦；真正静默覆盖的只有 function 与 var。）
+- **S7 单聊默认模型**：`provider` / `model` 默认改为空，留空时**不传这两个键**、跟随宿主当前路由；
+  失败文案补「检查设置页的 provider / model」。旧默认写死 `deepseek-account` / `deepseek-flash`，
+  在改过全局路由的机器上一次 502 就会被归因为「宠物坏了」。
+- **S9 TTS 缓存**：从系统临时区迁到 `$DSH_HOME/dsh-pet/tts-cache`，旧目录做一次性迁移（跨卷失败即跳过）。
+  系统清理工具会静默清空临时区，表现为「每次重启都重新合成」。
+- **N1 事件名分列**：`/ping` 增 `toolEventsBy`，把 `tools/result` 与旧名 `tool/result` 分开计数——
+  两个监听都写同一个 `toolEvents`，宿主同时发两者时会「看着接上了、其实是同一件事记了两遍」。
+
+**验证**：`npm test` — 183 tests / 182 pass / 0 fail / 1 skip（Win10，Node 24；skip 是 Windows 无 POSIX mode）。
+基线 171 → 183，新增 12 条覆盖本批每一条改动。`node build.mjs` 17 parts / 6167 lines / 289.6 KB。
+**未发版**：版本号已备为 1.28.0，发版按 `CONTRIBUTING.md` 走 commit → Test 绿 → tag → Release。
+
 ## 1.27.1 — 2026-10-30
 
 > 1.27.0 的补丁：神经音色在「DSH runtime 晚于插件装载」的宿主上会**永久不可用**。

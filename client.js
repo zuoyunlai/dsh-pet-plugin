@@ -31,7 +31,7 @@ window.__ModuleLoader__.load({
      * 用途（P3-10，2026-10-29 审计）：资产 URL 带 ?v=<version>，升级后不会被 1 小时
      * 公共缓存钉在旧立绘上。未构建（占位符还在）时不加参数，方便本地调试。
      */
-    const PET_BUILD_VERSION = "1.27.1"
+    const PET_BUILD_VERSION = "1.28.0"
     const PET_ASSET_QS =
       PET_BUILD_VERSION.indexOf('__') === 0 ? '' : '?v=' + encodeURIComponent(PET_BUILD_VERSION)
 
@@ -1810,6 +1810,13 @@ window.__ModuleLoader__.load({
       resizeTick: 0,
       // —— 阶段机（F1）：idle / working / tool / error / speak / done ——
       phase: 'idle',
+      // S1（2026-11-13 趋势审计反哺）：宿主 /ping 下发的相位，按 agent 各一份。
+      hostPhase: 'idle',
+      hostPhaseAt: 0,
+      hostPhaseByAgent: null,
+      activeAgent: '',
+      // S2：由 99-entry 的轮询 effect 挂上来，用来「立刻补拉一次」
+      pollNow: null,
       running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
       // 宿主是否真的传了 useSession（§11.1 未证实项兜底：没传时改用 /ping 的 phase 边沿推导）
       sessionHookSeen: false,
@@ -2885,8 +2892,12 @@ window.__ModuleLoader__.load({
       // review → speak（回答文本在流，正好借说话的口型）
       // tool / working 原样；done 只认前 DONE_WINDOW 秒——一轮回答结束后不能
       // 在 15s 新鲜窗口里一直「庆祝」。过期或宿主没有 phase 就回落本地推导。
-      const hp = runtime.hostPhase
-      const hpAt = runtime.hostPhaseAt || 0
+      // S1（2026-11-13 趋势审计反哺）：优先用「当前 agent」的相位。
+      // 宿主没给归属信息（旧宿主）时回落全局 hostPhase，与 1.27.1 行为一致。
+      const byAgent = runtime.hostPhaseByAgent
+      const own = byAgent && runtime.activeAgent ? byAgent[runtime.activeAgent] : null
+      const hp = own && own.phase ? own.phase : runtime.hostPhase
+      const hpAt = (own && own.at) || runtime.hostPhaseAt || 0
       if (hp && hp !== 'idle' && hpAt && now - hpAt < 15000) {
         if (hp === 'thinking' || hp === 'working') return 'working'
         if (hp === 'tool') return 'tool'
@@ -5650,9 +5661,13 @@ window.__ModuleLoader__.load({
           }
         }
         if (!running) runtime.turnStartedAt = 0
+        const wasRunning = runtime.running
         runtime.lastRunning = running
         // 阶段机需要知道「会话是否在跑」；写在 render 里，tick/轮询共用
         runtime.running = running
+        // S2（2026-11-13 趋势审计反哺）：会话刚结束的这一拍立刻补拉一次 /ping，
+        // 把 done 相位窗口（4s）抢在轮询间隔（8s）之内——不做 SSE、不加协议。
+        if (wasRunning && !running && typeof runtime.pollNow === 'function') runtime.pollNow()
         if (syncPhase()) notify()
       }, [running])
       return null
@@ -5708,6 +5723,9 @@ window.__ModuleLoader__.load({
             pushStateNow,
             localStateAt,
             saveSettings,
+            // S1（2026-11-13 趋势审计反哺）：台架需要能直接问「当前该是什么相位」
+            computePhase,
+            syncPhase,
             clearHistory,
             loadHistory,
             // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
@@ -5947,6 +5965,12 @@ window.__ModuleLoader__.load({
                   // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
                   if (j.phase) runtime.hostPhase = String(j.phase)
                   if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // S1（2026-11-13 趋势审计反哺）：宿主可能同时给出多个 agent 的相位。
+                  // 没有 activeAgent / phaseByAgent 的旧宿主，下面这两行等于不执行。
+                  if (j.phaseByAgent && typeof j.phaseByAgent === 'object') {
+                    runtime.hostPhaseByAgent = j.phaseByAgent
+                  }
+                  if (j.activeAgent) runtime.activeAgent = String(j.activeAgent)
                   // 宿主重启会把 seq 归零（P2-8 的持久化游标副作用）：检测到回退就把本地
                   // 游标清掉，否则重启后的新公告/新命令会被当成「重放」永久忽略。
                   if (typeof j.commandSeq === 'number' && j.commandSeq < (runtime.lastCommandSeq || 0)) {
@@ -6008,10 +6032,26 @@ window.__ModuleLoader__.load({
             }, gap)
           }
           let timer = null
+          // S2（2026-11-13 趋势审计反哺）：给外部一个「立刻补拉一次」的入口。
+          // 8s 采样 vs 4s 相位窗口是结构性失配，调参数治不好、做 SSE 又依赖宿主能力；
+          // 低成本折中是「有边沿事件时马上多问一次」：不加协议、不加请求频率。
+          runtime.pollNow = () => {
+            if (stop) return
+            if (timer) {
+              clearTimeout(timer)
+              timer = null
+            }
+            doPoll()
+              .catch(() => {})
+              .then(() => {
+                if (!stop) schedule()
+              })
+          }
           doPoll().catch(() => {})
           schedule()
           return () => {
             stop = true
+            runtime.pollNow = null
             if (timer) clearTimeout(timer)
             try {
               if (ctrl) ctrl.abort()

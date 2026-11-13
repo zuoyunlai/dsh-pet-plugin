@@ -72,6 +72,23 @@ out = out.split("'__PET_VERSION__'").join(JSON.stringify(pkgVersion))
 
 if (!injected) console.warn('warning: no @locales marker found — dictionaries are not injected')
 
+// S5（2026-11-13 趋势审计反哺）：17 个片段拼在同一个 factory 作用域里。
+// 重复 const/let 会直接 SyntaxError（下面的 --check 会抓到），
+// 但重复 function 声明只是「后一个静默胜出」、重复 var 也静默——只有这两种要额外哨兵。
+// 只扫 factory 体第一层（缩进 4 空格），避免把嵌套块里的同名局部变量算进来。
+const TOP_DECL = /^ {4}(?:function\s+([A-Za-z_$][\w$]*)|var\s+([A-Za-z_$][\w$]*))/gm
+const declCount = new Map()
+for (const m of out.matchAll(TOP_DECL)) {
+  const name = m[1] || m[2]
+  if (name) declCount.set(name, (declCount.get(name) || 0) + 1)
+}
+const dupes = [...declCount].filter(([, n]) => n > 1)
+if (dupes.length) {
+  console.error('error: 顶层 function/var 重名（同一条 factory 作用域内后者会静默覆盖前者）')
+  for (const [name, n] of dupes) console.error('  - ' + name + ' ×' + n)
+  process.exit(1)
+}
+
 writeFileSync('client.js', out)
 execFileSync(process.execPath, ['--check', 'client.js'])
 

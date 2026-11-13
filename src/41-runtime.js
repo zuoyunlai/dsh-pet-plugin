@@ -35,6 +35,13 @@
       resizeTick: 0,
       // —— 阶段机（F1）：idle / working / tool / error / speak / done ——
       phase: 'idle',
+      // S1（2026-11-13 趋势审计反哺）：宿主 /ping 下发的相位，按 agent 各一份。
+      hostPhase: 'idle',
+      hostPhaseAt: 0,
+      hostPhaseByAgent: null,
+      activeAgent: '',
+      // S2：由 99-entry 的轮询 effect 挂上来，用来「立刻补拉一次」
+      pollNow: null,
       running: false, // 宿主会话是否在跑（PetToggle 的 useSession 写进来）
       // 宿主是否真的传了 useSession（§11.1 未证实项兜底：没传时改用 /ping 的 phase 边沿推导）
       sessionHookSeen: false,

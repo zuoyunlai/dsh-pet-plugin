@@ -41,8 +41,11 @@ const ASSET_TYPES = {
 }
 
 export const Config = Schema.object({
-  provider: Schema.string().default('deepseek-account').description('模型 provider 路由'),
-  model: Schema.string().default('deepseek-flash').description('模型名'),
+  // S7（2026-11-13 趋势审计反哺）：默认留空 = 跟随宿主当前路由。
+  // 旧默认写死 deepseek-account / deepseek-flash：在改过全局路由的机器上，新用户开箱即用
+  // 会走一条可能不通的路由，一次 502 就被归因为「宠物坏了」。留空时这两个键不传给 llm。
+  provider: Schema.string().default('').description('模型 provider 路由（留空 = 跟随宿主当前路由）'),
+  model: Schema.string().default('').description('模型名（留空 = 跟随宿主当前路由）'),
   maxTokens: Schema.number().min(1).max(1200).default(800).description('单次回复上限（1–1200，越大越啰嗦）'),
   temperature: Schema.number().min(0).max(2).default(1).description('0-2，越高越活蹦乱跳'),
   // 2026-10-28 审计 R-11：这个键原先在 chatHandler 里被读取但不在 schema 里，用户配了不生效
@@ -129,10 +132,36 @@ export function apply(ctx, config) {
   //   review（回答文本在流）/ done（一轮结束，客户端只亮 2.4s 窗口）
   let hostPhase = 'idle'
   let hostPhaseAt = 0
+  // S1（2026-11-13 趋势审计反哺）：相位带 agent 归属。
+  // 旧实现是全局标量——多 agent 并发时相位互相覆盖，表情退化为「最近一个事件说了算」。
+  // 现在每个 agent 各记一份（只留最近 16 个），hostPhase 仍保留最近一次以兼容旧字段。
+  let activeAgent = ''
+  const phaseByAgent = new Map()
   const eventSeen = Object.create(null) // 每个事件名收到几次（20s 自检日志用）
-  const projectPhase = (phase) => {
+  const agentKeyOf = (value) => {
+    if (!value) return ''
+    if (typeof value === 'string') return value.slice(0, 64)
+    const id = value.agent || value.agentId || value.id || value.name
+    return typeof id === 'string' ? id.slice(0, 64) : ''
+  }
+  const projectPhase = (phase, agent) => {
     hostPhase = phase
     hostPhaseAt = Date.now()
+    const key = agentKeyOf(agent)
+    if (!key) return
+    activeAgent = key
+    phaseByAgent.set(key, { phase, at: hostPhaseAt })
+    if (phaseByAgent.size > 16) {
+      let oldest = ''
+      let oldestAt = Infinity
+      for (const [k, v] of phaseByAgent) {
+        if (v.at < oldestAt) {
+          oldestAt = v.at
+          oldest = k
+        }
+      }
+      if (oldest) phaseByAgent.delete(oldest)
+    }
   }
   const noteTool = (name, failed) => {
     const at = Date.now()
@@ -150,7 +179,7 @@ export function apply(ctx, config) {
         eventSeen['tools/result'] = (eventSeen['tools/result'] || 0) + 1
         try {
           noteTool(exec && exec.name, !!(result && result.isError))
-          projectPhase('tool')
+          projectPhase('tool', exec && (exec.agent || exec.agentId))
         } catch (e) {
           /* ignore */
         }
@@ -171,11 +200,11 @@ export function apply(ctx, config) {
       // 事件面约定（与 tools/result 同族）；宿主若不认识某个名字，收不到即可，
       // 20s 自检会把「一直为 0 的事件」写进日志，装上即可验证。
       const lifecycle = [
-        ['turn/start', () => projectPhase('working')],
-        ['step/start', () => { if (hostPhase !== 'tool') projectPhase('working') }],
-        ['tool/call', () => projectPhase('tool')],
-        ['assistant/message', () => projectPhase('review')],
-        ['turn/end', () => projectPhase('done')],
+        ['turn/start', (agent) => projectPhase('working', agent)],
+        ['step/start', (agent) => { if (hostPhase !== 'tool') projectPhase('working', agent) }],
+        ['tool/call', (agent) => projectPhase('tool', agent)],
+        ['assistant/message', (agent) => projectPhase('review', agent)],
+        ['turn/end', (agent) => projectPhase('done', agent)],
       ]
       for (const [name, fn] of lifecycle) {
         ctx.on(name, (...args) => {
@@ -316,6 +345,8 @@ export function apply(ctx, config) {
         settings: sanitizeSettings(parsed.settings) || {},
         history: sanitizeHistory(parsed.history),
         updatedAt: Number.isFinite(Number(parsed.updatedAt)) ? Number(parsed.updatedAt) : 0,
+        // S8：谁最后写的（诊断用）。读侧要一起带出来，否则写入等于白记。
+        lastWriter: typeof parsed.lastWriter === 'string' ? parsed.lastWriter.slice(0, 64) : '',
       }
     } catch (e) {
       return {} // 文件不存在 / 损坏：一律当空（损坏不写回，等下一次合法 POST 覆盖）
@@ -522,6 +553,16 @@ export function apply(ctx, config) {
       // 宿主直出 phase（R-02）：生命周期事件投影；15s 内新鲜，过期客户端回落本地推导
       phase: hostPhaseAt && Date.now() - hostPhaseAt < 15000 ? hostPhase : 'idle',
       phaseAt: hostPhaseAt || 0,
+      // S1：按 agent 的相位投影；activeAgent 为空表示宿主没给归属信息（旧宿主）
+      activeAgent,
+      phaseByAgent: Object.fromEntries(phaseByAgent),
+      // N1（2026-11-13 趋势审计反哺）：两个事件名分开计数。
+      // 旧版只报一个 'ok'，两个监听计入同一计数——宿主同时发两者时「看着接上了」，
+      // 实际是同一件事被记了两遍。分列后才能判断到底哪个事件面在生效。
+      toolEventsBy: {
+        'tools/result': eventSeen['tools/result'] || 0,
+        'tool/result': eventSeen['tool/result'] || 0,
+      },
       // 公告（R-03）：序号递增，客户端按序号消费（同 commandSeq 机制）
       announce: petAnnounce,
       // 斜杠命令（F3）：序号递增，客户端按序号消费，重复轮询不会重放
@@ -683,9 +724,12 @@ export function apply(ctx, config) {
     try {
       let out = ''
       let finish = null
+      // S7：留空就不传这两个键，让宿主用它当前的默认路由。
+      const route = {}
+      if (cfg.provider) route.provider = cfg.provider
+      if (cfg.model) route.model = cfg.model
       const stream = llm.stream({
-        provider: cfg.provider,
-        model: cfg.model,
+        ...route,
         system,
         messages,
         maxTokens: cfg.maxTokens,
@@ -722,7 +766,7 @@ export function apply(ctx, config) {
             error: 'llm-failed',
             code: failure.code || 'upstream',
             ref,
-            message: 'upstream failed (' + ref + ')',
+            message: 'upstream failed (' + ref + ')：检查设置页的 provider / model 是否与宿主当前路由一致',
           })
           return
         }
@@ -900,6 +944,24 @@ export function apply(ctx, config) {
   // —— 跨设备状态（R-04）：GET 读 / POST 合并白名单键 ——
   // POST 限流（P3-6）：/state 是客户端会周期性回传的端点，没有上限时一个写坏的
   // 客户端能把它当免费磁盘写入口刷。只对「形状合法、真的要落盘」的请求计数。
+  /**
+   * S8（2026-11-13 趋势审计反哺）：历史按「角色 + 内容」去重追加，而不是整份替换。
+   * 旧写法 `next.history = history` 会让后保存的窗口用它的快照冲掉另一个窗口的记录。
+   */
+  const mergeHistory = (prev, incoming) => {
+    const out = []
+    const seen = new Set()
+    for (const list of [Array.isArray(prev) ? prev : [], Array.isArray(incoming) ? incoming : []]) {
+      for (const row of list) {
+        if (!row || typeof row !== 'object') continue
+        const key = String(row.role || '') + '\\u0000' + String(row.content || '')
+        if (seen.has(key)) continue
+        seen.add(key)
+        out.push(row)
+      }
+    }
+    return out.slice(-200)
+  }
   const stateHits = []
   const stateLimited = () => {
     const now = Date.now()
@@ -959,8 +1021,12 @@ export function apply(ctx, config) {
       reply(res, 200, { ok: true, stale: true, state: next })
       return
     }
-    if (settings) next.settings = settings
-    if (history) next.history = history
+    // S8：双写者不再互相整份覆盖——设置按键合并、历史按条合并。
+    // writerId 只用于诊断（谁最后写的），冲突语义仍是「时间新者胜」。
+    const writerId = typeof payload.writerId === 'string' ? payload.writerId.slice(0, 64) : ''
+    if (settings) next.settings = Object.assign({}, next.settings || {}, settings)
+    if (history) next.history = mergeHistory(next.history, history)
+    if (writerId) next.lastWriter = writerId
     next.updatedAt = incomingAt
     try {
       await writeHostState(next)
@@ -970,6 +1036,21 @@ export function apply(ctx, config) {
     }
   }
 
+  /**
+   * 推一条公告。HTTP /announce 与 agent 工具 pet_say 共用同一条通道、同一套限流与序号。
+   * 宿主若有官方 pet 服务（ctx.pet），顺手也送一份；没有/形状不对就跳过。
+   */
+  const pushAnnounce = (text) => {
+    announceSeq++
+    petAnnounce = { text, seq: announceSeq, at: Date.now() }
+    try {
+      const pet = typeof ctx.get === 'function' ? ctx.get('pet') : null
+      if (pet && typeof pet.announce === 'function') pet.announce(text)
+    } catch (e) {
+      /* ignore */
+    }
+    return announceSeq
+  }
   // —— 公告（R-03）：让她开口说一句（外部工具 / 脚本 / 其它插件的入口）——
   const announceHandler = async (req, res) => {
     if (applyCors(req, res)) return
@@ -993,17 +1074,8 @@ export function apply(ctx, config) {
       reply(res, 429, { error: 'rate-limited' })
       return
     }
-    announceSeq++
-    petAnnounce = { text, seq: announceSeq, at: Date.now() }
-    // 机会主义集成：宿主若有官方 pet 服务（ctx.pet），顺手把这句也送过去。
-    // 不存在 / 形状不对就跳过——我们自己的气泡通道不受影响。
-    try {
-      const pet = typeof ctx.get === 'function' ? ctx.get('pet') : null
-      if (pet && typeof pet.announce === 'function') pet.announce(text)
-    } catch (e) {
-      /* ignore */
-    }
-    reply(res, 200, { ok: true, seq: announceSeq })
+    const seq = pushAnnounce(text)
+    reply(res, 200, { ok: true, seq })
   }
   // —— 神经语音可用性探测：客户端据此决定用神经音色还是系统语音 ——
   const statusHits = []
@@ -1189,6 +1261,53 @@ export function apply(ctx, config) {
         warming = false
       }
     })()
+  }
+
+  // —— 工具面（S3，2026-11-13 趋势审计反哺）——
+  // 此前全仓没有注册任何 agent 工具：宠物会看 agent，agent 叫不到宠物，双向只做了一半。
+  // 这里把 /announce 升级成一等入口，复用同一条限流与 seq 防重放。
+  try {
+    if (ctx.tools && typeof ctx.tools.register === 'function') {
+      ctx.effect(() =>
+        ctx.tools.register({
+          name: 'pet_say',
+          description:
+            '让 DSH 桌面宠物说一句话（气泡 + 可选语音）。适合在长任务的关键节点汇报进度或结果，' +
+            '不要每一步都调用，也不要重复发同一句。宿主未启用宠物时是空操作，不会报错。',
+          parameters: {
+            type: 'object',
+            properties: {
+              text: { type: 'string', description: '要说的话，≤120 字，口语化，不要 Markdown' },
+            },
+            required: ['text'],
+            additionalProperties: false,
+          },
+          output: {
+            schema: {
+              type: 'object',
+              properties: {
+                ok: { type: 'boolean' },
+                seq: { type: 'number' },
+                reason: { type: 'string' },
+              },
+            },
+            render(_args, value) {
+              if (value && value.ok) return [{ type: 'text', text: '宠物已开口（#' + value.seq + '）' }]
+              return [{ type: 'text', text: '宠物没有开口：' + ((value && value.reason) || 'unknown') }]
+            },
+          },
+          async execute(args) {
+            const raw = args && typeof args.text === 'string' ? args.text.trim() : ''
+            const text = raw.slice(0, 300)
+            if (!text) return { ok: false, reason: 'empty-text' }
+            if (announceLimited()) return { ok: false, reason: 'rate-limited' }
+            return { ok: true, seq: pushAnnounce(text) }
+          },
+        }),
+      )
+    }
+  } catch (e) {
+    /* 宿主没有工具面：跳过，HTTP /announce 仍然可用 */
   }
 
   for (const base of BASES) {

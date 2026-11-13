@@ -660,9 +660,13 @@
           }
         }
         if (!running) runtime.turnStartedAt = 0
+        const wasRunning = runtime.running
         runtime.lastRunning = running
         // 阶段机需要知道「会话是否在跑」；写在 render 里，tick/轮询共用
         runtime.running = running
+        // S2（2026-11-13 趋势审计反哺）：会话刚结束的这一拍立刻补拉一次 /ping，
+        // 把 done 相位窗口（4s）抢在轮询间隔（8s）之内——不做 SSE、不加协议。
+        if (wasRunning && !running && typeof runtime.pollNow === 'function') runtime.pollNow()
         if (syncPhase()) notify()
       }, [running])
       return null

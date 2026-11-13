@@ -137,6 +137,17 @@ test('README 口径：包体声称与资产实测一致（曾把 2MB 写了 8 �
   const manifest = JSON.parse(read('tests/assets-manifest.json'))
   const mb = Math.round(manifest.totalBytes / 1048576)
   assert.ok(manifest.totalBytes <= 20_000_000, '资产超出 20MB 预算')
+  // S6（2026-11-13 趋势审计反哺）：门禁是硬红线，另加「接近门禁」的告警。
+  // 一只形象大约 3–4MB（webp×5 + webm×3），站在 18MB 以上再动手就会撞墙。
+  if (manifest.totalBytes >= 18_000_000) {
+    console.warn(
+      '[assets] 总量 ' +
+        (manifest.totalBytes / 1e6).toFixed(2) +
+        'MB，已占 20MB 门禁的 ' +
+        ((manifest.totalBytes / 20_000_000) * 100).toFixed(1) +
+        '%：再加一只形象大概率撞墙，先瘦身再加人。',
+    )
+  }
   const m = read('README-zh.md').match(/约 (\d+)MB（受 20MB 门禁约束）/)
   assert.ok(m, 'README-zh 应有「约 NMB（受 20MB 门禁约束）」的包体口径')
   assert.ok(

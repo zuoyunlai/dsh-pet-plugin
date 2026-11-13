@@ -681,6 +681,55 @@ test('R01 设置往返：保存的活跃时段（含跨零点）重载后原样�
   assert.equal(R.settings.activeEnd, '03:00', '旧 bug 下会被重置回 23:00')
 })
 
+test('S1 客户端优先采用 activeAgent 的相位；没有归属时回落全局 hostPhase', () => {
+  const env = makeEnv()
+  const R = env.api.runtime
+  // 虚拟时钟从 0 起：先拨到一个正常时刻，否则 at=0 会被「新鲜窗」判成过期
+  env.setNow(1000)
+  const now = env.now()
+  R.running = false
+  R.speaking = false
+  R.lastErrorAt = 0
+  R.lastToolAt = 0
+  R.doneUntil = 0
+  R.hostPhase = 'review'
+  R.hostPhaseAt = now
+  R.hostPhaseByAgent = { a: { phase: 'tool', at: now }, b: { phase: 'review', at: now } }
+  R.activeAgent = 'a'
+  assert.equal(env.api.computePhase(), 'tool', '应取 activeAgent 自己的相位，而不是最近一次事件的相位')
+  R.activeAgent = ''
+  assert.equal(env.api.computePhase(), 'speak', '旧宿主没有归属信息时，review 仍然映射成 speak')
+})
+
+test('S1 归属 agent 的相位过期后回落全局（不会被旧数据钉住）', () => {
+  const env = makeEnv()
+  const R = env.api.runtime
+  R.running = false
+  R.speaking = false
+  R.lastErrorAt = 0
+  R.lastToolAt = 0
+  R.doneUntil = 0
+  env.setNow(20000)
+  R.hostPhaseByAgent = { a: { phase: 'tool', at: 1 } }
+  R.activeAgent = 'a'
+  R.hostPhase = 'idle'
+  R.hostPhaseAt = 1
+  assert.equal(env.api.computePhase(), 'idle', '15s 新鲜窗之外一律回落')
+})
+
+test('S2 轮询 effect 挂出 pollNow，卸载后置空', () => {
+  const env = makeEnv()
+  assert.equal(typeof env.api.runtime.pollNow, 'function', 'apply 之后应能「立刻补拉一次」')
+  for (const fn of env.effects.splice(0)) {
+    try {
+      fn()
+    } catch (e) {
+      /* ignore */
+    }
+  }
+  assert.equal(env.api.runtime.pollNow, null, '卸载后不能留着指向已停轮询的闭包')
+})
+
 test('R01 设置往返：坏值仍然回落默认（校验修复≠放弃校验）', () => {
   const env = makeEnv({
     storage: {

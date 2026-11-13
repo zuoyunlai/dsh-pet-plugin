@@ -39,6 +39,9 @@
             pushStateNow,
             localStateAt,
             saveSettings,
+            // S1（2026-11-13 趋势审计反哺）：台架需要能直接问「当前该是什么相位」
+            computePhase,
+            syncPhase,
             clearHistory,
             loadHistory,
             // 导演层（1.21.0）：心情 + 语言 → 音色 / 音高 / 语速 / 音量
@@ -278,6 +281,12 @@
                   // —— 宿主 phase 投影（R-02）：写进 runtime 供 computePhase 融合 ——
                   if (j.phase) runtime.hostPhase = String(j.phase)
                   if (j.phaseAt) runtime.hostPhaseAt = Number(j.phaseAt) || 0
+                  // S1（2026-11-13 趋势审计反哺）：宿主可能同时给出多个 agent 的相位。
+                  // 没有 activeAgent / phaseByAgent 的旧宿主，下面这两行等于不执行。
+                  if (j.phaseByAgent && typeof j.phaseByAgent === 'object') {
+                    runtime.hostPhaseByAgent = j.phaseByAgent
+                  }
+                  if (j.activeAgent) runtime.activeAgent = String(j.activeAgent)
                   // 宿主重启会把 seq 归零（P2-8 的持久化游标副作用）：检测到回退就把本地
                   // 游标清掉，否则重启后的新公告/新命令会被当成「重放」永久忽略。
                   if (typeof j.commandSeq === 'number' && j.commandSeq < (runtime.lastCommandSeq || 0)) {
@@ -339,10 +348,26 @@
             }, gap)
           }
           let timer = null
+          // S2（2026-11-13 趋势审计反哺）：给外部一个「立刻补拉一次」的入口。
+          // 8s 采样 vs 4s 相位窗口是结构性失配，调参数治不好、做 SSE 又依赖宿主能力；
+          // 低成本折中是「有边沿事件时马上多问一次」：不加协议、不加请求频率。
+          runtime.pollNow = () => {
+            if (stop) return
+            if (timer) {
+              clearTimeout(timer)
+              timer = null
+            }
+            doPoll()
+              .catch(() => {})
+              .then(() => {
+                if (!stop) schedule()
+              })
+          }
           doPoll().catch(() => {})
           schedule()
           return () => {
             stop = true
+            runtime.pollNow = null
             if (timer) clearTimeout(timer)
             try {
               if (ctrl) ctrl.abort()

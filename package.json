@@ -1,6 +1,6 @@
 {
   "name": "dsh-pet-plugin",
-  "version": "1.27.1",
+  "version": "1.28.0",
   "description": "DSH 桌面伴侣插件：五只超写实立绘（表情 + 动作序列）、主动说话与神经音色、小输入框单聊（一次性模型调用，不进会话）。",
   "type": "module",
   "main": "index.js",
@@ -44,6 +44,11 @@
     "@deepseek-ai/schemastery": "^3.18.2",
     "react": ">=18.2.0"
   },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -56,7 +61,43 @@
         "@deepseek-ai/dsh-client-ui-conversation"
       ]
     },
-    "manifestVersion": 1
+    "manifestVersion": 1,
+    "capabilities": [
+      "tools:register",
+      "fs:read",
+      "network:egress"
+    ],
+    "commitments": {
+      "no-session-upload": true,
+      "no-third-party-proxy": true,
+      "no-credential-enumeration": true,
+      "no-webhook-auto-session": true,
+      "third-party-endpoint-disclosure": true
+    },
+    "compatibility": {
+      "dsh": ">=0.2.1-alpha.2 <0.3.0",
+      "profiles": [
+        "desktop",
+        "web"
+      ],
+      "dshReleases": {
+        "0.2.1-rc.2": "unknown"
+      },
+      "dshOperations": {
+        "0.2.1-rc.2": {
+          "install": "unknown",
+          "start": "unknown",
+          "uninstall": "unknown",
+          "rollback": "unknown"
+        }
+      }
+    },
+    "disclosure": {
+      "endpoints": [
+        "speech.platform.bing.com（edge-tts 神经音色，可选增强；未装 edge-tts 或合成失败时退回浏览器本地 speechSynthesis）"
+      ],
+      "retention": "全部留在本机：设置与单聊历史在 $DSH_HOME/dsh-pet/state.json，神经音色缓存在 $DSH_HOME/dsh-pet/tts-cache（上限 60MB）；立绘与动作随插件包安装。不自动上传、不自动删除。"
+    }
   },
   "keywords": [
     "dsh",
@@ -68,7 +109,7 @@
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
-    "dsh": ">=0.2.1-alpha.2"
+    "dsh": ">=0.2.1-alpha.2 <0.3.0"
   },
   "packageManager": "pnpm@11.7.0",
   "license": "MIT",

@@ -4,9 +4,11 @@
  */
 import test from 'node:test'
 import assert from 'node:assert'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { apply } from '../index.js'
-import { killWorker } from '../lib/tts.js'
+import { killWorker, TTS_CACHE } from '../lib/tts.js'
 import { personaById, systemPrompt } from '../lib/prompt.js'
 
 // TTS 用例会真的走合成路径，可能拉起常驻的 Python worker（stdin 管道 + 30s 响应超时）。
@@ -29,6 +31,7 @@ function makeCtx(opts = {}) {
   return {
     routes,
     commands,
+    tools: opts.tools || null,
     listeners,
     emit(name, ...args) {
       const fn = listeners.get(name)
@@ -440,6 +443,144 @@ test('非白名单扩展名仍然 404（放开视频不影响准入）', async (
   apply(ctx, {})
   const res = await call(ctx.routes.get('/dsh-pet/assets'), { url: '/dsh-pet/assets/evil.js' })
   assert.equal(res.statusCode, 404)
+})
+
+/* ---------- 2026-11-13 趋势审计反哺：S1 / S3 / S7 / S8 / S9 ---------- */
+
+test('S1 ping 暴露按 agent 的相位与两路事件计数（旧字段仍在）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  ctx.emit('tools/result', { name: 'pwsh', agent: 'main' }, { isError: false })
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.activeAgent, 'main')
+  assert.equal(j.phaseByAgent.main.phase, 'tool')
+  assert.ok(j.phaseByAgent.main.at > 0)
+  assert.equal(j.phase, 'tool', '兼容字段仍然下发最近一次相位')
+  assert.equal(j.toolEventsBy['tools/result'], 1)
+  assert.equal(j.toolEventsBy['tool/result'], 0, '两个事件名必须分开计数（N1）')
+})
+
+test('S1 没有 agent 归属的旧宿主：不写 phaseByAgent，activeAgent 保持空', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  ctx.emit('tools/result', { name: 'bash' }, { isError: false })
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.activeAgent, '')
+  assert.deepEqual(j.phaseByAgent, {})
+  assert.equal(j.phase, 'tool')
+})
+
+test('S3 有 tools 服务时注册 pet_say，执行后 /ping 的 announce.seq 递增', async () => {
+  const svc = {
+    registered: [],
+    register(def) {
+      this.registered.push(def)
+      return () => {}
+    },
+  }
+  const ctx = makeCtx({ tools: svc })
+  apply(ctx, {})
+  assert.equal(svc.registered.length, 1, '应注册且只注册一个工具')
+  const def = svc.registered[0]
+  assert.equal(def.name, 'pet_say')
+  const bad = await def.execute({ text: '   ' })
+  assert.equal(bad.ok, false)
+  assert.equal(bad.reason, 'empty-text')
+  const ok = await def.execute({ text: '跑完了，可以看结果' })
+  assert.equal(ok.ok, true)
+  assert.equal(ok.seq, 1)
+  const j = JSON.parse((await call(ctx.routes.get('/dsh-pet/ping'), { url: '/dsh-pet/ping' })).body())
+  assert.equal(j.announce.seq, 1, '工具与 HTTP /announce 共用同一个 seq')
+  assert.equal(j.announce.text, '跑完了，可以看结果')
+  assert.ok(Array.isArray(def.output.render({}, ok)), 'render 必须返回数组，宿主会直接调')
+  assert.ok(Array.isArray(def.output.render({}, bad)))
+})
+
+test('S3 没有 tools 服务时不崩（HTTP /announce 仍然可用）', async () => {
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/announce'), {
+    method: 'POST',
+    url: '/dsh-pet/announce',
+    body: '{"text":"hi"}',
+  })
+  assert.equal(res.statusCode, 200)
+})
+
+test('S7 没配 provider/model 时不把这两个键传给 llm.stream（跟随宿主路由）', async () => {
+  const calls = []
+  const llm = {
+    stream(opts) {
+      calls.push(opts)
+      return (async function* () {
+        yield { type: 'text-delta', text: '喵' }
+      })()
+    },
+  }
+  const ctx = makeCtx({ llm })
+  apply(ctx, {})
+  const res = await call(ctx.routes.get('/dsh-pet/chat'), {
+    method: 'POST',
+    url: '/dsh-pet/chat',
+    body: '{"text":"你好"}',
+  })
+  assert.equal(res.statusCode, 200)
+  assert.equal(calls.length, 1)
+  assert.ok(!('provider' in calls[0]), '留空时不该传 provider')
+  assert.ok(!('model' in calls[0]), '留空时不该传 model')
+})
+
+test('S7 显式配了 provider/model 时原样传给 llm.stream', async () => {
+  const calls = []
+  const llm = {
+    stream(opts) {
+      calls.push(opts)
+      return (async function* () {
+        yield { type: 'text-delta', text: '喵' }
+      })()
+    },
+  }
+  const ctx = makeCtx({ llm })
+  apply(ctx, { provider: 'deepseek-account', model: 'deepseek-flash' })
+  await call(ctx.routes.get('/dsh-pet/chat'), { method: 'POST', url: '/dsh-pet/chat', body: '{"text":"你好"}' })
+  assert.equal(calls[0].provider, 'deepseek-account')
+  assert.equal(calls[0].model, 'deepseek-flash')
+})
+
+test('S8 /state 按键合并设置、按条合并历史（不再整份覆盖）', async () => {
+  // 临时 DSH_HOME：这些用例写 state.json，绝不能碰用户真实的那份
+  process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-pet-state-'))
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const state = ctx.routes.get('/dsh-pet/state')
+  const post = (body) => call(state, { method: 'POST', url: '/dsh-pet/state', body: JSON.stringify(body) })
+  await post({ settings: { volume: 30 }, updatedAt: 1000, writerId: 'A' })
+  await post({ settings: { scale: 1.4 }, history: [{ role: 'user', content: 'A 的记录' }], updatedAt: 2000, writerId: 'B' })
+  await post({ history: [{ role: 'user', content: 'B 的记录' }], updatedAt: 3000, writerId: 'B' })
+  const j = JSON.parse((await call(state, { url: '/dsh-pet/state' })).body())
+  assert.equal(j.state.settings.volume, 30, 'A 写的键不能被 B 冲掉')
+  assert.equal(j.state.settings.scale, 1.4)
+  assert.equal(j.state.history.length, 2, '两边各一条历史都要在')
+  assert.equal(j.state.lastWriter, 'B')
+})
+
+test('S8 /state 仍是时间新者胜（旧写入不能覆盖新状态）', async () => {
+  process.env.DSH_HOME = mkdtempSync(join(tmpdir(), 'dsh-pet-state-'))
+  const ctx = makeCtx()
+  apply(ctx, {})
+  const state = ctx.routes.get('/dsh-pet/state')
+  const post = (body) => call(state, { method: 'POST', url: '/dsh-pet/state', body: JSON.stringify(body) })
+  await post({ settings: { volume: 30 }, updatedAt: 5000 })
+  const stale = JSON.parse((await post({ settings: { volume: 99 }, updatedAt: 1000 })).body())
+  assert.equal(stale.stale, true)
+  const j = JSON.parse((await call(state, { url: '/dsh-pet/state' })).body())
+  assert.equal(j.state.settings.volume, 30)
+})
+
+test('S9 TTS 缓存落在 $DSH_HOME/dsh-pet/tts-cache，不再住系统临时区', () => {
+  const normalized = TTS_CACHE.split(String.fromCharCode(92)).join('/')
+  assert.ok(normalized.endsWith('/dsh-pet/tts-cache'), '实际路径：' + normalized)
+  assert.ok(!normalized.includes('dsh-pet-tts'), '不该再是临时目录里的旧名字')
 })
 
 /* ---------- 1.19.3：隐私与信任边界（R07 / R14） ---------- */

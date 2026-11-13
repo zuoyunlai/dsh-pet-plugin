@@ -20,8 +20,12 @@
       // review → speak（回答文本在流，正好借说话的口型）
       // tool / working 原样；done 只认前 DONE_WINDOW 秒——一轮回答结束后不能
       // 在 15s 新鲜窗口里一直「庆祝」。过期或宿主没有 phase 就回落本地推导。
-      const hp = runtime.hostPhase
-      const hpAt = runtime.hostPhaseAt || 0
+      // S1（2026-11-13 趋势审计反哺）：优先用「当前 agent」的相位。
+      // 宿主没给归属信息（旧宿主）时回落全局 hostPhase，与 1.27.1 行为一致。
+      const byAgent = runtime.hostPhaseByAgent
+      const own = byAgent && runtime.activeAgent ? byAgent[runtime.activeAgent] : null
+      const hp = own && own.phase ? own.phase : runtime.hostPhase
+      const hpAt = (own && own.at) || runtime.hostPhaseAt || 0
       if (hp && hp !== 'idle' && hpAt && now - hpAt < 15000) {
         if (hp === 'thinking' || hp === 'working') return 'working'
         if (hp === 'tool') return 'tool'
